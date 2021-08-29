@@ -1,0 +1,2 @@
+- create sync method of "defineMethod"
+- rewrite component core/common
