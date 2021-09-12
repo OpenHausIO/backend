@@ -1,4 +1,4 @@
-const Hooks = require("../system/hooks");
+const Hooks = require("../../system/hooks");
 const assert = require("assert");
 
 describe("system/middleware", function () {

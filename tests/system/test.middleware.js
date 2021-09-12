@@ -1,4 +1,4 @@
-const Middleware = require("../system/middleware");
+const Middleware = require("../../system/middleware");
 const assert = require("assert").strict;
 
 describe("system/middleware", () => {
