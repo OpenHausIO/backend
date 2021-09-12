@@ -32,9 +32,9 @@ class C_PLUGINS extends COMMON_COMPONENT {
             enabled: Joi.boolean().default(true)
         }, module);
 
-    };
+    }
 
-};
+}
 
 
 //console.log(util.inspect(module.exports, true, 10, true))

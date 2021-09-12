@@ -20,7 +20,7 @@ class Plugin {
             enumerable: true
         });
 
-    };
+    }
 
     /**
      * Start/boot installed plugin
@@ -58,8 +58,8 @@ class Plugin {
             throw err;
 
         }
-    };
+    }
 
-};
+}
 
 module.exports = Plugin;

@@ -1,4 +1,4 @@
-const path = require("path")
+const path = require("path");
 
 class Bootstrap {
 
@@ -20,11 +20,11 @@ class Bootstrap {
             cb(this, dependencies);
 
         }
-    };
+    }
 
     init(done) {
         process.nextTick(done);
-    };
+    }
 
 }
 
