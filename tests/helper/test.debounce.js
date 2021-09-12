@@ -1,3 +1,5 @@
+const { describe, it } = require("mocha");
+
 const debounce = require("../../helper/debounce");
 
 describe("helper/debounce", () => {

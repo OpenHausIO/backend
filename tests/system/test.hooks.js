@@ -1,5 +1,5 @@
+const { describe, it } = require("mocha");
 const Hooks = require("../../system/hooks");
-const assert = require("assert");
 
 describe("system/middleware", function () {
 

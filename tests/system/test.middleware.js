@@ -1,3 +1,4 @@
+const { describe, it } = require("mocha");
 const Middleware = require("../../system/middleware");
 const assert = require("assert").strict;
 
@@ -5,22 +6,22 @@ describe("system/middleware", () => {
 
     it(`has a "use" function`, () => {
         let middleware = new Middleware();
-        assert.equal(typeof middleware.use, "function", `"use" is not a function`)
+        assert.equal(typeof middleware.use, "function", `"use" is not a function`);
     });
 
     it(`has a "start" function`, () => {
         let middleware = new Middleware();
-        assert.equal(typeof middleware.start, "function", `"start" is not a function`)
+        assert.equal(typeof middleware.start, "function", `"start" is not a function`);
     });
 
     it(`has a "catch" function`, () => {
         let middleware = new Middleware();
-        assert.equal(typeof middleware.catch, "function", `"use" is not a function`)
+        assert.equal(typeof middleware.catch, "function", `"use" is not a function`);
     });
 
     describe(`use(); function`, () => {
 
-        it(`should throw a error if "next" first/error argument is anything other than Error/undefined/null`, function (done) {
+        it(`should throw a error if "next" first/error argument is anything other than Error/undefined/null`, (done) => {
 
             let middleware = new Middleware();
 
@@ -44,7 +45,7 @@ describe("system/middleware", () => {
         });
 
 
-        it(`basic flow`, function (done) {
+        it(`basic flow`, (done) => {
 
 
             let middleware = new Middleware();
@@ -57,14 +58,14 @@ describe("system/middleware", () => {
                 next(null);
             });
 
-            middleware.start((...args) => {
+            middleware.start(() => {
                 done();
             });
 
         });
 
 
-        it(`use(); should always pass as last argument a "next" function`, function (done) {
+        it(`use(); should always pass as last argument a "next" function`, (done) => {
 
             let middleware = new Middleware();
 
@@ -78,7 +79,7 @@ describe("system/middleware", () => {
         });
 
 
-        it(`use(); should pass arguments`, function (done) {
+        it(`use(); should pass arguments`, (done) => {
 
             let obj1 = { timestamp: Date.now() };
             let obj2 = { number: 420 };
@@ -98,7 +99,7 @@ describe("system/middleware", () => {
         });
 
 
-        it("use(); modifie passed arguments", function (done) {
+        it("use(); modifie passed arguments", (done) => {
 
 
             let middleware = new Middleware();
@@ -136,7 +137,7 @@ describe("system/middleware", () => {
         });
 
 
-        it(`use(); do not modifie un-passed arguments to "next()"`, function (done) {
+        it(`use(); do not modifie un-passed arguments to "next()"`, (done) => {
 
 
             let middleware = new Middleware();
@@ -161,11 +162,11 @@ describe("system/middleware", () => {
 
                 // no fucking clue how to test
 
-                assert.deepStrictEqual(obj1, m_obj1, "obj1 == obj1")
+                assert.deepStrictEqual(obj1, m_obj1, "obj1 == obj1");
                 // should fail! who to check that?
                 // obj2 != m_obj2 = ok
                 //assert.deepStrictEqual(obj2, m_obj2, "obj2 == obj2") 
-                assert.deepStrictEqual(obj3, m_obj3, "obj3 == obj3")
+                assert.deepStrictEqual(obj3, m_obj3, "obj3 == obj3");
 
 
                 done();
@@ -191,7 +192,7 @@ describe("system/middleware", () => {
                 done();
             });
 
-        })
+        });
 
     });
 
