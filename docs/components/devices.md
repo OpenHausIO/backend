@@ -1,4 +1,4 @@
-# [🗀](../../comonents/devices) DEVICES
+# [🗀](../../components/devices) DEVICES
 
 > [C_DEVICES](./) extends [COMMON_COMPONENT](../system/component.md)
 

@@ -1,4 +1,4 @@
-# [🗀](../../comonents/plugins) PLUGINS
+# [🗀](../../components/plugins) PLUGINS
 
 > [C_PLUGINS](./) extends [COMMON_COMPONENT](../system/component.md)
 

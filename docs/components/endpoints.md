@@ -1,4 +1,4 @@
-# [🗀](../../comonents/endpoints) endpointS
+# [🗀](../../components/endpoints) endpointS
 
 > [C_ENDPOINTS](./) extends [COMMON_COMPONENT](../system/component.md)
 

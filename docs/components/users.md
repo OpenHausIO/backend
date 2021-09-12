@@ -1,4 +1,4 @@
-# [🗀](../../comonents/Users) USERS
+# [🗀](../../components/users) USERS
 
 > [C_USERS](./) extends [COMMON_COMPONENT](../system/component.md)
 

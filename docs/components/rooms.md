@@ -1,4 +1,4 @@
-# [🗀](../../comonents/rooms) ROOMS
+# [🗀](../../components/rooms) ROOMS
 
 > [C_ROOMS](./) extends [COMMON_COMPONENT](../system/component.md)
 
