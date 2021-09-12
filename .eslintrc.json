@@ -10,7 +10,6 @@
     "ignorePatterns": [
         "node_modules",
         "logs",
-        "tests",
         "plugins"
     ],
     "extends": [
