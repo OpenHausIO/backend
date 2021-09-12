@@ -12,7 +12,6 @@ function extend(target, ...sources) {
                         target[prop] = {};
                     }
 
-                    // NOTE "extend" works here, use module.exports?!
                     target[prop] = extend(target[prop], obj[prop]);
 
                 } else {

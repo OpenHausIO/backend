@@ -11,8 +11,6 @@ const C_ENDPOINTS = require("../components/endpoints");
 const { encode } = require("../helper/sanitize");
 const iterate = require("../helper/iterate");
 
-// NOTE: pass "server" as parameter?
-// so we can use the same shit for unix sockets?
 module.exports = (server) => {
 
     const app = express();

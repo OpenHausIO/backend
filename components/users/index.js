@@ -17,7 +17,8 @@ class C_USERS extends COMMON_COMPONENT {
         super(logger, mongodb.client.collection("users"), {
             name: Joi.string().required(),
             email: Joi.string().required(),
-            password: Joi.string().required().min(Number(process.env.PASSWORD_MIN_LENGTH))
+            password: Joi.string().required().min(Number(process.env.PASSWORD_MIN_LENGTH)),
+            enabled: Joi.number().default(true)
         }, module);
 
         this.hooks.pre("add", (data, next) => {
