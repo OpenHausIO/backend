@@ -184,7 +184,7 @@ const init_db = () => {
 
 
 const init_components = () => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
 
         logger.verbose("Init components...");
 

@@ -5,15 +5,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Mocking tests. Everything ok!\" && exit 0",
-    "start": "nodemon index.js",
+    "test": "./node_modules/.bin/mocha ./tests/index.js",
+    "start": "./node_modules/.bin/nodemon index.js",
     "lint": "./node_modules/.bin/eslint .",
-    "lint:fix": "./node_modules/.bin/eslint --fix ."
+    "lint:fix": "./node_modules/.bin/eslint --fix .",
+    "mocha": "./node_modules/.bin/mocha ./tests/index.js"
   },
   "engines": {
     "node": ">=0.14.0"
   },
-  "author": "",
+  "author": "Marc Stirner",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "eslint": "^7.32.0",
-    "mocha": "^8.4.0"
+    "mocha": "^8.4.0",
+    "nodemon": "^2.0.12"
   }
 }

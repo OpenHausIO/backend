@@ -13,8 +13,9 @@
         "tests",
         "plugins"
     ],
-    //"extends": "eslint:recommended",
-    //"extends": ["prettier"],
+    "extends": [
+        "eslint:recommended"
+    ],
     "rules": {
         "semi": [
             "error",
