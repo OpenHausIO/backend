@@ -1,7 +1,6 @@
-const util = require("util");
 const path = require("path");
 const http = require("http");
-const readline = require('readline');
+const readline = require("readline");
 const process = require("process");
 const mongodb = require("mongodb");
 const pkg = require("./package.json");
@@ -10,14 +9,12 @@ const { exec } = require("child_process");
 // https://askubuntu.com/a/577317/1034948
 if (process.execArgv.includes("--inspect")) {
     try {
-        exec("chromium-browser & sleep 1 && xdotool type 'chrome://inspect' && xdotool key Return")
+        exec("chromium-browser & sleep 1 && xdotool type 'chrome://inspect' && xdotool key Return");
     } catch (err) {
         console.error("Could not open chromium browser");
     }
 }
 
-
-debugger;
 
 
 const env = require("dotenv").config({
@@ -128,7 +125,7 @@ if (process.env.GC_INTERVAL !== null && global.gc) {
 
         } catch (err) {
 
-            logger.error("Garbage collection failed!", err);
+            logger.error(err, "Garbage collection failed!");
 
         }
     }, Number(process.env.GC_INTERVAL * 1000 || 1000 * 60 * 5));
@@ -294,7 +291,7 @@ const kickstart = () => {
 
     } catch (err) {
 
-        console.log("FUCKI SCHIT HAPPEND IN USER CODE")
+        console.log("FUCKI SCHIT HAPPEND IN USER CODE");
         console.error(err);
 
     }

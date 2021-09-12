@@ -44,7 +44,7 @@ while true; do "echo <cmd>"; sleep 1; done;
 > https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol
 > https://williamboles.me/discovering-whats-out-there-with-ssdp/
 ```sh
-./bridge.udp.js --ssdp --multicast --destination="239.255. 255.250" --port="1900" --url=http://localhost:8080/api/ssdp
+./bridge.udp.js --ssdp --multicast --destination="239.255.255.250" --port="1900" --url=http://localhost:8080/api/ssdp
 ```
 
 ## dhcp

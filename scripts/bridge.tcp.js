@@ -38,16 +38,16 @@ function bridge(ws, host, port) {
 
 
         nc.on("error", () => {
-            console.log("netcat error")
+            console.log("netcat error");
         });
 
         nc.on("close", () => {
-            console.log("netcat closed")
+            console.log("netcat closed");
         });
 
         nc.on("spawn", () => {
-            console.log("netcat spawend")
-        })
+            console.log("netcat spawend");
+        });
 
         nc.stderr.pipe(process.stderr);
 

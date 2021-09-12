@@ -1,4 +1,4 @@
-const utils = require("util")
+const utils = require("util");
 const Banks = require("./class.banks.js");
 const Trigger = require("./class.trigger.js");
 
@@ -38,7 +38,7 @@ module.exports = class Scene {
         });
 
 
-        console.log(this)
+        console.log(this);
 
     };
 

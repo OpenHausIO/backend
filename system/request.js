@@ -11,7 +11,7 @@ module.exports = function request(uri, options, cb) {
 
     if (!cb && options instanceof Function) {
         cb = options;
-        options = {}
+        options = {};
     }
 
     options = Object.assign({
@@ -42,7 +42,7 @@ module.exports = function request(uri, options, cb) {
             let body = Buffer.concat(chunks);
 
             if (res.headers["content-type"] && res.headers["content-type"].includes("application/json")) {
-                body = JSON.parse(body)
+                body = JSON.parse(body);
             }
 
             cb(null, {

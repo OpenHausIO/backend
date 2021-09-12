@@ -9,7 +9,7 @@ function iterate(data, cb) {
     // NOTE check if thing is iterable?
     // https://stackoverflow.com/a/53106917/5781499
 
-    for (key in data) {
+    for (let key in data) {
         if (data[key] instanceof Object) {
 
             // call cb on before we iterate over each child

@@ -70,8 +70,6 @@ module.exports = class COMPONENT {
         }
 
 
-        super();
-
         this.items = [];
 
         this.schema = Joi.object({
@@ -214,7 +212,7 @@ module.exports = class COMPONENT {
             });
 
             return (_id) => {
-                console.log("REMOGE", _id)
+                console.log("REMOGE", _id);
                 return new Promise((resolve, reject) => {
 
                     this.collection.removeOne({
@@ -305,14 +303,14 @@ module.exports = class COMPONENT {
                             // TODO CHECK RESUTL!
                             // extend exisiting object in items array
                             extend(target, validation.value);
-                            resolve([target])
+                            resolve([target]);
 
                         }
                     });
 
 
                 });
-            }
+            };
 
         }, logger);
 
@@ -355,7 +353,7 @@ module.exports = class COMPONENT {
                     resolve([item]);
 
                 });
-            }
+            };
 
         }, logger);
 

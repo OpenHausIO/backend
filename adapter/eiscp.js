@@ -62,6 +62,6 @@ module.exports = (options) => {
     return {
         encode,
         decode
-    }
+    };
 
 };

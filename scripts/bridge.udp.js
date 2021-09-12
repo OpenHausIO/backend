@@ -27,7 +27,7 @@ setTimeout(() => {
 
     if (args.broadcast || args.multicast) {
 
-        socket.setBroadcast(true)
+        socket.setBroadcast(true);
         socket.setMulticastTTL(128);
         socket.addMembership(args.destination);
 

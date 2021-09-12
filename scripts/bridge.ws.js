@@ -55,7 +55,7 @@ setTimeout(() => {
 
 
                 dev.on("error", () => {
-                    console.log("netcat error")
+                    console.log("netcat error");
                 });
 
 

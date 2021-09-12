@@ -6,7 +6,7 @@ module.exports = (options) => {
     const encode = new Transform({
         transform(chunk, encoding, cb) {
 
-            let data = chunk.toString('base64');
+            let data = chunk.toString("base64");
 
             logger.verbose("[encode]: %j", data);
 
@@ -21,7 +21,7 @@ module.exports = (options) => {
     const decode = new Transform({
         transform(chunk, encoding, cb) {
 
-            let data = Buffer.from(chunk.toString(), "base64").toString("ascii")
+            let data = Buffer.from(chunk.toString(), "base64").toString("ascii");
 
             logger.verbose("[decode]: %j", data);
 
@@ -36,6 +36,6 @@ module.exports = (options) => {
     return {
         encode,
         decode
-    }
+    };
 
 };

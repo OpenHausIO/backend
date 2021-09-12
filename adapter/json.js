@@ -25,7 +25,7 @@ module.exports = (options) => {
 
             logger.verbose("[decode] %d", data);
 
-            this.push(data)
+            this.push(data);
 
             cb();
 
@@ -37,6 +37,6 @@ module.exports = (options) => {
     return {
         encode,
         decode
-    }
+    };
 
 };

@@ -194,7 +194,7 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
             });
 
             return (_id) => {
-                console.log("REMOGE", _id)
+                console.log("REMOGE", _id);
                 return new Promise((resolve, reject) => {
 
                     this.collection.removeOne({
@@ -285,14 +285,14 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
                             // TODO CHECK RESUTL!
                             // extend exisiting object in items array
                             extend(target, validation.value);
-                            resolve([target])
+                            resolve([target]);
 
                         }
                     });
 
 
                 });
-            }
+            };
 
         }, logger);
 
@@ -335,7 +335,7 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
                     resolve([item]);
 
                 });
-            }
+            };
 
         }, logger);
 

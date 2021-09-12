@@ -64,7 +64,7 @@ module.exports = class InterfaceStream extends Duplex {
 
         } else {
 
-            console.log("write to upstream not possible")
+            console.log("write to upstream not possible");
 
         }
     };
@@ -121,24 +121,24 @@ module.exports = class InterfaceStream extends Duplex {
 
 
     _close() {
-        console.log("_close called")
+        console.log("_close called");
     };
 
 
     close() {
-        console.log("close called")
+        console.log("close called");
     };
 
 
 
 
     _end() {
-        console.log("_end called")
+        console.log("_end called");
     };
 
 
     end() {
-        console.log("end called")
+        console.log("end called");
     };
 
 

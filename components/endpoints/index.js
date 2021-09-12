@@ -24,7 +24,8 @@ class C_ENDPOINTS extends COMMON_COMPONENT {
             enabled: Joi.boolean().default(true),
             room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/),
             device: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
-            commands: Joi.array().items(Command.schema()).min(1).required()
+            commands: Joi.array().items(Command.schema()).min(1).required(),
+            identifier: Joi.any()   // usefull for ssdp, etc.
         }, module);
 
         this.hooks.pre("add", (data, next) => {

@@ -61,4 +61,4 @@ bus.pulish("endpoint", {
     interface: "interface uuid"
 });
 
-console.log(bus)
+console.log(bus);

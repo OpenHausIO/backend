@@ -50,7 +50,7 @@ module.exports = class Commands extends Array {
      */
     execute(_id, params, cb) {
 
-        console.log("EXECUTE COMMAND!!!!!", _id)
+        console.log("EXECUTE COMMAND!!!!!", _id);
 
         if (params instanceof Function && !cb) {
             cb = params;

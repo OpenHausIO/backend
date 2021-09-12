@@ -54,7 +54,7 @@ module.exports = class Bank extends Array {
             return new Promise(new Error("IS_RUNNING"));
         }
 
-        console.log("Execute bnka", this)
+        console.log("Execute bnka", this);
 
         this.aborted = false;
         this.running = true;
@@ -74,7 +74,7 @@ module.exports = class Bank extends Array {
 
                         // TODO execute command here
                         // with params annd all shit
-                        console.log("Execute command:", item)
+                        console.log("Execute command:", item);
 
                         // resolve after delay, prevent negatives
                         setTimeout(resolve, Math.max(this.delay, 0));
@@ -82,7 +82,7 @@ module.exports = class Bank extends Array {
 
                     } catch (err) {
 
-                        console.log("error in bank.execute", err)
+                        console.log("error in bank.execute", err);
 
                     }
                 });

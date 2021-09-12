@@ -1,29 +1,26 @@
 const path = require("path");
 
-module.exports = (mod) => {
-    if (!["production", "test"].includes(process.env.NODE_ENV)) {
-        if (mod.parent.filename !== path.resolve(process.cwd(), "index.js")) {
-            try {
+module.exports = (mod, envs = ["test", "development"]) => {
+    if (mod.parent.filename !== path.resolve(process.cwd(), "index.js")) {
 
-                let msg = `Crossloading detected. Abort!\r\n`;
-                msg += `Its prohibited to load/import/require: \r\n\r\n`;
-                msg += `\t"${mod.filename}"\r\n`;
-                msg += `from:\r\n`;
-                msg += `\t"${mod.parent.filename}"\r\n`;
-                msg += `\r\n`;
-                msg += `Componets must be initial loaded from "${path.resolve(process.cwd(), 'index.js')}"`
+        let msg = `Crossloading detected!\r\n`;
+        msg += `Its prohibited to load/import/require: \r\n\r\n`;
+        msg += `\t"${mod.filename}"\r\n`;
+        msg += `from:\r\n`;
+        msg += `\t"${mod.parent.filename}"\r\n`;
+        msg += `\r\n`;
+        msg += `Componets must be initial loaded from "${path.resolve(process.cwd(), "index.js")}"`;
 
-                throw new Error(msg);
+        if (!envs.includes(process.env.NODE_ENV)) {
 
-            } catch (err) {
+            console.error(msg);
+            process.exit(800);
 
-                console.error(err);
+        } else {
 
-            } finally {
+            console.error(msg);
 
-                process.exit(800);
-
-            }
         }
+
     }
 };

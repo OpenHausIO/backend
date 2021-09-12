@@ -1,5 +1,5 @@
 const Middleware = require("./middleware.js");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 
 module.exports = class Hooks {
 
@@ -86,7 +86,7 @@ module.exports = class Hooks {
             this.namespace[name] = {
                 pre: new Middleware(),
                 post: new Middleware()
-            }
+            };
         }
 
         return this.namespace[name];

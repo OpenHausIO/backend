@@ -54,7 +54,7 @@ module.exports = (C_COMPONENT, router) => {
         C_COMPONENT.update(req.params["_id"], req.body, (err, result) => {
             if (err) {
 
-                console.log(err, result)
+                console.log(err, result);
 
                 res.status(400).json({
                     error: err
@@ -79,7 +79,7 @@ module.exports = (C_COMPONENT, router) => {
 
             } else {
 
-                res.json(result)
+                res.json(result);
 
             }
         });
@@ -100,7 +100,7 @@ module.exports = (C_COMPONENT, router) => {
 
             } else {
 
-                res.json(result)
+                res.json(result);
 
             }
         });

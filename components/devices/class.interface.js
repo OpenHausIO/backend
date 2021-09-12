@@ -45,7 +45,7 @@ module.exports = class Interface {
             keepAlive: true,
             maxSockets: 1,
             keepAliveMsecs: 3000,        // use this as websocket ping/pong value to detect broken connections?
-        }, options)
+        }, options);
 
         // stream nc tcp socket 
         // https://stackoverflow.com/a/33514724/5781499
@@ -61,11 +61,11 @@ module.exports = class Interface {
             let socket = this.stream;
 
             // TODO implement other socket functions?!
-            socket.ref = (...args) => { console.log("socket.ref called", ...args) };
-            socket.unref = (...args) => { console.log("socket.unref called", ...args) };
-            socket.setKeepAlive = (...args) => { console.log("socket.setKeepAlive called", ...args) };
-            socket.setTimeout = (...args) => { console.log("socket.setTimeout called", ...args) };
-            socket.setNoDelay = (...args) => { console.log("socket.setNoDelay called", ...args) };
+            socket.ref = (...args) => { console.log("socket.ref called", ...args); };
+            socket.unref = (...args) => { console.log("socket.unref called", ...args); };
+            socket.setKeepAlive = (...args) => { console.log("socket.setKeepAlive called", ...args); };
+            socket.setTimeout = (...args) => { console.log("socket.setTimeout called", ...args); };
+            socket.setNoDelay = (...args) => { console.log("socket.setNoDelay called", ...args); };
 
             //return socket;
             cb(null, socket);

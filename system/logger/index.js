@@ -36,7 +36,7 @@ function overrideLog(log, logger) {
 
             log.apply(logger, [level, ...args, {
                 error: msg.stack || msg
-            }])
+            }]);
 
         } else {
 
@@ -115,7 +115,7 @@ logger.log = overrideLog(logger.log, logger);
 
 
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
 
     let transport = new transports.Console({
         format: consoleFormat()
@@ -170,7 +170,7 @@ logger.create = (name, options) => {
     let child = winston.loggers.add(name, options);
     child.log = overrideLog(child.log, child);
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
 
         let transport = new transports.Console({
             format: consoleFormat({ name })

@@ -6,8 +6,8 @@ module.exports = (app, auth) => {
             res.json({
                 success: true,
                 token: "adslkfjlsakjfd-" + Date.now()
-            })
-        }, 1000)
+            });
+        }, 1000);
 
     });
 

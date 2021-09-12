@@ -110,8 +110,8 @@ module.exports = (server) => {
 
         api.use((req, res) => {
             res.status(404).json({
-                error: `Hmm... :/ This looks not right.`,
-                message: `Url/endpoint "${req.url}} not found"`
+                error: "Hmm... :/ This looks not right.",
+                message: `Url/endpoint "${req.url}" not found"`
             });
         });
 

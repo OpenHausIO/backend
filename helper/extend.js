@@ -9,7 +9,7 @@ function extend(target, ...sources) {
                 if (obj[prop] instanceof Object && !Array.isArray(obj[prop])) {
 
                     if (!target[prop]) {
-                        target[prop] = {}
+                        target[prop] = {};
                     }
 
                     // NOTE "extend" works here, use module.exports?!

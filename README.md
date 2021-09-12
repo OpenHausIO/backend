@@ -44,6 +44,7 @@ Currently im searching for a solution to use the comments in the code to autogen
 | LOG_PATH                 | `<cwd>/logs`              | Path where logfiles are stored                                  |
 | LOG_LEVEL                | `verbose`                 | Winston log level                                               |
 | LOG_DATEFORMAT           | `yyyy.mm.dd - HH:MM.ss.l` | Dateformat                                                      |
+| LOG_TARGET               |                           | Log only specified target, usefull for devs                     |
 | NODE_ENV                 | `production`              | Production or Development env?                                  |
 | STARTUP_DELAY            | `0`                       | Wait till we do anything                                        |
 | COMMAND_RESPONSE_TIMEOUT | `2000`                    | Device command response timeout                                 |

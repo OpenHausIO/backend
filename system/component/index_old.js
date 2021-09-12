@@ -405,7 +405,7 @@ module.exports = class COMPONENT {
                     if (obj[prop] instanceof Object && !Array.isArray(obj[prop])) {
 
                         if (!target[prop]) {
-                            target[prop] = {}
+                            target[prop] = {};
                         }
 
                         target[prop] = this._extend(target[prop], obj[prop]);

@@ -1,11 +1,17 @@
 {
   "name": "backend",
+  "private": true,
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "test": "echo \"Mocking tests. Everything ok!\" && exit 0",
+    "start": "nodemon index.js",
+    "lint": "./node_modules/.bin/eslint .",
+    "lint:fix": "./node_modules/.bin/eslint --fix ."
+  },
+  "engines": {
+    "node": ">=0.14.0"
   },
   "author": "",
   "license": "ISC",
@@ -17,18 +23,15 @@
     "dotenv": "^8.6.0",
     "duplexer3": "^0.1.4",
     "express": "^4.17.1",
-    "joi": "^17.4.0",
+    "joi": "^17.4.2",
     "minimist": "^1.2.5",
-    "mongodb": "^3.6.9",
-    "node-cron": "^3.0.0",
-    "tar-stream": "^2.2.0",
+    "mongodb": "^3.7.0",
     "uuid": "^8.3.2",
     "winston": "^3.3.3",
-    "ws": "^7.5.1"
+    "ws": "^7.5.4"
   },
   "devDependencies": {
-    "@size-limit/preset-app": "^5.0.2",
-    "eslint": "^7.30.0",
+    "eslint": "^7.32.0",
     "mocha": "^8.4.0"
   }
 }

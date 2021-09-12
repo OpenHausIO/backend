@@ -22,6 +22,9 @@ class Plugin {
 
     };
 
+    /**
+     * Start/boot installed plugin
+     */
     boot() {
         if (this.enabled) {
             try {
