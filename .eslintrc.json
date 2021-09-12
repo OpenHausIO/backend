@@ -7,11 +7,19 @@
     "parserOptions": {
         "ecmaVersion": 12
     },
-    "ignorePatterns": ["node_modules", "logs", "tests", "plugins"],
+    "ignorePatterns": [
+        "node_modules",
+        "logs",
+        "tests",
+        "plugins"
+    ],
     //"extends": "eslint:recommended",
-    "extends": ["prettier"],
+    //"extends": ["prettier"],
     "rules": {
-        "semi": ["error", "always"],
+        "semi": [
+            "error",
+            "always"
+        ],
         "quotes": [
             "error",
             "double",
