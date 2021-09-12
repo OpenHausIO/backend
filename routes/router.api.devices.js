@@ -12,7 +12,7 @@ module.exports = (app, router) => {
     // https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
 
 
-    router.get("/:_id/interfaces/:_iid", (req, res, next) => {
+    router.get("/:_id/interfaces/:_iid", (req, res) => {
 
 
         let iface = req.item.interfaces.find((iface) => {

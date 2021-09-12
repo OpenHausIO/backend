@@ -5,7 +5,7 @@ function extend(target, ...sources) {
 
     let merge = (obj) => {
         for (let prop in obj) {
-            if (obj.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(obj, prop)) {
                 if (obj[prop] instanceof Object && !Array.isArray(obj[prop])) {
 
                     if (!target[prop]) {
@@ -28,7 +28,7 @@ function extend(target, ...sources) {
 
     return target;
 
-};
+}
 
 
 module.exports = extend;

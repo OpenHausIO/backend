@@ -1,4 +1,3 @@
-const util = require("util");
 const process = require("process");
 const events = require("events");
 
@@ -15,7 +14,7 @@ module.exports = class COMPONENT {
         this.events = new events();
         this.hooks = new Hooks();
         //this.items = []; // use observer pattern to watch items array?
-    };
+    }
 
     // NOTE improve/change function name
     // impement in child class "_init" and call that?
@@ -38,7 +37,7 @@ module.exports = class COMPONENT {
 
             }
         });
-    };
+    }
 
 
 
@@ -277,6 +276,6 @@ module.exports = class COMPONENT {
             enumerable: false,
             configurable: false
         });
-    };
+    }
 
 };

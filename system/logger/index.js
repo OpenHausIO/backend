@@ -44,7 +44,7 @@ function overrideLog(log, logger) {
 
         }
     };
-};
+}
 
 const consoleFormat = winston.format((info, opts = {}) => {
 
@@ -53,7 +53,7 @@ const consoleFormat = winston.format((info, opts = {}) => {
         name: "system"
     }, opts);
 
-    let { message, meta } = info;
+    let { message } = info;
 
     // prevent to log empty "message" or undefined
     if (!message && info.error) {

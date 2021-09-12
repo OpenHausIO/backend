@@ -1,5 +1,4 @@
 const { Transform } = require("stream");
-const logger = require("../system/logger").create("adapter/eiscp");
 
 module.exports = (options) => {
 

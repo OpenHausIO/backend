@@ -33,6 +33,6 @@ function timeout(time, cb) {
 
     };
 
-};
+}
 
 module.exports = timeout;

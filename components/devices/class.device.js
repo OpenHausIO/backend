@@ -44,5 +44,5 @@ module.exports = class Device {
             global.sharedObjects.interfaces.set(iface._id, iface);
         });
 
-    };
+    }
 };

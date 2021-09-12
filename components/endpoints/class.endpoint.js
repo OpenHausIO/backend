@@ -14,6 +14,6 @@ module.exports = class Endpoint {
 
         this.commands = new Commands(obj.commands);
 
-    };
+    }
 
 };

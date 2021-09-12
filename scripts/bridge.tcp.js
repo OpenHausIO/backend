@@ -79,7 +79,7 @@ setTimeout(() => {
             process.exit();
         }
 
-        request(`http://127.0.0.1:8080/api/devices/${args.device}/interfaces/${args.interface}`, (err, { status, body }) => {
+        request(`http://127.0.0.1:8080/api/devices/${args.device}/interfaces/${args.interface}`, (err, { body }) => {
             if (err) {
 
                 console.error(err);

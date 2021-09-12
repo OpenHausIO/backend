@@ -42,9 +42,9 @@ class COMPONENT_ERROR extends Error {
             default:
                 this.message = `Unknown error code "${code}"`;
                 break;
-        };
+        }
 
-    };
+    }
 
     static method(name, details) {
         return new this(name, details);
@@ -52,9 +52,9 @@ class COMPONENT_ERROR extends Error {
 
     static validation(details) {
         return new this("validation", details);
-    };
+    }
 
-};
+}
 
 
 module.exports = class COMMON_COMPONENT extends COMPONENT {
@@ -159,7 +159,7 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
             });
 
             return (_id) => {
-                return new Promise((resolve, reject) => {
+                return new Promise((resolve) => {
 
                     let item = this.items.find((item) => {
                         return String(item._id) === String(_id);
@@ -217,7 +217,7 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
         }, logger);
 
 
-        this._defineMethod2("update", (final) => {
+        this._defineMethod2("update", () => {
 
             /*
             final((data, target) => {
@@ -230,7 +230,7 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
             return (_id, data) => {
                 return new Promise((resolve, reject) => {
 
-                    let target = this.items.find((item, index) => {
+                    let target = this.items.find((item) => {
                         return String(item._id) === String(_id);
                     });
 
@@ -262,7 +262,7 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
                         $set: validation.value
                     }, {
                         returnOriginal: false
-                    }, (err, result) => {
+                    }, (err) => {
                         if (err) {
 
                             //console.log("4tpoiwrejtkwienrut", err)
@@ -297,7 +297,7 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
         }, logger);
 
 
-        this._defineMethod2("find", (final) => {
+        this._defineMethod2("find", () => {
 
             /*
             final.then(() => {...});
@@ -340,6 +340,6 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
         }, logger);
 
 
-    };
+    }
 
 };

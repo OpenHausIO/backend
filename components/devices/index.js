@@ -18,7 +18,6 @@ const COMMON_COMPONENT = require("../../system/component/common.js");
 
 const Interface = require("./class.interface.js");
 const Device = require("./class.device.js");
-const promisfy = require("../../helper/promisify");
 
 
 // TODO delete does not work from API
@@ -91,9 +90,9 @@ class C_DEVICES extends COMMON_COMPONENT {
 
         });
 
-    };
+    }
 
-    match(filter) {
+    match() {
 
         let matches = this.items.filter((device) => {
             return device.name === "ZigBee Gateway";
@@ -101,9 +100,9 @@ class C_DEVICES extends COMMON_COMPONENT {
 
         return matches;
 
-    };
+    }
 
-};
+}
 
 
 // create component instance

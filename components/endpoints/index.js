@@ -41,7 +41,7 @@ class C_ENDPOINTS extends COMMON_COMPONENT {
                 data.commands.forEach((cmd) => {
 
                     // TODO test static validation
-                    let { valid, error } = Command.validate(cmd);
+                    let { error } = Command.validate(cmd);
 
 
                     if (error) {
@@ -70,8 +70,8 @@ class C_ENDPOINTS extends COMMON_COMPONENT {
         });
 
 
-    };
-};
+    }
+}
 
 
 // create component instance

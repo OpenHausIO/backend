@@ -76,7 +76,7 @@ module.exports = (server) => {
         const roomsRouter = express.Router();
         const devicesRouter = express.Router();
         const endpointsRouter = express.Router();
-        const scenesRouter = express.Router();
+        //const scenesRouter = express.Router();
 
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
@@ -114,7 +114,7 @@ module.exports = (server) => {
         });
 
         // https://expressjs.com/de/guide/error-handling.html
-        app.use((error, req, res, next) => {
+        app.use((error, req, res) => {
             console.error(error.stack);
             res.status(500).end();
         });

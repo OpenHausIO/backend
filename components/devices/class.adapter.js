@@ -52,7 +52,7 @@ module.exports = class Adapter extends DuplexWrapper {
         // stack.reverse()
         decode.reduceRight((prev, cur, i) => {
 
-            prev.on("error", () => {
+            prev.on("error", (err) => {
 
                 console.log("Error on stream (decode)", i - 1, err, stack[i - 1].encode.__name__);
 
@@ -71,5 +71,5 @@ module.exports = class Adapter extends DuplexWrapper {
         }, upstream).pipe(read);
 
 
-    };
+    }
 };

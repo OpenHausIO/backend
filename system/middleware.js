@@ -22,7 +22,7 @@ module.exports = class Middleware {
       writable: true
     });
 
-  };
+  }
 
   /**
    * Add a callback function to middleware stack
@@ -88,7 +88,7 @@ module.exports = class Middleware {
 
       };
     })(this.start);
-  };
+  }
 
   /**
    * Set a handler for error passed to a next function
@@ -98,6 +98,6 @@ module.exports = class Middleware {
    */
   catch(fn) {
     this.catcher = fn;
-  };
+  }
 
 };

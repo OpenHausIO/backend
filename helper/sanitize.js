@@ -29,7 +29,7 @@ function encode(str, rules = []) {
         return cur.replace(regex, prev.value);
 
     }, str).trim();
-};
+}
 
 /**
  * 
@@ -48,7 +48,7 @@ function decode(str, rules = []) {
         return cur.replace(regex, prev.char);
 
     }, str).trim();
-};
+}
 
 module.exports = {
     encode,

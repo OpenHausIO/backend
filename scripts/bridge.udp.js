@@ -49,7 +49,7 @@ setTimeout(() => {
 
         });
 
-        socket.on("message", (message, rinfo) => {
+        socket.on("message", (message) => {
             ws.send(message);
         });
 
@@ -91,7 +91,7 @@ setTimeout(() => {
 
                 });
 
-                socket.on("message", (message, rinfo) => {
+                socket.on("message", (message) => {
                     ws.send(message);
                 });
 

@@ -46,28 +46,28 @@ function observe(target, options, setter, getter) {
     }, options);
 
 
-    for (prop in target) {
+    for (let prop in target) {
         if (target[prop] instanceof Object) {
-            target[prop] = observe(target[prop], options, handler);
+            target[prop] = observe(target[prop], options);
         }
-    };
+    }
 
     return new Proxy(target, {
         set(target, prop, value, receiver) {
             if (options.intercept) {
 
-                if (!handler(prop, value, target, receiver)) {
+                if (!setter(prop, value, target, receiver)) {
                     return false;
                 }
 
-                return Reflect.set(...arguments);;
+                return Reflect.set(...arguments);
 
             } else {
 
                 let success = Reflect.set(...arguments);
 
                 if (success) {
-                    handler(prop, value, target, receiver);
+                    setter(prop, value, target, receiver);
                 }
 
                 return success;
@@ -92,7 +92,7 @@ function observe(target, options, setter, getter) {
         }
     });
 
-};
+}
 
 
 module.exports = observe;

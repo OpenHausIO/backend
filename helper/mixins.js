@@ -29,7 +29,7 @@ function mixins(objs, options, lookup = () => { }) {
         // handle mixins transparent
         // use a proxy for property lookup
         return new Proxy(objs[0], {
-            get: (target, prop, receiver) => {
+            get: (target, prop) => {
                 for (let obj of objs) {
 
                     // call lookup debug functions
@@ -72,7 +72,7 @@ function mixins(objs, options, lookup = () => { }) {
         // merge objects/properties into wrapper
         for (let obj of objs.slice(1, objs.length)) {
             Object.assign(wrapper, obj);
-        };
+        }
 
 
         if (options.setPrototype) {
@@ -90,6 +90,6 @@ function mixins(objs, options, lookup = () => { }) {
 
     }
 
-};
+}
 
 module.exports = mixins;

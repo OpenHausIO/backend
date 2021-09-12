@@ -5,7 +5,7 @@ class Event {
         this.created = Date.now();
         this.payload = data;
 
-    };
+    }
 
 }
 

@@ -6,7 +6,7 @@ module.exports = class Hooks {
     constructor() {
         // NOTE change to map/set?
         this.namespace = {};
-    };
+    }
 
     /**
      * Create request message object for websocket hooks
@@ -41,7 +41,7 @@ module.exports = class Hooks {
 
         return obj;
 
-    };
+    }
 
 
     /**
@@ -77,7 +77,7 @@ module.exports = class Hooks {
 
         return obj;
 
-    };
+    }
 
 
     _namespace(name) {
@@ -91,7 +91,7 @@ module.exports = class Hooks {
 
         return this.namespace[name];
 
-    };
+    }
 
 
     _handleEventType(type, name, cb) {
@@ -118,12 +118,12 @@ module.exports = class Hooks {
 
     pre(name, cb) {
         return this._handleEventType("pre", name, cb);
-    };
+    }
 
 
     post(name, cb) {
         return this._handleEventType("post", name, cb);
-    };
+    }
 
     trigger(name, ...args) {
 
@@ -161,6 +161,6 @@ module.exports = class Hooks {
             }]);
         }]);
 
-    };
+    }
 
 };

@@ -44,7 +44,7 @@ module.exports = class InterfaceStream extends Duplex {
         this.adapter = adapter;
         this.upstream = null;
 
-    };
+    }
 
     _reEmit(events) {
         events.forEach((event) => {
@@ -52,7 +52,7 @@ module.exports = class InterfaceStream extends Duplex {
                 this.emit(event, ...args);
             });
         });
-    };
+    }
 
 
     _write(chunk, encoding, cb) {
@@ -67,9 +67,9 @@ module.exports = class InterfaceStream extends Duplex {
             console.log("write to upstream not possible");
 
         }
-    };
+    }
 
-    _read(size) {
+    _read() {
         if (this.upstream /*&& !this.upstream.readableEnded*/) {
 
             // WORKFLOW:
@@ -117,29 +117,29 @@ module.exports = class InterfaceStream extends Duplex {
             console.log("Read from upstream not possible");
 
         }
-    };
+    }
 
 
     _close() {
         console.log("_close called");
-    };
+    }
 
 
     close() {
         console.log("close called");
-    };
+    }
 
 
 
 
     _end() {
         console.log("_end called");
-    };
+    }
 
 
     end() {
         console.log("end called");
-    };
+    }
 
 
 
@@ -186,7 +186,7 @@ module.exports = class InterfaceStream extends Duplex {
 
         this.emit("attached", upstream);
 
-    };
+    }
 
 
     detach(cb) {
@@ -216,7 +216,7 @@ module.exports = class InterfaceStream extends Duplex {
         });
         */
 
-        let trigger = timeout(2000, (timedout, duration) => {
+        let trigger = timeout(2000, () => {
 
             if (cb) {
                 cb(null);

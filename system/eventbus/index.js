@@ -19,7 +19,7 @@ class EventBus extends EventEmitter {
         });
 
 
-    };
+    }
 
 
     subscribe(name, cb) {
@@ -30,14 +30,14 @@ class EventBus extends EventEmitter {
 
         this.subscriber.get(name).add(cb);
 
-    };
+    }
 
     pulish(name, data) {
         this.emit("message", {
             component: name,
             event: new Event(data)
         });
-    };
+    }
 
 
 }

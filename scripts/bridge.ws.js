@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-const child_process = require("child_process");
 const WebSocket = require("ws");
 const request = require("../system/request");
 const minimist = require("minimist");

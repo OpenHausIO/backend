@@ -39,6 +39,6 @@ function promisfy(worker, cb) {
 
     }
 
-};
+}
 
 module.exports = promisfy;

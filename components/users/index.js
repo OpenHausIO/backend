@@ -48,7 +48,7 @@ class C_USERS extends COMMON_COMPONENT {
         });
         */
 
-    };
+    }
 
     _middlewareHashPassword(data, next) {
         if (!data.password) {
@@ -96,7 +96,7 @@ class C_USERS extends COMMON_COMPONENT {
         }, cb);
     }
 
-};
+}
 
 
 // create component instance

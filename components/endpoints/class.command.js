@@ -53,7 +53,7 @@ module.exports = class Command {
         Object.assign(this, obj);
         this._id = String(obj._id);
 
-    };
+    }
 
 
     /**
@@ -76,11 +76,10 @@ module.exports = class Command {
                 key: Joi.string().required(),
                 default: Joi.string(),
                 min: Joi.number(),
-                max: Joi.number(),
-                default: Joi.string()
+                max: Joi.number()
             })
         });
-    };
+    }
 
 
     /**
@@ -90,6 +89,6 @@ module.exports = class Command {
      */
     static validate(obj) {
         return Command.schema().validate(obj);
-    };
+    }
 
 };

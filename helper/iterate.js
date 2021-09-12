@@ -41,7 +41,7 @@ function iterate(data, cb) {
 
     return data;
 
-};
+}
 
 
 module.exports = iterate;

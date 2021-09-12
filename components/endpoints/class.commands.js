@@ -38,7 +38,7 @@ module.exports = class Commands extends Array {
         // why freeze the object?
         //return Object.freeze(this);
 
-    };
+    }
 
 
     /**
@@ -174,7 +174,7 @@ module.exports = class Commands extends Array {
 
         }
 
-    };
+    }
 
 
     /**
@@ -221,6 +221,6 @@ module.exports = class Commands extends Array {
 
         cb(null);
 
-    };
+    }
 
 };

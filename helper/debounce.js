@@ -25,6 +25,6 @@ function debounce(func, wait, immediate = false) {
 
     };
 
-};
+}
 
 module.exports = debounce;

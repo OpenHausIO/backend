@@ -20,8 +20,8 @@ class C_ROOMS extends COMMON_COMPONENT {
             icon: Joi.string()
         }, module);
 
-    };
-};
+    }
+}
 
 
 // create component instance

@@ -1,6 +1,5 @@
 const Joi = require("joi");
 const { Agent } = require("http");
-const { Socket } = require("net");
 const mongodb = require("mongodb");
 
 
@@ -21,7 +20,7 @@ module.exports = class Interface {
         let { interfaceStreams } = global.sharedObjects;
         interfaceStreams.set(this._id, stream);
 
-    };
+    }
 
     static schema() {
         // TODO iimplement
@@ -36,7 +35,7 @@ module.exports = class Interface {
             },
             adapter: Joi.array().items("base64", "eiscp", "json", "raw").default(["raw"])
         });
-    };
+    }
 
 
     httpAgent(options) {
@@ -74,7 +73,7 @@ module.exports = class Interface {
 
         return agent;
 
-    };
+    }
 
 
 };

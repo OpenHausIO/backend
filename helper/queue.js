@@ -20,6 +20,6 @@ function queue(counter = 0, cb = () => { }) {
 
     };
 
-};
+}
 
 module.exports = queue;
