@@ -9,7 +9,10 @@
     "start": "./node_modules/.bin/nodemon index.js",
     "lint": "./node_modules/.bin/eslint .",
     "lint:fix": "./node_modules/.bin/eslint --fix .",
-    "mocha": "./node_modules/.bin/mocha ./tests/index.js"
+    "mocha": "./node_modules/.bin/mocha ./tests/index.js",
+    "modclean": "./node_modules/.bin/modclean -r",
+    "prune": "./node_modules/.bin/node-prune",
+    "clean": "npm run prune && npm run modclean"
   },
   "engines": {
     "node": ">=0.14.0"
@@ -34,6 +37,8 @@
   "devDependencies": {
     "eslint": "^7.32.0",
     "mocha": "^8.4.0",
+    "modclean": "^3.0.0-beta.1",
+    "node-prune": "^1.0.2",
     "nodemon": "^2.0.12"
   }
 }
