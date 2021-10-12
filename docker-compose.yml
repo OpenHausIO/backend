@@ -1,0 +1,14 @@
+version: "2"
+services:
+  backend:
+    image: "openhaus:latest"
+    environment: 
+    - DATABASE_HOST=database
+    ports:
+    - "8080:8080"
+    depends_on:
+    - database
+  database:
+    image: mongo
+    ports:
+    - "27017:27017"
