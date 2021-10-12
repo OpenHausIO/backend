@@ -1,4 +1,5 @@
 # https://dev.to/alex_barashkov/using-docker-for-nodejs-in-development-and-production-3cgp
+# https://medium.com/@kahana.hagai/docker-compose-with-node-js-and-mongodb-dbdadab5ce0a
 
 # The instructions for the first stage
 FROM node:14-alpine as builder
