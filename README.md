@@ -23,6 +23,25 @@ npm install --production
 ### 2) Pre-compiled 
 @Todo
 
+### 3) Container/Docker images
+1) Build the container image
+2) Start a new container with the previously created image
+
+1 - Build the container image
+```sh
+npm run build:docker-image
+```
+
+2.a - Start a container with the image
+```sh
+docker run --rm --name=backend --env=DATABASE_HOST=<database host> --expose 8080 openhaus/backend
+```
+
+2.b - Use `docker-compose up`
+```sh
+docker-compose up
+```
+
 ---
 
 ## Documentation
