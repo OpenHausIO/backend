@@ -1,7 +1,7 @@
 version: "2"
 services:
   backend:
-    image: "openhaus:latest"
+    image: "openhaus/backend:latest"
     environment: 
     - DATABASE_HOST=database
     ports:
