@@ -49,12 +49,12 @@ Returns a function that is called instead directly of `func`.
 > Mix/merge a bunch of objects into a single one.
 
 
-### __observe(target[, options, setter, getter])__
+### __observe(target[, options, getter, setter])__
 * `target` {Object} to observe.
 * `options` {Object} Options object.
 * `options.intercept` {Boolean} Intercept get/set calls. If set, `setter`/`getter` must return `true`/`false` to permit the opertion
-* `setter` {Function} Function that is called on set opertions. See [handler.set()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy/set)
 * `getter` {Function} Function that is called on get opertions. See [handler.get()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy/get)
+* `setter` {Function} Function that is called on set opertions. See [handler.set()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy/set)
 > Observe changes on a object.
 
 Returns the observed object, where changes trigger `setter`/`getter`
