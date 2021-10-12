@@ -36,6 +36,7 @@ npm run build:docker-image
 ```sh
 docker run --rm --name=backend --env=DATABASE_HOST=<database host> --expose 8080 openhaus/backend
 ```
+See [environment variables](./docs/README.md) for more configuration.
 
 2.b - Use `docker-compose up`
 ```sh
