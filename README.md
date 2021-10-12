@@ -41,7 +41,7 @@ docker run --rm --name=backend --env=DATABASE_HOST=<database host> --expose 8080
 ```sh
 docker-compose up
 ```
-
+> To import the sample database dump, use `docker exec -i backend mongorestore ./dump-OpenHaus.tgz`. See https://davejansen.com/how-to-dump-restore-a-mongodb-database-from-a-docker-container/ for more information
 ---
 
 ## Documentation
