@@ -20,7 +20,7 @@ describe("helper/observe", () => {
         let keys = Object.keys(target);
 
         let proxied = observe(target, (target, prop) => {
-            assert.ok(target.hasOwnProperty(prop));
+            assert.ok(Object.prototype.hasOwnProperty.call(target, prop));
             assert.ok(keys.includes(prop));
         });
 
