@@ -8,15 +8,11 @@
  * @param {function} getter 
  * @returns 
  */
-function observe(target, options, setter, getter) {
+function observe(target, options, getter, setter) {
 
     if (options instanceof Function && !getter) {
-        setter = options;
+        getter = options;
         options = {};
-    }
-
-    if (setter instanceof Function && !getter) {
-        getter = setter;
     }
 
     if (!(options instanceof Object)) {
@@ -32,23 +28,25 @@ function observe(target, options, setter, getter) {
     }
 
     if (!(setter instanceof Function)) {
-        throw new Error(`Expected a functions as "setter" paramteter, got "${typeof options}"`);
+        throw new Error(`Expected a functions as "setter" parameter, got "${typeof options}"`);
     }
 
-
     if (!(getter instanceof Function)) {
-        throw new Error(`Expected a functions as "getter" paramteter, got "${typeof options}"`);
+        throw new Error(`Expected a functions as "getter" parameter, got "${typeof options}"`);
     }
 
 
     options = Object.assign({
-        intercept: false
+        intercept: false,
+        recursiv: true
     }, options);
 
 
-    for (let prop in target) {
-        if (target[prop] instanceof Object) {
-            target[prop] = observe(target[prop], options);
+    if (options.recursiv) {
+        for (let prop in target) {
+            if (target[prop] instanceof Object) {
+                target[prop] = observe(target[prop], options, getter, setter);
+            }
         }
     }
 

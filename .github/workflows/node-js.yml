@@ -13,9 +13,7 @@ jobs:
     build:
         runs-on: [
             ubuntu-18.04, 
-            ubuntu-latest,
-            windows-2016, 
-            windows-latest
+            ubuntu-latest
         ]
 
         strategy:
