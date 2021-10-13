@@ -377,19 +377,4 @@ const starter = new Promise((resolve) => {
 
     logger.debug(`${bootable.length} Plugins started`);
 
-    logger.info("OpenHaus ready for some action");
-
-    const used = process.memoryUsage();
-    for (let key in used) {
-        console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
-    }
-
-    setInterval(() => {
-        console.log()
-        const used = process.memoryUsage();
-        for (let key in used) {
-            console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
-        }
-    }, 1000 * 60 * 5);
-
 });
