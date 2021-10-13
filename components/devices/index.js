@@ -33,7 +33,7 @@ class C_DEVICES extends COMMON_COMPONENT {
                 return String(new mongodb.ObjectID());
             }),
             name: Joi.string().required(),
-            room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/),//??? -> .allow(null).default(null),
+            room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
             enabled: Joi.boolean().default(true),
             //interfaces: Joi.array().items(Interface.schema()).min(1).required()
             interfaces: Joi.array().min(1).items(Interface.schema()).required() // TODO validate interfaces schema
