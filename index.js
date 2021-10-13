@@ -51,7 +51,11 @@ process.env = Object.assign({
     API_SANITIZE_INPUT: "true",
     API_LIMIT_SIZE: "25",
     DEBUG: "",
-    GC_INTERVAL: ""
+    GC_INTERVAL: "",
+    CORS_ENABLED: "true",
+    CORS_ORIGIN: "*",
+    CORS_HEADERS: "*",
+    CORS_METHODS: "GET, PUT, PATCH, DELETE, POST"
 }, env.parsed, process.env);
 
 
@@ -352,10 +356,12 @@ const starter = new Promise((resolve) => {
 
     logger.debug("Starting plugins...");
 
-    require("./components/plugins").items.filter((obj) => {
+    let bootable = require("./components/plugins").items.filter((obj) => {
         // TODO check for runlevel
         return obj.autostart && obj.enabled;
-    }).forEach((plugin) => {
+    });
+
+    bootable.forEach((plugin) => {
         try {
 
             logger.debug(`Start plugin "${plugin.name}" (${plugin.uuid})`);
@@ -368,5 +374,22 @@ const starter = new Promise((resolve) => {
 
         }
     });
+
+    logger.debug(`${bootable.length} Plugins started`);
+
+    logger.info("OpenHaus ready for some action");
+
+    const used = process.memoryUsage();
+    for (let key in used) {
+        console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+    }
+
+    setInterval(() => {
+        console.log()
+        const used = process.memoryUsage();
+        for (let key in used) {
+            console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+        }
+    }, 1000 * 60 * 5);
 
 });
