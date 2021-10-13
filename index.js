@@ -43,6 +43,8 @@ process.env = Object.assign({
     LOG_PATH: path.resolve(process.cwd(), "logs"),
     LOG_LEVEL: "verbose",
     LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
+    LOG_SUPPRESS: "false",
+    LOG_TARGET: "",
     NODE_ENV: "production",
     STARTUP_DELAY: "0",
     COMMAND_RESPONSE_TIMEOUT: "2000",
