@@ -43,13 +43,19 @@ process.env = Object.assign({
     LOG_PATH: path.resolve(process.cwd(), "logs"),
     LOG_LEVEL: "verbose",
     LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
+    LOG_SUPPRESS: "false",
+    LOG_TARGET: "",
     NODE_ENV: "production",
     STARTUP_DELAY: "0",
     COMMAND_RESPONSE_TIMEOUT: "2000",
     API_SANITIZE_INPUT: "true",
     API_LIMIT_SIZE: "25",
     DEBUG: "",
-    GC_INTERVAL: ""
+    GC_INTERVAL: "",
+    CORS_ENABLED: "true",
+    CORS_ORIGIN: "*",
+    CORS_HEADERS: "*",
+    CORS_METHODS: "GET, PUT, PATCH, DELETE, POST"
 }, env.parsed, process.env);
 
 
@@ -350,10 +356,12 @@ const starter = new Promise((resolve) => {
 
     logger.debug("Starting plugins...");
 
-    require("./components/plugins").items.filter((obj) => {
+    let bootable = require("./components/plugins").items.filter((obj) => {
         // TODO check for runlevel
         return obj.autostart && obj.enabled;
-    }).forEach((plugin) => {
+    });
+
+    bootable.forEach((plugin) => {
         try {
 
             logger.debug(`Start plugin "${plugin.name}" (${plugin.uuid})`);
@@ -366,5 +374,7 @@ const starter = new Promise((resolve) => {
 
         }
     });
+
+    logger.debug(`${bootable.length} Plugins started`);
 
 });

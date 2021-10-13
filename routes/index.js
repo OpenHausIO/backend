@@ -32,6 +32,19 @@ module.exports = (server) => {
     });
 
 
+    if (process.env.CORS_ENABLED === "true") {
+        api.use((req, res, next) => {
+
+            res.setHeader("Access-Control-Allow-Origin", process.env.CORS_ORIGIN);
+            res.setHeader("Access-Control-Allow-Headers", ["X-AUTH-TOKEN", ...process.env.CORS_HEADERS.split(",")].join(","));
+            res.setHeader("Access-Control-Allow-Methods", [process.env.CORS_METHODS.split(",")].join(","));
+
+            next();
+
+        });
+    }
+
+
     require("./router.auth.js")(app, auth);
 
 
@@ -54,7 +67,7 @@ module.exports = (server) => {
             }
 
             // patch/override sanitized object
-            req.body = iterate(req.body, (value, type) => {
+            req.body = iterate(req.body, (key, value, type) => {
                 if (type === "string") {
                     return encode(value);
                 } else {

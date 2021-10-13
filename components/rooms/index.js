@@ -15,8 +15,8 @@ class C_ROOMS extends COMMON_COMPONENT {
                 return new mongodb.ObjectID();
             }),
             name: Joi.string().required(),
-            number: Joi.number(),
-            floor: Joi.number(),
+            number: Joi.number().allow(null).default(null),
+            floor: Joi.number().allow(null).default(null),
             icon: Joi.string()
         }, module);
 
