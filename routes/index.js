@@ -54,7 +54,7 @@ module.exports = (server) => {
             }
 
             // patch/override sanitized object
-            req.body = iterate(req.body, (value, type) => {
+            req.body = iterate(req.body, (key, value, type) => {
                 if (type === "string") {
                     return encode(value);
                 } else {
