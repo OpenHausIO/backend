@@ -96,7 +96,41 @@ module.exports = (server) => {
         require("./rest-handler.js")(C_PLUGINS, pluginsRouter);
 
         // http://127.0.0.1/api/users
-        api.use("/users", usesrRouter);
+        api.use("/users", (req, res, next) => {
+
+            // store original method
+            let json = res.json;
+
+            // override .json
+            res.json = (data) => {
+
+                // iterate over each response, to censor password
+                data = iterate(data, (key, value, type, parent) => {
+
+                    // set password to null
+                    if (key === "password") {
+                        return null;
+                    } else {
+                        return value;
+                    }
+
+                    /* removes password
+                    if (key === "password") {
+                        delete parent.key;
+                    } else {
+                        return value;
+                    }
+                    */
+
+                });
+
+                json.call(res, data);
+
+            };
+
+            next();
+
+        }, usesrRouter);
         require("./rest-handler.js")(C_USERS, usesrRouter);
 
         // http://127.0.0.1/api/rooms
