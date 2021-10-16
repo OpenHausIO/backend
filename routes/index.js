@@ -27,6 +27,8 @@ module.exports = (server) => {
 
         console.log("Request headers", req.headers);
 
+        throw new Error("Test");
+
         next();
 
     });
@@ -151,8 +153,17 @@ module.exports = (server) => {
 
         // https://expressjs.com/de/guide/error-handling.html
         app.use((error, req, res) => {
+
             console.error(error.stack);
-            res.status(500).end();
+
+            res.status(500);
+
+            if (process.env.NODE_ENV !== "production") {
+                res.end(err.message);
+            } else {
+                res.end();
+            }
+
         });
 
     })();
