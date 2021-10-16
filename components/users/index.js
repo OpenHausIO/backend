@@ -128,8 +128,6 @@ instance.init((scope, ready) => {
 
             scope.items.push(...data);
 
-            console.log("> users items", scope.items.length)
-
             // init done
             ready(null);
 
