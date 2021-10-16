@@ -23,17 +23,6 @@ module.exports = (server) => {
     app.use("/api", api);
 
 
-    api.use((req, res, next) => {
-
-        console.log("Request headers", req.headers);
-
-        throw new Error("Test");
-
-        next();
-
-    });
-
-
     if (process.env.CORS_ENABLED === "true") {
         api.use((req, res, next) => {
 
@@ -159,7 +148,7 @@ module.exports = (server) => {
             res.status(500);
 
             if (process.env.NODE_ENV !== "production") {
-                res.end(err.message);
+                res.end(error.message);
             } else {
                 res.end();
             }
