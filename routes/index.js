@@ -106,22 +106,11 @@ module.exports = (server) => {
 
                 // iterate over each response, to censor password
                 data = iterate(data, (key, value, type, parent) => {
-
-                    // set password to null
-                    if (key === "password") {
-                        return null;
-                    } else {
-                        return value;
-                    }
-
-                    /* removes password
                     if (key === "password") {
                         delete parent.key;
                     } else {
                         return value;
                     }
-                    */
-
                 });
 
                 json.call(res, data);
