@@ -22,10 +22,11 @@ class C_ENDPOINTS extends COMMON_COMPONENT {
             }),
             name: Joi.string().required(),
             enabled: Joi.boolean().default(true),
-            room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/),
+            room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
             device: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
             commands: Joi.array().items(Command.schema()).min(1).required(),
-            identifier: Joi.any()   // usefull for ssdp, etc.
+            identifier: Joi.any().allow(null).default(null),   // usefull for ssdp, etc.
+            icon: Joi.string().allow(null).default("far fa-question-circle")
         }, module);
 
         this.hooks.pre("add", (data, next) => {
