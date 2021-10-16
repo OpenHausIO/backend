@@ -66,14 +66,15 @@ module.exports = class Command {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return String(new mongodb.ObjectID());
             }),
-            interface: Joi.string().pattern(/^[0-9a-fA-F]{24}$/),                       // device interface mongodb _id
+            interface: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),                       // device interface mongodb _id
             name: Joi.string().required(),                                              // Command name, something easy to identify
             alias: Joi.string().required(),                                             // Alias that you can rely in your plugins, machine to machine/hardcoded stuff
-            identifier: Joi.string(),   // NOTE: move to endpoint schema?               // Thing api provides you, like light id or some custom thing for you
-            payload: Joi.string(),
-            description: Joi.string(),
+            identifier: Joi.string().allow(null).default(null),   // NOTE: move to endpoint schema?               // Thing api provides you, like light id or some custom thing for you
+            payload: Joi.string().allow(null).default(null),
+            description: Joi.string().default(""),
             params: Joi.array().items({
                 key: Joi.string().required(),
+                value: Joi.any(),
                 default: Joi.string(),
                 min: Joi.number(),
                 max: Joi.number()
