@@ -361,12 +361,16 @@ const starter = new Promise((resolve) => {
         return obj.autostart && obj.enabled;
     });
 
+    let started = 0;
+
     bootable.forEach((plugin) => {
         try {
 
             logger.debug(`Start plugin "${plugin.name}" (${plugin.uuid})`);
 
             plugin.boot();
+
+            started += 1;
 
         } catch (err) {
 
@@ -375,6 +379,6 @@ const starter = new Promise((resolve) => {
         }
     });
 
-    logger.debug(`${bootable.length} Plugins started`);
+    logger.debug(`${started}/${bootable.length} Plugins started`);
 
 });

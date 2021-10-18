@@ -15,10 +15,13 @@ class C_USERS extends COMMON_COMPONENT {
 
         // inject logger, collection and schema object
         super(logger, mongodb.client.collection("users"), {
+            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
+                return new mongodb.ObjectID();
+            }),
             name: Joi.string().required(),
             email: Joi.string().required(),
             password: Joi.string().required().min(Number(process.env.PASSWORD_MIN_LENGTH)),
-            enabled: Joi.number().default(true)
+            enabled: Joi.boolean().default(true)
         }, module);
 
         this.hooks.pre("add", (data, next) => {
@@ -124,6 +127,8 @@ instance.init((scope, ready) => {
             */
 
             scope.items.push(...data);
+
+            console.log("> users items", scope.items.length)
 
             // init done
             ready(null);
