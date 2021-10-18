@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const logger = require("../../system/logger/index.js");
 
 const Bootstrap = require("./class.bootstrap.js");
 
@@ -41,14 +42,16 @@ class Plugin {
 
 
             } catch (err) {
+                if (err.code === "MODULE_NOT_FOUND") {
 
-                console.error("Error in plugin:", err);
+                    logger.error(`Could not found plugin file/folder "${this.uuid}"`);
+                    throw err;
 
-                // keep OpenHaus running if plugin crashs
-                if (process.env.NODE_ENV !== "production") {
-                    process.exit(999);
+                } else {
+
+                    logger.warn(`Error in plugin "${this.name}": `, err);
+
                 }
-
             }
         } else {
 
