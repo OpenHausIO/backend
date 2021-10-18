@@ -33,7 +33,9 @@ describe("helper/filter", () => {
             });
         });
 
-        console.log(filted)
+        console.log(filted);
+
+        done();
 
     });
 

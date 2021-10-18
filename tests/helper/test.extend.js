@@ -90,7 +90,7 @@ describe("helper/extend", () => {
                     }
                 }
             }
-        }
+        };
 
         extend(target, source1, source2);
 
