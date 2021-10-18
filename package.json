@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -13,9 +13,10 @@
     "modclean": "./node_modules/.bin/modclean -r",
     "prune": "./node_modules/.bin/node-prune",
     "clean": "npm run prune && npm run modclean",
+    "debug": "NODE_ENV=debug node inspect index.js",
     "build:docker-image": "docker build . -t openhaus/backend:latest",
-    "db:export": "mongodump --db OpenHaus --archive=./dump-OpenHaus.tgz",
-    "db:import": "mongorestore --db OpenHaus --archive=./dump-OpenHaus.tgz"
+    "db:export": "mongodump --db OpenHaus --archive=./dump-OpenHaus.gz",
+    "db:import": "mongorestore --db OpenHaus --archive=./dump-OpenHaus.gz"
   },
   "engines": {
     "node": ">=0.14.0"
