@@ -149,6 +149,8 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
         this._defineMethod2("get", (final) => {
 
             // this gets triggerd after all post hooks            
+            /*
+            // add the last get item to array, this is bug, see #41 / #45
             final((item) => {
                 return new Promise((resolve) => {
 
@@ -157,6 +159,7 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
 
                 });
             });
+            */
 
             return (_id) => {
                 return new Promise((resolve) => {
@@ -261,7 +264,7 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
                     }, {
                         $set: validation.value
                     }, {
-                        returnOriginal: false
+                        //returnOriginal: false
                     }, (err) => {
                         if (err) {
 
