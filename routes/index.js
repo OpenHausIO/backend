@@ -23,15 +23,6 @@ module.exports = (server) => {
     app.use("/api", api);
 
 
-    api.use((req, res, next) => {
-
-        console.log("Request headers", req.headers);
-
-        next();
-
-    });
-
-
     if (process.env.CORS_ENABLED === "true") {
         api.use((req, res, next) => {
 
@@ -106,22 +97,11 @@ module.exports = (server) => {
 
                 // iterate over each response, to censor password
                 data = iterate(data, (key, value, type, parent) => {
-
-                    // set password to null
-                    if (key === "password") {
-                        return null;
-                    } else {
-                        return value;
-                    }
-
-                    /* removes password
                     if (key === "password") {
                         delete parent.key;
                     } else {
                         return value;
                     }
-                    */
-
                 });
 
                 json.call(res, data);
@@ -162,8 +142,17 @@ module.exports = (server) => {
 
         // https://expressjs.com/de/guide/error-handling.html
         app.use((error, req, res) => {
+
             console.error(error.stack);
-            res.status(500).end();
+
+            res.status(500);
+
+            if (process.env.NODE_ENV !== "production") {
+                res.end(error.message);
+            } else {
+                res.end();
+            }
+
         });
 
     })();
