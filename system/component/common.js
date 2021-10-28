@@ -146,7 +146,7 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
         }, logger);
 
 
-        this._defineMethod2("get", (final) => {
+        this._defineMethod2("get", () => {
 
             // this gets triggerd after all post hooks            
             /*
