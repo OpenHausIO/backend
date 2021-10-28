@@ -379,7 +379,7 @@ const starter = new Promise((resolve) => {
         }
     });
 
-    // test comment for git hooks
+    // // test comment for git hooks
     logger.debug(`${started}/${bootable.length} Plugins started`);
 
 });
