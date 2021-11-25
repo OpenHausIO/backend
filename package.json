@@ -15,34 +15,34 @@
     "clean": "npm run prune && npm run modclean",
     "debug": "NODE_ENV=debug node inspect index.js",
     "build:docker-image": "docker build . -t openhaus/backend:latest",
-    "db:export": "mongodump --db OpenHaus --archive=./dump-OpenHaus.gz",
-    "db:import": "mongorestore --db OpenHaus --archive=./dump-OpenHaus.gz"
+    "db:export": "mongodump --db OpenHaus --archive=./demo-database.gz",
+    "db:import": "mongorestore --db OpenHaus --archive=./demo-database.gz"
   },
   "engines": {
     "node": ">=0.14.0"
   },
-  "author": "Marc Stirner",
+  "author": "Marc Stirner <marc.stirner@open-haus.io>",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
     "colors": "^1.4.0",
-    "dateformat": "^4.5.1",
+    "dateformat": "^4.6.3",
     "dotenv": "^8.6.0",
     "duplexer3": "^0.1.4",
     "express": "^4.17.1",
     "joi": "^17.4.2",
     "minimist": "^1.2.5",
-    "mongodb": "^3.7.0",
+    "mongodb": "^3.7.3",
     "uuid": "^8.3.2",
     "winston": "^3.3.3",
-    "ws": "^7.5.4"
+    "ws": "^7.5.6"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
     "mocha": "^8.4.0",
     "modclean": "^3.0.0-beta.1",
     "node-prune": "^1.0.2",
-    "nodemon": "^2.0.12"
+    "nodemon": "^2.0.15"
   }
 }

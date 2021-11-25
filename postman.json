@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0af8969d-ba18-497a-988f-8df479cfabbb",
+		"_postman_id": "2ce17958-43ac-412a-a2d3-9bb5fd854e18",
 		"name": "OpenHaus",
 		"description": "SmartHome/IoT application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -646,7 +646,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Samsung Fridge\",\n    \"interfaces\": [{\n        \"type\": \"ETHERNET\",\n        \"settings\": {\n            \"host\": \"172.16.5.23\",\n            \"port\": 8080\n        }\n    }]\n}",
+									"raw": "{\n    \"name\": \"Samsung Fridge\",\n    \"interfaces\": [{\n        \"type\": \"ETHERNET\",\n        \"transport\": \"tcp\",\n        \"settings\": {\n            \"host\": \"172.16.5.23\",\n            \"port\": 8080\n        }\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -745,7 +745,7 @@
 							"response": []
 						},
 						{
-							"name": "Get sinlge device",
+							"name": "Get sinlge endpoint",
 							"request": {
 								"method": "GET",
 								"header": [],
@@ -766,7 +766,7 @@
 							"response": []
 						},
 						{
-							"name": "Create new devices",
+							"name": "Create new endpoint",
 							"request": {
 								"method": "PUT",
 								"header": [],
@@ -795,7 +795,7 @@
 							"response": []
 						},
 						{
-							"name": "Update existing device",
+							"name": "Update existing enpoint",
 							"request": {
 								"method": "PATCH",
 								"header": [],
@@ -825,7 +825,7 @@
 							"response": []
 						},
 						{
-							"name": "Delete exisiting device",
+							"name": "Delete exisiting endpoint",
 							"request": {
 								"method": "DELETE",
 								"header": [],

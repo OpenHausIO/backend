@@ -55,7 +55,13 @@ process.env = Object.assign({
     CORS_ENABLED: "true",
     CORS_ORIGIN: "*",
     CORS_HEADERS: "*",
-    CORS_METHODS: "GET, PUT, PATCH, DELETE, POST"
+    CORS_METHODS: "GET, PUT, PATCH, DELETE, POST",
+    VAULT_MASTER_PASSWORD: "",
+    VAULT_BLOCK_CIPHER: "aes-256-cbc",
+    VAULT_AUTH_TAG_BYTE_LEN: "16",
+    VAULT_IV_BYTE_LEN: "16",
+    VAULT_KEY_BYTE_LEN: "32",
+    VAULT_SALT_BYTE_LEN: "16"
 }, env.parsed, process.env);
 
 
@@ -141,7 +147,7 @@ if (process.env.GC_INTERVAL !== null && global.gc) {
 const init_db = () => {
     return new Promise((resolve, reject) => {
 
-        logger.verbose("Init Database...");
+        logger.debug("Init Database...");
         let constr = process.env.DATABASE_URL;
 
         if (!process.env.DATABASE_URL) {
@@ -149,7 +155,7 @@ const init_db = () => {
         }
 
         // feedback
-        logger.debug(`Connecting to "%s"...`, process.env.DATABASE_URL || constr);
+        logger.verbose(`Connecting to "%s"...`, process.env.DATABASE_URL || constr);
 
 
         mongodb.MongoClient.connect(constr, {
@@ -192,7 +198,7 @@ const init_db = () => {
 const init_components = () => {
     return new Promise((resolve) => {
 
-        logger.verbose("Init components...");
+        logger.debug("Init components...");
 
         const componentNames = [
             "rooms",
@@ -200,7 +206,8 @@ const init_components = () => {
             "devices",
             "endpoints",
             //"scenes",
-            "plugins"
+            "plugins",
+            "vault"
         ].sort(() => {
 
             // pseudo randomize start/init of components
@@ -220,6 +227,9 @@ const init_components = () => {
         componentNames.forEach((name) => {
             try {
 
+                // this should be trace method
+                logger.verbose(`Starting component "${name}"`);
+
                 let component = require(`./components/${name}/index.js`);
 
                 component.events.on("ready", () => {
@@ -235,13 +245,16 @@ const init_components = () => {
 
                 });
 
+                // see issue #53, this should fire:
+                // the procces should not exit with a "unhandled execption"
+                // the try/catch block is for unhandled exception, not for startup errors
                 component.events.on("error", (err) => {
                     logger.error(err, `Component "${name}" error!`);
                 });
 
             } catch (err) {
 
-                console.error(err);
+                console.error(err, "Component error");
                 process.exit(800);
 
             }
@@ -254,7 +267,7 @@ const init_components = () => {
 const init_http = () => {
     return new Promise((resolve, reject) => {
 
-        logger.verbose("Init http server...");
+        logger.debug("Init http server...");
 
         let server = http.createServer();
 
@@ -285,13 +298,13 @@ const init_http = () => {
 const kickstart = () => {
     try {
 
-        logger.debug("Initzisalision done");
+        logger.info("Initzisalision done");
 
 
         //require("./test/endpoints");
         //require("./test/devices");
         //require("./test/plugins");
-        //require("./test/scene"); // later
+        //require("./test/vault");
 
         //console.log(sharedObjects.interfaceStreams)
 
@@ -366,7 +379,7 @@ const starter = new Promise((resolve) => {
     bootable.forEach((plugin) => {
         try {
 
-            logger.debug(`Start plugin "${plugin.name}" (${plugin.uuid})`);
+            logger.verbose(`Start plugin "${plugin.name}" (${plugin.uuid})`);
 
             plugin.boot();
 
@@ -374,11 +387,17 @@ const starter = new Promise((resolve) => {
 
         } catch (err) {
 
-            logger.error(err, `Could not boot plugin "${plugin.name}" (${plugin.uuid})`);
+            logger.warn(`Could not boot plugin "${plugin.name}" (${plugin.uuid})`);
 
         }
     });
 
-    logger.debug(`${started}/${bootable.length} Plugins started`);
+    if (bootable.length >= started) {
+        logger.debug(`${started}/${bootable.length} Plugins started (Someones are ignored! Check the logfiles.)`);
+    } else {
+        logger.debug(`${started}/${bootable.length} Plugins started`);
+    }
+
+    logger.info("Startup complete");
 
 });
