@@ -81,6 +81,7 @@ module.exports = (server) => {
         const devicesRouter = express.Router();
         const endpointsRouter = express.Router();
         //const scenesRouter = express.Router();
+        const eventsRouter = express.Router();
 
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
@@ -132,6 +133,10 @@ module.exports = (server) => {
         //require("./rest-handler.js")(C_SCENES, scenesRouter);
         //require("./router.api.scenes.js")(app, scenesRouter);
 
+        // http://127.0.0.1/api/events
+        api.use("/events", eventsRouter);
+        require("./router.api.events.js")(app, eventsRouter);
+
 
         api.use((req, res) => {
             res.status(404).json({
@@ -141,7 +146,7 @@ module.exports = (server) => {
         });
 
         // https://expressjs.com/de/guide/error-handling.html
-        app.use((error, req, res) => {
+        app.use((req, res, next, error) => {
 
             console.error(error.stack);
 
