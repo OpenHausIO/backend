@@ -12,5 +12,8 @@
         "editor.detectIndentation": false,
         "editor.formatOnSave": true,
         "editor.formatOnPaste": true
+    },
+    "files.exclude": {
+        "**/.git": false
     }
 }
