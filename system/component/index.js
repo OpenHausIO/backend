@@ -24,7 +24,8 @@ module.exports = class COMPONENT {
         cb(this, (err) => {
             if (err) {
 
-                this.emit("error", err);
+                // see issue #53, this should not throw
+                this.events.emit("error", err);
                 //process.exit(1000); ?!
 
             } else {
@@ -197,6 +198,8 @@ module.exports = class COMPONENT {
 
                             // "resolve" promisify 
                             done(null, ...args);
+
+                            this.events.emit(name, args);
 
                         }).catch((err) => {
                             if (logger) {

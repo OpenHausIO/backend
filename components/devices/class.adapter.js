@@ -28,14 +28,14 @@ module.exports = class Adapter extends DuplexWrapper {
 
 
         // build encode flow
-        encode.reduce((prev, cur, i) => {
+        encode.reduce((prev, cur) => {
 
             prev.on("error", (err) => {
 
-                console.log("Error on stream (encode)", i - 1, err, stack[i - 1].encode.__name__);
+                console.log("Error on stream (encode)", err);
 
-                this.destory();
-                this.close();
+                //this.destory();                
+                //this.close();
                 upstream.end();
 
             });
@@ -50,14 +50,14 @@ module.exports = class Adapter extends DuplexWrapper {
 
         // build decode flow
         // stack.reverse()
-        decode.reduceRight((prev, cur, i) => {
+        decode.reduceRight((prev, cur) => {
 
             prev.on("error", (err) => {
 
-                console.log("Error on stream (decode)", i - 1, err, stack[i - 1].encode.__name__);
+                console.log("Error on stream (decode)", err);
 
-                this.destory();
-                this.close();
+                //this.destory();
+                //this.close();
                 upstream.end();
 
             });
