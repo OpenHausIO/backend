@@ -80,3 +80,12 @@ Returns a function, that needs to be called *x* times.
 >  Calls a callback function  automaticly after `time`, unless the returned function is not called before timeout is reached.
 
 Return a function that can be called to trigger `cb`.
+
+
+### __infinty(worker, delay)__
+* `worker` {Function} Worker callback that is with a delay of `time` called.
+* `delay` {Number} Delay to wait before calling`worker` again.
+> Calls the worker function, passes a "retry" function as only argument.
+> If the retry function is called, its wait the time set as `delay` and call then the worker code again
+
+Ifinity function handling. For "redo" every time the "retery" function is called.

@@ -6,6 +6,7 @@ const C_USERS = require("../components/users");
 const C_ROOMS = require("../components/rooms");
 const C_DEVICES = require("../components/devices");
 const C_ENDPOINTS = require("../components/endpoints");
+const C_VAULT = require("../components/vault");
 //const C_SCENES = require("../components/scenes");
 
 const { encode } = require("../helper/sanitize");
@@ -80,6 +81,7 @@ module.exports = (server) => {
         const roomsRouter = express.Router();
         const devicesRouter = express.Router();
         const endpointsRouter = express.Router();
+        const vaultRouter = express.Router();
         //const scenesRouter = express.Router();
         const eventsRouter = express.Router();
 
@@ -128,6 +130,11 @@ module.exports = (server) => {
         require("./rest-handler.js")(C_ENDPOINTS, endpointsRouter);
         require("./router.api.endpoints.js")(app, endpointsRouter);
 
+        // http://127.0.0.1/api/vaults
+        api.use("/vault", vaultRouter);
+        require("./rest-handler.js")(C_VAULT, vaultRouter);
+        require("./router.api.vault.js")(app, vaultRouter);
+
         // http://127.0.0.1/api/scenes
         //api.use("/scenes", scenesRouter);
         //require("./rest-handler.js")(C_SCENES, scenesRouter);
@@ -146,14 +153,14 @@ module.exports = (server) => {
         });
 
         // https://expressjs.com/de/guide/error-handling.html
-        app.use((req, res, next, error) => {
+        app.use((err, req, res) => {
 
-            console.error(error.stack);
+            console.error(err.stack, req);
 
             res.status(500);
 
             if (process.env.NODE_ENV !== "production") {
-                res.end(error.message);
+                res.end(err.message);
             } else {
                 res.end();
             }
