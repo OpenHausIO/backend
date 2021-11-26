@@ -58,7 +58,7 @@ The collection can be easy imported and is read-to-use.
 - [promisify(worker, cb)](./helper.md#promisifyworker-cb)
 - [queue(counter, cb)](./helper.md#queuecounter-cb)
 - [timeout(time, cb)](./helper.md#timeouttime-cb)
-- [infinity(worker, delay)](./helper.md#infinityworker-cb)
+- [infinity(worker, delay)](./helper.md#infintyworker-delay)
 
 ## System
 - [components](./system/components.md)

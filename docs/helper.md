@@ -12,6 +12,7 @@ This collection should help you to avoid the need of external modules like "unde
 - [promisify(worker, cb)](#promisifyworker-cb)
 - [queue(counter, cb)](#queuecounter-cb)
 - [timeout(time, cb)](#timeouttime-cb)
+- [infinty(worker, cb)](#infintyworker-delay)
 
 
 ### __debounce(func, wait[, immediate])__
