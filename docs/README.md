@@ -32,6 +32,13 @@ The collection can be easy imported and is read-to-use.
 | CORS_ORIGIN              | `*`                             | Where does the request come from: https://developer.mozilla.org/en/docs/Web/HTTP/Headers/Access-Control-Allow-Origin                   |
 | CORS_HEADERS             | `X-AUTH-TOKEN, *`               | What custom headers is the client allowed to send: https://developer.mozilla.org/en/docs/Web/HTTP/Headers/Access-Control-Allow-Headers |
 | CORS_METHODS             | `GET, PUT, PATCH, DELETE, POST` | What HTTP Methods are allowed: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Methods                  |
+| VAULT_MASTER_PASSWORD    |                                 | Vault component master Password, need to be set to start OpenHaus                                                                      |
+| VAULT_BLOCK_CIPHER       | `aes-256-cbc`                   | Vault encryption method                                                                                                                |
+| VAULT_AUTH_TAG_BYTE_LEN  | `16`                            | Vault auth tag length in bytes                                                                                                         |
+| VAULT_IV_BYTE_LEN        | `16`                            | Vault "initial vector" value size in bytes                                                                                             |
+| VAULT_KEY_BYTE_LEN       | `32`                            | Vault key size in bytes                                                                                                                |
+| VAULT_SALT_BYTE_LEN      | `16`                            | Vault salt size in bytes                                                                                                               |
+
 
 ## Components
 - [devices](./components/devices.md)
@@ -51,6 +58,7 @@ The collection can be easy imported and is read-to-use.
 - [promisify(worker, cb)](./helper.md#promisifyworker-cb)
 - [queue(counter, cb)](./helper.md#queuecounter-cb)
 - [timeout(time, cb)](./helper.md#timeouttime-cb)
+- [infinity(worker, delay)](./helper.md#infintyworker-delay)
 
 ## System
 - [components](./system/components.md)
