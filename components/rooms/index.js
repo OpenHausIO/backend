@@ -17,7 +17,7 @@ class C_ROOMS extends COMMON_COMPONENT {
             name: Joi.string().required(),
             number: Joi.number().allow(null).default(null),
             floor: Joi.number().allow(null).default(null),
-            icon: Joi.string()
+            icon: Joi.string().allow(null).default(null)
         }, module);
 
     }
