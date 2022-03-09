@@ -6,6 +6,8 @@ const mongodb = require("mongodb");
 const pkg = require("./package.json");
 const { exec } = require("child_process");
 
+const uuid = require("uuid");
+
 // https://askubuntu.com/a/577317/1034948
 if (process.execArgv.includes("--inspect")) {
     try {
@@ -31,8 +33,7 @@ if (env.error) {
 // .env override defaults
 // cli env override anything else
 process.env = Object.assign({
-    BCRYPT_SALT_ROUNDS: "12",
-    PASSWORD_MIN_LENGTH: "16",
+    UUID: "",
     DATABASE_HOST: "127.0.0.1",
     DATABASE_PORT: "27017",
     DATABASE_NAME: "OpenHaus",
@@ -49,13 +50,10 @@ process.env = Object.assign({
     STARTUP_DELAY: "0",
     COMMAND_RESPONSE_TIMEOUT: "2000",
     API_SANITIZE_INPUT: "true",
-    API_LIMIT_SIZE: "25",
+    API_LIMIT_SIZE: "25", // rename to "..._SIZE_LIMIT"?!
+    API_AUTH_ENABLED: "true",
     DEBUG: "",
     GC_INTERVAL: "",
-    CORS_ENABLED: "true",
-    CORS_ORIGIN: "*",
-    CORS_HEADERS: "*",
-    CORS_METHODS: "GET, PUT, PATCH, DELETE, POST",
     VAULT_MASTER_PASSWORD: "",
     VAULT_BLOCK_CIPHER: "aes-256-cbc",
     VAULT_AUTH_TAG_BYTE_LEN: "16",
@@ -64,6 +62,10 @@ process.env = Object.assign({
     VAULT_SALT_BYTE_LEN: "16"
 }, env.parsed, process.env);
 
+
+if (!process.env.UUID || !uuid.validate(process.env.UUID)) {
+    throw new Error(`You need to set a valid "UUID" (v4) environment variable!`);
+}
 
 
 // make it impossible to change process.env
@@ -202,10 +204,8 @@ const init_components = () => {
 
         const componentNames = [
             "rooms",
-            "users",
             "devices",
             "endpoints",
-            //"scenes",
             "plugins",
             "vault"
         ].sort(() => {
