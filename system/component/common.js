@@ -74,8 +74,8 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
         this.schema = Joi.object({
             ...schema,
             timestamps: Joi.object({
-                created: Joi.number().allow(null),
-                updated: Joi.number().allow(null)
+                created: Joi.number().allow(null).default(null),
+                updated: Joi.number().allow(null).default(null)
             })
         });
 
@@ -98,10 +98,11 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
 
                         // change stream is not supported
                         // ignore everything
+                        this.logger.warn("Can not watch for changes in database:", err);
 
                     } else {
 
-                        console.log("> change stream error", err);
+                        this.logger.warn("Error in watch streams", err);
 
                     }
                 });
@@ -120,6 +121,9 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
                     Object.assign(target, fullDocument);
 
                     this.logger.debug("Updated item object due to changes in the database", target);
+
+                    // trigger update event
+                    // this.events.emit("update", [null, target]);
 
                 });
 
