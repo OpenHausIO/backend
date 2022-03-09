@@ -88,6 +88,49 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
         this.errors = COMPONENT_ERROR;
         this.logger = logger;
 
+        if (process.env.DATABASE_WATCH_CHANGES === "true") {
+            try {
+
+                let changeStream = this.collection.watch();
+
+                changeStream.on("error", (err) => {
+                    if (err.code === 40573) {
+
+                        // change stream is not supported
+                        // ignore everything
+
+                    } else {
+
+                        console.log("> change stream error", err);
+
+                    }
+                });
+
+                changeStream.on("change", ({ fullDocument }) => {
+
+                    let target = this.items.find((item) => {
+                        return String(item._id) === String(fullDocument._id);
+                    });
+
+                    // skip if nothing found
+                    if (!target) {
+                        return;
+                    }
+
+                    Object.assign(target, fullDocument);
+
+                    this.logger.debug("Updated item object due to changes in the database", target);
+
+                });
+
+            } catch (err) {
+
+                this.logger.error("Error while watching mongodb change streams", err);
+
+            }
+        }
+
+
 
         this._defineMethod2("add", (final) => {
 

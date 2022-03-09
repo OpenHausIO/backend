@@ -39,6 +39,7 @@ process.env = Object.assign({
     DATABASE_NAME: "OpenHaus",
     DATABASE_TIMEOUT: "5", // FIXME: Does nothing in db config
     DATABASE_URL: "",
+    DATABASE_WATCH_CHANGES: "false",
     HTTP_PORT: "8080",
     HTTP_ADDRESS: "0.0.0.0",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
