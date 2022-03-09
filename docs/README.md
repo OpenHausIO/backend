@@ -5,6 +5,11 @@
 See [postman.json](../postman.json) for API routes.<br />
 The collection can be easy imported and is read-to-use.
 
+## Docker
+See the [`DOCKER.md`](./DOCKER.md) for working with docker.<br />
+It describes how to import the downloaded backend image, start a container and many more.
+
+
 ## Environment variables
 | Name                     | Default value                   | Description                                                                                                                            |
 | ------------------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
