@@ -32,6 +32,10 @@ class C_VAULT extends COMPONENT {
             //keywords: Joi.array().items(Joi.string()).default([]) ? usefull ->?
         }, module);
 
+        this.hooks.post("add", (data, next) => {
+            next(null, new Secret(data));
+        });
+
     }
 
 
