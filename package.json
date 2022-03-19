@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha ./tests/index.js",
+    "test:helper": "./node_modules/.bin/mocha ./tests/helper/index.js",
     "start": "./node_modules/.bin/nodemon -w . -w .env index.js",
     "lint": "./node_modules/.bin/eslint .",
     "lint:fix": "./node_modules/.bin/eslint --fix .",
