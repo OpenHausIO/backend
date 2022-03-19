@@ -11,7 +11,10 @@ LICENSE
 docs
 tests
 .github
-database.gz
+demo-database.gz
 .env
-MILESTONES.md
-NOTES.md
+*.md
+*.MD
+.env
+.eslintrc.json
+postman.json
