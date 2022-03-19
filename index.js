@@ -5,18 +5,7 @@ const process = require("process");
 const mongodb = require("mongodb");
 const pkg = require("./package.json");
 const { exec } = require("child_process");
-
 const uuid = require("uuid");
-
-// https://askubuntu.com/a/577317/1034948
-if (process.execArgv.includes("--inspect")) {
-    try {
-        exec("chromium-browser & sleep 1 && xdotool type 'chrome://inspect' && xdotool key Return");
-    } catch (err) {
-        console.error("Could not open chromium browser");
-    }
-}
-
 
 
 const env = require("dotenv").config({
@@ -64,37 +53,24 @@ process.env = Object.assign({
 }, env.parsed, process.env);
 
 
+// make it impossible to change process.env
+// https://github.com/nodejs/node/issues/30806#issuecomment-562133063
+process.env = Object.freeze({ ...process.env });
+
+
 if (!process.env.UUID || !uuid.validate(process.env.UUID)) {
     throw new Error(`You need to set a valid "UUID" (v4) environment variable!`);
 }
 
 
-// make it impossible to change process.env
-// https://github.com/nodejs/node/issues/30806#issuecomment-562133063
-process.env = Object.freeze({ ...process.env });
-
-// this does not preserve deletions
-/*
-// throws delete error for pacakge "debug"
-// https://javascript.info/proxy
-*/
-/*
-process.env = new Proxy({ ...process.env }, {
-    set: function () {
-        throw Error(`Illegal set operation!\r\nIts prohibited to change the process.env object`);
-    },
-    deleteProperty: (traget, prop) => {
-        if (prop !== "DEBUG") {
-            throw Error(`Illegal delete operation!\r\nIts prohibited to change the process.env object`);
-        }
-    },
-    preventExtensions: () => {
-        throw Error(`Illegal extension operation!\r\nIts prohibited to change the process.env object`);
+// https://askubuntu.com/a/577317/1034948
+if (process.execArgv.includes("--inspect") && process.env.NODE_ENV === "development") {
+    try {
+        exec("chromium-browser & sleep 1 && xdotool type 'chrome://inspect' && xdotool key Return");
+    } catch (err) {
+        console.error("Could not open chromium browser");
     }
-});
-*/
-
-
+}
 
 
 if (process.env.NODE_ENV === "development") {
@@ -306,6 +282,7 @@ const kickstart = () => {
         //require("./test/devices");
         //require("./test/plugins");
         //require("./test/vault");
+        //require("./test/index");
 
         //console.log(sharedObjects.interfaceStreams)
 

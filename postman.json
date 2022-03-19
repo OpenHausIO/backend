@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "2ce17958-43ac-412a-a2d3-9bb5fd854e18",
+		"_postman_id": "0af8969d-ba18-497a-988f-8df479cfabbb",
 		"name": "OpenHaus",
 		"description": "SmartHome/IoT application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -12,6 +12,64 @@
 				{
 					"name": "Rooms",
 					"item": [
+						{
+							"name": "Create new room",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.request.payload = JSON.parse(pm.request.body.raw);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											"",
+											"",
+											"console.log(pm.request.payload)",
+											"",
+											"pm.test(\"Input = Output name\", () => {",
+											"",
+											"    ",
+											"",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"my Room\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/rooms",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"rooms"
+									]
+								}
+							},
+							"response": []
+						},
 						{
 							"name": "Get all rooms",
 							"request": {
@@ -58,35 +116,6 @@
 										"api",
 										"rooms",
 										"<id>"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create new room",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"my Room\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/rooms",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"rooms"
 									]
 								}
 							},
@@ -149,6 +178,35 @@
 					"name": "Scenes",
 					"item": [
 						{
+							"name": "Create new scene",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Custom scene\",\n    \"banks\": [{\n\n    }],\n    \"triggers\": [{\n        \n    }]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"scenes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Get all scenes",
 							"request": {
 								"method": "GET",
@@ -194,35 +252,6 @@
 										"api",
 										"scenes",
 										"60e032434f603a29b89a49b0"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create new scene",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"Custom scene\",\n    \"banks\": [{\n\n    }],\n    \"triggers\": [{\n        \n    }]\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"scenes"
 									]
 								}
 							},
@@ -347,6 +376,35 @@
 					"name": "Users",
 					"item": [
 						{
+							"name": "Create new user",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"John Doe\",\n    \"password\": \"Pa$$w0rd\",\n    \"email\": \"john.doe@example.com\",\n    \"timestamps\": {\n        \"expiration\": \"4784539513000\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/users",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Get all users",
 							"request": {
 								"method": "GET",
@@ -382,35 +440,6 @@
 										"api",
 										"users",
 										"<id>"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create new user",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"John Doe\",\n    \"password\": \"Pa$$w0rd\",\n    \"email\": \"john.doe@example.com\",\n    \"timestamps\": {\n        \"expiration\": \"4784539513000\"\n    }\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/users",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"users"
 									]
 								}
 							},
@@ -473,6 +502,35 @@
 					"name": "Plugins",
 					"item": [
 						{
+							"name": "Create new plugin",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"myCustom plugin\",\n    \"enabled\": false,\n    \"version\": 1.2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/plugins",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"plugins"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Get all plugins",
 							"request": {
 								"method": "GET",
@@ -508,35 +566,6 @@
 										"api",
 										"plugins",
 										"<id>"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create new plugin",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"myCustom plugin\",\n    \"enabled\": false,\n    \"version\": 1.2\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/plugins",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"plugins"
 									]
 								}
 							},
@@ -599,6 +628,35 @@
 					"name": "Devices",
 					"item": [
 						{
+							"name": "Create new devices",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Samsung Fridge\",\n    \"interfaces\": [{\n        \"type\": \"ETHERNET\",\n        \"settings\": {\n            \"host\": \"172.16.5.23\",\n            \"port\": 8080\n        }\n    }]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/devices",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"devices"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Get all devices",
 							"request": {
 								"method": "GET",
@@ -634,35 +692,6 @@
 										"api",
 										"devices",
 										"6042785432c51e3e98e7acc0"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create new devices",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"Samsung Fridge\",\n    \"interfaces\": [{\n        \"type\": \"ETHERNET\",\n        \"transport\": \"tcp\",\n        \"settings\": {\n            \"host\": \"172.16.5.23\",\n            \"port\": 8080\n        }\n    }]\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/devices",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"devices"
 									]
 								}
 							},
@@ -725,48 +754,7 @@
 					"name": "Endpoints",
 					"item": [
 						{
-							"name": "Get all endpoints",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"endpoints"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get sinlge endpoint",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/604a75e6eb5de037846df24f",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"endpoints",
-										"604a75e6eb5de037846df24f"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create new endpoint",
+							"name": "Create new devices",
 							"request": {
 								"method": "PUT",
 								"header": [],
@@ -795,7 +783,48 @@
 							"response": []
 						},
 						{
-							"name": "Update existing enpoint",
+							"name": "Get all endpoints",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"endpoints"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get sinlge device",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/604a75e6eb5de037846df24f",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"endpoints",
+										"604a75e6eb5de037846df24f"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update existing device",
 							"request": {
 								"method": "PATCH",
 								"header": [],
@@ -825,7 +854,7 @@
 							"response": []
 						},
 						{
-							"name": "Delete exisiting endpoint",
+							"name": "Delete exisiting device",
 							"request": {
 								"method": "DELETE",
 								"header": [],
@@ -907,6 +936,223 @@
 									]
 								},
 								"description": "TODO!"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Vault",
+					"item": [
+						{
+							"name": "Create new vault",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.request.payload = JSON.parse(pm.request.body.raw);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											"",
+											"",
+											"console.log(pm.request.payload)",
+											"",
+											"pm.test(\"Input = Output name\", () => {",
+											"",
+											"    ",
+											"",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"FritzBox\",\n    \"identifier\": \"FRITZBOX\",\n    \"fields\": [{\n        \"key\": \"USERNAME\",\n        \"name\": \"Username\"\n    }, {\n        \"key\": \"PASSWORD\",\n        \"name\": \"Password\"\n    }]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"vault"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all vaults",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"vault"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get sinlge vault",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault/<id>",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"vault",
+										"<id>"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Encrypt secrets/fields",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"PASSWORD\": \"Pa$$w0rd\",\n    \"USERNAME\": \"user-1@example.com\",\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault/61a15b436d63a6517e1385ed/encrypt",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"vault",
+										"61a15b436d63a6517e1385ed",
+										"encrypt"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Decrypt secrets/fields",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"PASSWORD\": \"Pa$$w0rd\",\n    \"USERNAME\": \"user-1@example.com\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault/6199783105707e5faa429368/decrypt",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"vault",
+										"6199783105707e5faa429368",
+										"decrypt"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update existing vault",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Fritzbox (Router/DECT GW)\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault/61a15b436d63a6517e1385ed",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"vault",
+										"61a15b436d63a6517e1385ed"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete exisiting vault",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault/<id>",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"vault",
+										"<id>"
+									]
+								}
 							},
 							"response": []
 						}
