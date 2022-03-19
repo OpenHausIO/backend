@@ -5,39 +5,39 @@
 See [postman.json](../postman.json) for API routes.<br />
 The collection can be easy imported and is read-to-use.
 
+## Docker
+See the [`DOCKER.md`](./DOCKER.md) for working with docker.<br />
+It describes how to import the downloaded backend image, start a container and many more.
+
+
 ## Environment variables
-| Name                     | Default value                   | Description                                                                                                                            |
-| ------------------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| BCRYPT_SALT_ROUNDS       | `12`                            | How any rounds to generate the password salt                                                                                           |
-| PASSWORD_MIN_LENGTH      | `16`                            | Password min length                                                                                                                    |
-| DATABASE_HOST            | `127.0.0.1`                     | MongoDB Host                                                                                                                           |
-| DATABASE_PORT            | `27017`                         | MongoDB Port                                                                                                                           |
-| DATABASE_NAME            | `OpenHaus`                      | MongoDB Name                                                                                                                           |
-| DATABASE_TIMEOUT         | `5`                             | Timeout for connection                                                                                                                 |
-| DATABASE_URL             |                                 | Full connection url, if set other database settings are ignored                                                                        |
-| HTTP_PORT                | `8080`                          | HTTP Server port for the API                                                                                                           |
-| HTTP_ADDRESS             | `0.0.0.0`                       | HTTP Server Address for the API                                                                                                        |
-| LOG_PATH                 | `<cwd>/logs`                    | Path where logfiles are stored                                                                                                         |
-| LOG_LEVEL                | `verbose`                       | Winston log level                                                                                                                      |
-| LOG_DATEFORMAT           | `yyyy.mm.dd - HH:MM.ss.l`       | Dateformat                                                                                                                             |
-| LOG_TARGET               |                                 | Log only specified target, usefull for devs                                                                                            |
-| NODE_ENV                 | `production`                    | Production or Development env?                                                                                                         |
-| STARTUP_DELAY            | `0`                             | Wait till we do anything                                                                                                               |
-| COMMAND_RESPONSE_TIMEOUT | `2000`                          | Device command response timeout                                                                                                        |
-| API_SANITIZE_INPUT       | `true`                          | Sanitize HTTP API Input to prevent XSS                                                                                                 |
-| API_LIMIT_SIZE           | `25`                            | Max reqeust size in mb for API calls                                                                                                   |
-| DEBUG                    |                                 |                                                                                                                                        |
-| GC_INTERVAL              |                                 |                                                                                                                                        |
-| CORS_ENABLED             | `true`                          | Enable CORS response headers, see: https://developer.mozilla.org/en/docs/Web/HTTP/CORS                                                 |
-| CORS_ORIGIN              | `*`                             | Where does the request come from: https://developer.mozilla.org/en/docs/Web/HTTP/Headers/Access-Control-Allow-Origin                   |
-| CORS_HEADERS             | `X-AUTH-TOKEN, *`               | What custom headers is the client allowed to send: https://developer.mozilla.org/en/docs/Web/HTTP/Headers/Access-Control-Allow-Headers |
-| CORS_METHODS             | `GET, PUT, PATCH, DELETE, POST` | What HTTP Methods are allowed: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Methods                  |
-| VAULT_MASTER_PASSWORD    |                                 | Vault component master Password, need to be set to start OpenHaus                                                                      |
-| VAULT_BLOCK_CIPHER       | `aes-256-cbc`                   | Vault encryption method                                                                                                                |
-| VAULT_AUTH_TAG_BYTE_LEN  | `16`                            | Vault auth tag length in bytes                                                                                                         |
-| VAULT_IV_BYTE_LEN        | `16`                            | Vault "initial vector" value size in bytes                                                                                             |
-| VAULT_KEY_BYTE_LEN       | `32`                            | Vault key size in bytes                                                                                                                |
-| VAULT_SALT_BYTE_LEN      | `16`                            | Vault salt size in bytes                                                                                                               |
+| Name                     | Default value             | Description                                                       |
+| ------------------------ | ------------------------- | ----------------------------------------------------------------- |
+| DATABASE_HOST            | `127.0.0.1`               | MongoDB Host                                                      |
+| DATABASE_PORT            | `27017`                   | MongoDB Port                                                      |
+| DATABASE_NAME            | `OpenHaus`                | MongoDB Name                                                      |
+| DATABASE_TIMEOUT         | `5`                       | Timeout for connection                                            |
+| DATABASE_URL             |                           | Full connection url, if set other database settings are ignored   |
+| DATABASE_WATCH_CHANGES   | `false`                   | Watch for changes in database and update object item              |
+| HTTP_PORT                | `8080`                    | HTTP Server port for the API                                      |
+| HTTP_ADDRESS             | `0.0.0.0`                 | HTTP Server Address for the API                                   |
+| LOG_PATH                 | `<cwd>/logs`              | Path where logfiles are stored                                    |
+| LOG_LEVEL                | `verbose`                 | Winston log level                                                 |
+| LOG_DATEFORMAT           | `yyyy.mm.dd - HH:MM.ss.l` | Dateformat                                                        |
+| LOG_TARGET               |                           | Log only specified target, usefull for devs                       |
+| NODE_ENV                 | `production`              | Production or Development env?                                    |
+| STARTUP_DELAY            | `0`                       | Wait till we do anything                                          |
+| COMMAND_RESPONSE_TIMEOUT | `2000`                    | Device command response timeout                                   |
+| API_SANITIZE_INPUT       | `true`                    | Sanitize HTTP API Input to prevent XSS                            |
+| API_LIMIT_SIZE           | `25`                      | Max reqeust size in mb for API calls                              |
+| DEBUG                    |                           |                                                                   |
+| GC_INTERVAL              |                           |                                                                   |
+| VAULT_MASTER_PASSWORD    |                           | Vault component master Password, need to be set to start OpenHaus |
+| VAULT_BLOCK_CIPHER       | `aes-256-cbc`             | Vault encryption method                                           |
+| VAULT_AUTH_TAG_BYTE_LEN  | `16`                      | Vault auth tag length in bytes                                    |
+| VAULT_IV_BYTE_LEN        | `16`                      | Vault "initial vector" value size in bytes                        |
+| VAULT_KEY_BYTE_LEN       | `32`                      | Vault key size in bytes                                           |
+| VAULT_SALT_BYTE_LEN      | `16`                      | Vault salt size in bytes                                          |
 
 
 ## Components

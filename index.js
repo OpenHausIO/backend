@@ -5,16 +5,7 @@ const process = require("process");
 const mongodb = require("mongodb");
 const pkg = require("./package.json");
 const { exec } = require("child_process");
-
-// https://askubuntu.com/a/577317/1034948
-if (process.execArgv.includes("--inspect")) {
-    try {
-        exec("chromium-browser & sleep 1 && xdotool type 'chrome://inspect' && xdotool key Return");
-    } catch (err) {
-        console.error("Could not open chromium browser");
-    }
-}
-
+const uuid = require("uuid");
 
 
 const env = require("dotenv").config({
@@ -31,13 +22,13 @@ if (env.error) {
 // .env override defaults
 // cli env override anything else
 process.env = Object.assign({
-    BCRYPT_SALT_ROUNDS: "12",
-    PASSWORD_MIN_LENGTH: "16",
+    UUID: "",
     DATABASE_HOST: "127.0.0.1",
     DATABASE_PORT: "27017",
     DATABASE_NAME: "OpenHaus",
     DATABASE_TIMEOUT: "5", // FIXME: Does nothing in db config
     DATABASE_URL: "",
+    DATABASE_WATCH_CHANGES: "false",
     HTTP_PORT: "8080",
     HTTP_ADDRESS: "0.0.0.0",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
@@ -49,13 +40,10 @@ process.env = Object.assign({
     STARTUP_DELAY: "0",
     COMMAND_RESPONSE_TIMEOUT: "2000",
     API_SANITIZE_INPUT: "true",
-    API_LIMIT_SIZE: "25",
+    API_LIMIT_SIZE: "25", // rename to "..._SIZE_LIMIT"?!
+    API_AUTH_ENABLED: "true",
     DEBUG: "",
     GC_INTERVAL: "",
-    CORS_ENABLED: "true",
-    CORS_ORIGIN: "*",
-    CORS_HEADERS: "*",
-    CORS_METHODS: "GET, PUT, PATCH, DELETE, POST",
     VAULT_MASTER_PASSWORD: "",
     VAULT_BLOCK_CIPHER: "aes-256-cbc",
     VAULT_AUTH_TAG_BYTE_LEN: "16",
@@ -65,33 +53,24 @@ process.env = Object.assign({
 }, env.parsed, process.env);
 
 
-
 // make it impossible to change process.env
 // https://github.com/nodejs/node/issues/30806#issuecomment-562133063
 process.env = Object.freeze({ ...process.env });
 
-// this does not preserve deletions
-/*
-// throws delete error for pacakge "debug"
-// https://javascript.info/proxy
-*/
-/*
-process.env = new Proxy({ ...process.env }, {
-    set: function () {
-        throw Error(`Illegal set operation!\r\nIts prohibited to change the process.env object`);
-    },
-    deleteProperty: (traget, prop) => {
-        if (prop !== "DEBUG") {
-            throw Error(`Illegal delete operation!\r\nIts prohibited to change the process.env object`);
-        }
-    },
-    preventExtensions: () => {
-        throw Error(`Illegal extension operation!\r\nIts prohibited to change the process.env object`);
+
+if (!process.env.UUID || !uuid.validate(process.env.UUID)) {
+    throw new Error(`You need to set a valid "UUID" (v4) environment variable!`);
+}
+
+
+// https://askubuntu.com/a/577317/1034948
+if (process.execArgv.includes("--inspect") && process.env.NODE_ENV === "development") {
+    try {
+        exec("chromium-browser & sleep 1 && xdotool type 'chrome://inspect' && xdotool key Return");
+    } catch (err) {
+        console.error("Could not open chromium browser");
     }
-});
-*/
-
-
+}
 
 
 if (process.env.NODE_ENV === "development") {
@@ -202,10 +181,8 @@ const init_components = () => {
 
         const componentNames = [
             "rooms",
-            "users",
             "devices",
             "endpoints",
-            //"scenes",
             "plugins",
             "vault"
         ].sort(() => {
@@ -305,6 +282,7 @@ const kickstart = () => {
         //require("./test/devices");
         //require("./test/plugins");
         //require("./test/vault");
+        //require("./test/index");
 
         //console.log(sharedObjects.interfaceStreams)
 

@@ -23,14 +23,10 @@ describe("helper/filter", () => {
     });
 
 
-    it(`Should debounce a function, 100ms`, (done) => {
+    it(`Should filter for manufacturer "pioneer"`, (done) => {
 
-        let filted = data.filter((obj) => {
-            return filter(obj, (data) => {
-
-                return data.manufacturer === "pioneer";
-
-            });
+        let filted = filter(data, (obj) => {
+            return obj.manufacturer === "pioneer";
         });
 
         console.log(filted);

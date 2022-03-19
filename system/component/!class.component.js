@@ -2,7 +2,8 @@ const process = require("process");
 const mongodb = require("mongodb");
 const Joi = require("joi");
 
-const COMPONENT = require("./index.js");
+// elimnate system/components/index.js
+// analoge file rename to C_DEVICES/C_EDNPOINTS
 
 const extend = require("../../helper/extend");
 
@@ -57,7 +58,7 @@ class COMPONENT_ERROR extends Error {
 }
 
 
-module.exports = class COMMON_COMPONENT extends COMPONENT {
+module.exports = class COMPONENT {
     constructor(logger, collection, schema, module) {
 
         // allow only <pwd>/index.js to load components
@@ -66,8 +67,6 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
             require("../prevent_cross_load")(module);
         }
 
-
-        super();
 
         this.items = [];
 
@@ -79,14 +78,31 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
             })
         });
 
-        if (typeof (collection) === "string") {
-            this.collection = mongodb.client.collection(collection);
-        } else {
-            this.collection = collection;
-        }
-
         this.errors = COMPONENT_ERROR;
+
+        this.collection = collection;
         this.logger = logger;
+
+        /*
+                this._defineMethod2("update", (final) => {
+        
+                    final((data, target) => {
+                        return new Promise((resolve) => {
+                            resolve();
+                        });
+                    });
+                    
+                    return (_id, data) => {
+                        return new Promise((resolve, reject) => {
+        
+                            
+        
+        
+                        });
+                    }
+        
+                }, logger);
+        */
 
 
         this._defineMethod2("add", (final) => {
@@ -146,11 +162,9 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
         }, logger);
 
 
-        this._defineMethod2("get", () => {
+        this._defineMethod2("get", (final) => {
 
             // this gets triggerd after all post hooks            
-            /*
-            // add the last get item to array, this is bug, see #41 / #45
             final((item) => {
                 return new Promise((resolve) => {
 
@@ -159,7 +173,6 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
 
                 });
             });
-            */
 
             return (_id) => {
                 return new Promise((resolve) => {
@@ -264,7 +277,7 @@ module.exports = class COMMON_COMPONENT extends COMPONENT {
                     }, {
                         $set: validation.value
                     }, {
-                        //returnOriginal: false
+                        returnOriginal: false
                     }, (err) => {
                         if (err) {
 

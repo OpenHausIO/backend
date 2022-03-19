@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha ./tests/index.js",
-    "start": "./node_modules/.bin/nodemon index.js",
+    "test:helper": "./node_modules/.bin/mocha ./tests/helper/index.js",
+    "start": "./node_modules/.bin/nodemon -w . -w .env index.js",
     "lint": "./node_modules/.bin/eslint .",
     "lint:fix": "./node_modules/.bin/eslint --fix .",
     "mocha": "./node_modules/.bin/mocha ./tests/index.js",
@@ -19,7 +20,7 @@
     "db:import": "mongorestore --db OpenHaus --archive=./demo-database.gz"
   },
   "engines": {
-    "node": ">=0.14.0"
+    "node": ">=0.16.0"
   },
   "author": "Marc Stirner <marc.stirner@open-haus.io>",
   "license": "ISC",
@@ -29,7 +30,6 @@
     "colors": "^1.4.0",
     "dateformat": "^4.6.3",
     "dotenv": "^8.6.0",
-    "duplexer3": "^0.1.4",
     "express": "^4.17.1",
     "joi": "^17.4.2",
     "minimist": "^1.2.5",

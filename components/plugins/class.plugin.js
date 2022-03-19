@@ -34,24 +34,22 @@ class Plugin {
 
                 let plugin = path.resolve(process.cwd(), "plugins", this.uuid);
 
-                fs.existsSync(plugin);
+                if (fs.existsSync(plugin)) {
 
-                let pclass = require(path.resolve(plugin, "index.js"))(Bootstrap);
+                    let pclass = require(path.resolve(plugin, "index.js"))(Bootstrap);
 
-                new pclass(this);
-
-
-            } catch (err) {
-                if (err.code === "MODULE_NOT_FOUND") {
-
-                    logger.error(`Could not found plugin file/folder "${this.uuid}"`);
-                    throw err;
+                    new pclass(this);
 
                 } else {
 
-                    logger.warn(`Error in plugin "${this.name}": `, err);
+                    logger.error(`Could not found plugin file/folder "${this.uuid}"`);
+                    throw new Error("Plugin not found");
 
                 }
+
+
+            } catch (err) {
+                logger.warn(`Error in plugin "${this.name}": `, err);
             }
         } else {
 

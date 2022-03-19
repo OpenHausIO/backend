@@ -1,0 +1,49 @@
+<mxfile host="65bd71144e">
+    <diagram id="ccVuZvKHZLZr53q6klX8" name="Page-1">
+        <mxGraphModel dx="943" dy="836" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="E3-iNn9g4n5HdA4zZ4UM-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="E3-iNn9g4n5HdA4zZ4UM-1" target="E3-iNn9g4n5HdA4zZ4UM-5" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="E3-iNn9g4n5HdA4zZ4UM-1" value="BASE" style="swimlane;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="40" width="200" height="110" as="geometry">
+                        <mxRectangle x="60" y="180" width="70" height="23" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="E3-iNn9g4n5HdA4zZ4UM-3" value="&lt;div align=&quot;left&quot;&gt;- ready&lt;br&gt;- events&lt;br&gt;- hooks&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="E3-iNn9g4n5HdA4zZ4UM-1" vertex="1">
+                    <mxGeometry y="23" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="E3-iNn9g4n5HdA4zZ4UM-4" value="- init()" style="whiteSpace=wrap;html=1;align=left;verticalAlign=top;" parent="E3-iNn9g4n5HdA4zZ4UM-1" vertex="1">
+                    <mxGeometry y="83" width="200" height="27" as="geometry"/>
+                </mxCell>
+                <mxCell id="E3-iNn9g4n5HdA4zZ4UM-5" value="COMMON" style="swimlane;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="200" width="200" height="80" as="geometry">
+                        <mxRectangle x="60" y="180" width="70" height="23" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="E3-iNn9g4n5HdA4zZ4UM-6" value="- logger" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="E3-iNn9g4n5HdA4zZ4UM-5" vertex="1">
+                    <mxGeometry y="23" width="200" height="27" as="geometry"/>
+                </mxCell>
+                <mxCell id="E3-iNn9g4n5HdA4zZ4UM-7" value="- _defineMethod()" style="whiteSpace=wrap;html=1;align=left;verticalAlign=top;" parent="E3-iNn9g4n5HdA4zZ4UM-5" vertex="1">
+                    <mxGeometry y="50" width="200" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="E3-iNn9g4n5HdA4zZ4UM-11" value="COMPONENT" style="swimlane;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="320" width="200" height="170" as="geometry">
+                        <mxRectangle x="60" y="180" width="70" height="23" as="alternateBounds"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="E3-iNn9g4n5HdA4zZ4UM-12" value="&lt;div align=&quot;left&quot;&gt;- items&lt;br&gt;- collection&lt;br&gt;- schema&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="E3-iNn9g4n5HdA4zZ4UM-11" vertex="1">
+                    <mxGeometry y="23" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="E3-iNn9g4n5HdA4zZ4UM-13" value="&lt;div&gt;- add()&lt;/div&gt;&lt;div&gt;- get()&lt;/div&gt;&lt;div&gt;- remove()&lt;/div&gt;&lt;div&gt;- update()&lt;/div&gt;&lt;div&gt;- find()&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;align=left;verticalAlign=top;" parent="E3-iNn9g4n5HdA4zZ4UM-11" vertex="1">
+                    <mxGeometry y="83" width="200" height="87" as="geometry"/>
+                </mxCell>
+                <mxCell id="E3-iNn9g4n5HdA4zZ4UM-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="E3-iNn9g4n5HdA4zZ4UM-7" target="E3-iNn9g4n5HdA4zZ4UM-11" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

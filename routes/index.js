@@ -2,7 +2,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 
 const C_PLUGINS = require("../components/plugins");
-const C_USERS = require("../components/users");
 const C_ROOMS = require("../components/rooms");
 const C_DEVICES = require("../components/devices");
 const C_ENDPOINTS = require("../components/endpoints");
@@ -17,6 +16,10 @@ module.exports = (server) => {
     const app = express();
     const auth = express.Router();
     const api = express.Router();
+
+    app.use(bodyParser.json({
+        limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
+    }));
 
 
     // mount api router
@@ -37,16 +40,17 @@ module.exports = (server) => {
     }
 
 
-    require("./router.auth.js")(app, auth);
 
 
     // /api routes
     (() => {
 
         // use json as content-type
+        /*
         api.use(bodyParser.json({
             limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
         }));
+        */
 
 
         // serailize api input fields
@@ -77,7 +81,6 @@ module.exports = (server) => {
 
         // define sub router for api/component routes
         const pluginsRouter = express.Router();
-        const usesrRouter = express.Router();
         const roomsRouter = express.Router();
         const devicesRouter = express.Router();
         const endpointsRouter = express.Router();
@@ -88,33 +91,6 @@ module.exports = (server) => {
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
         require("./rest-handler.js")(C_PLUGINS, pluginsRouter);
-
-        // http://127.0.0.1/api/users
-        api.use("/users", (req, res, next) => {
-
-            // store original method
-            let json = res.json;
-
-            // override .json
-            res.json = (data) => {
-
-                // iterate over each response, to censor password
-                data = iterate(data, (key, value, type, parent) => {
-                    if (key === "password") {
-                        delete parent.key;
-                    } else {
-                        return value;
-                    }
-                });
-
-                json.call(res, data);
-
-            };
-
-            next();
-
-        }, usesrRouter);
-        require("./rest-handler.js")(C_USERS, usesrRouter);
 
         // http://127.0.0.1/api/rooms
         api.use("/rooms", roomsRouter);

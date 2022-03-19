@@ -8,10 +8,8 @@ module.exports = (app, router) => {
 
     const componentNames = [
         "rooms",
-        "users",
         "devices",
         "endpoints",
-        //"scenes",
         "plugins"
     ];
 
@@ -36,8 +34,9 @@ module.exports = (app, router) => {
         };
     }
 
-
-    componentNames.map((name) => {
+    // create reemit more automaticly
+    // TODO: loop over events defined in .events
+    componentNames.forEach((name) => {
         try {
 
             let component = require(`../components/${name}/index.js`);

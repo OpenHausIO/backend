@@ -6,7 +6,7 @@ function extend(target, ...sources) {
     let merge = (obj) => {
         for (let prop in obj) {
             if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-                if (obj[prop] instanceof Object && !Array.isArray(obj[prop])) {
+                if ((obj[prop] instanceof Object) && !(Array.isArray(obj[prop])) && !(obj[prop] instanceof Buffer)) {
 
                     if (!target[prop]) {
                         target[prop] = {};

@@ -1,19 +1,20 @@
 const mongodb = require("mongodb");
 const Joi = require("joi");
 
-const logger = require("../../system/logger").create("vault");
-const COMMON_COMPONENT = require("../../system/component/common.js");
+//const logger = require("../../system/logger").create("vault");
+//const COMMON_COMPONENT = require("../../system/component/common.js");
+const COMPONENT = require("../../system/component/class.component.js");
 
 const _promisify = require("../../helper/promisify");
 
 const Secret = require("./class.secret.js");
 
-class C_VAULT extends COMMON_COMPONENT {
+class C_VAULT extends COMPONENT {
 
     constructor() {
 
         // inject logger, collection and schema object
-        super(logger, mongodb.client.collection("vault"), {
+        super("vault", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return new mongodb.ObjectID();
             }),
@@ -28,12 +29,13 @@ class C_VAULT extends COMMON_COMPONENT {
                 key: Joi.string().required(),
                 value: Joi.string().allow(null).default(null)
             }).default([])
+            //keywords: Joi.array().items(Joi.string()).default([]) ? usefull ->?
         }, module);
 
     }
 
 
-
+    // TODO move this into constructor and work with "_defineMethod(..)"? So its hoockable & emit events
     encrypt(identifier, fields, cb) {
         return _promisify((done) => {
 
@@ -86,7 +88,7 @@ class C_VAULT extends COMMON_COMPONENT {
         }, cb);
     }
 
-
+    // TODO move this into constructor and work with "_defineMethod(..)"? So its hoockable & emit events
     decrypt(identifier, cb) {
         return _promisify((done) => {
 

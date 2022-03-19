@@ -2,13 +2,16 @@ version: "2"
 services:
   backend:
     image: "openhaus/backend:latest"
-    environment: 
-    - DATABASE_HOST=database
+    environment:
+      - NODE_ENV=development
+      - DATABASE_HOST=database
+      - UUID=da0f2cc2-69ba-42d9-bcdf-426dd9c205cd
+      - VAULT_MASTER_PASSWORD=Pa$$w0rd
     ports:
-    - "8080:8080"
+      - "8080:8080"
     depends_on:
-    - database
+      - database
   database:
     image: mongo
     ports:
-    - "27017:27017"
+      - "27017:27017"

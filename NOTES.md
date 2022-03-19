@@ -25,3 +25,7 @@ du -sh ./node_modules/* | sort -nr | grep '\dM.*'
 ```
 
 > https://httpbin.org/
+
+
+# Create contributing.md, example:
+https://github.com/shlinkio/shlink/blob/develop/CONTRIBUTING.md

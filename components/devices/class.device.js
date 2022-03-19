@@ -41,6 +41,7 @@ module.exports = class Device {
         });
 
         this.interfaces.forEach((iface) => {
+            // TODO do this better, this is ugly
             global.sharedObjects.interfaces.set(iface._id, iface);
         });
 
