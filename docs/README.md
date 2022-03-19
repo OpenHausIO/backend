@@ -21,6 +21,7 @@ It describes how to import the downloaded backend image, start a container and m
 | DATABASE_WATCH_CHANGES   | `false`                   | Watch for changes in database and update object item              |
 | HTTP_PORT                | `8080`                    | HTTP Server port for the API                                      |
 | HTTP_ADDRESS             | `0.0.0.0`                 | HTTP Server Address for the API                                   |
+| HTTP_SOCKET              |                           | HTTP Server unix socket path, e.g. `/tmp/open-haus.sock`          |
 | LOG_PATH                 | `<cwd>/logs`              | Path where logfiles are stored                                    |
 | LOG_LEVEL                | `verbose`                 | Winston log level                                                 |
 | LOG_DATEFORMAT           | `yyyy.mm.dd - HH:MM.ss.l` | Dateformat                                                        |
