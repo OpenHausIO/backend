@@ -3,20 +3,22 @@ const Joi = require("joi");
 
 
 
-const logger = require("../../system/logger").create("endpoints");
-const COMMON_COMPONENT = require("../../system/component/common.js");
+//const logger = require("../../system/logger").create("endpoints");
+//const COMMON_COMPONENT = require("../../system/component/common.js");
+const COMPONENT = require("../../system/component/class.component.js");
 
 
 const Endpoint = require("./class.endpoint.js");
 const Command = require("./class.command.js");
+//const States = require("./class.states.js");
 
 
 
-class C_ENDPOINTS extends COMMON_COMPONENT {
+class C_ENDPOINTS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super(logger, mongodb.client.collection("endpoints"), {
+        super("endpoints", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return String(new mongodb.ObjectID());
             }),
@@ -24,9 +26,10 @@ class C_ENDPOINTS extends COMMON_COMPONENT {
             enabled: Joi.boolean().default(true),
             room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
             device: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
-            commands: Joi.array().items(Command.schema()).min(1).required(),
+            commands: Joi.array().items(Command.schema()).default([]),
+            //states: Joi.array().items(States.schema()).default([]),
             identifier: Joi.any().allow(null).default(null),   // usefull for ssdp, etc.
-            icon: Joi.string().allow(null).default("far fa-question-circle")
+            icon: Joi.string().allow(null).default(null)
         }, module);
 
         this.hooks.pre("add", (data, next) => {
@@ -69,7 +72,6 @@ class C_ENDPOINTS extends COMMON_COMPONENT {
         this.hooks.post("add", (data, next) => {
             next(null, new Endpoint(data));
         });
-
 
     }
 }

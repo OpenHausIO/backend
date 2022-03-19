@@ -29,7 +29,7 @@ module.exports = class Interface {
                 return new mongodb.ObjectID();
             }),
             type: Joi.string().default("ETHERNET"),
-            transport: Joi.string().valid("tcp", "udp", "ws").required(),
+            transport: Joi.string().valid("tcp", "udp", "ws").required(),   // NOTE: Change key to "socket"?! -> socket: "tcp" | "udp" | "raw"
             settings: {
                 host: Joi.string().required(),
                 port: Joi.number().min(1).max(65535).required()

@@ -1,124 +1,123 @@
+const process = require("process");
 const mongodb = require("mongodb");
 const Joi = require("joi");
 
-const _extend = require("../../helper/extend");
+// elimnate system/components/index.js
+// analoge file rename to C_DEVICES/C_EDNPOINTS
 
-const COMMON = require("./class.common.js");
+const extend = require("../../helper/extend");
 
 
-module.exports = class COMPONENT extends COMMON {
+class COMPONENT_ERROR extends Error {
+    constructor(code, details, _id) {
 
-    constructor(name, schema, parent) {
+        super();
 
-        if (parent) {
-            require("../prevent_cross_load")(parent);
+        this.code = `ERR_${code.toUpperCase()}`;
+        this.details = details || null;
+        //this._id = id || null;
+        this.timestamp = Date.now();
+
+        switch (code) {
+            case "validation":
+                this.message = "Validation on dataset failed";
+                break;
+            case "not_found":
+                this.message = `Item with _id "${_id}" does not exists`;
+                break;
+            case "fetch":
+                this.message = "Fetching of data failed";
+                break;
+            case "add":
+                this.message = "Could not add dataset";
+                break;
+            case "get":
+                this.message = "Could not get dataset";
+                break;
+            case "remove":
+                this.message = "Could not remove dataset";
+                break;
+            case "update":
+                this.message = "Could not update dataset";
+                break;
+            default:
+                this.message = `Unknown error code "${code}"`;
+                break;
         }
 
-        super(require("../../system/logger").create(name));
+    }
+
+    static method(name, details) {
+        return new this(name, details);
+    }
+
+    static validation(details) {
+        return new this("validation", details);
+    }
+
+}
+
+
+module.exports = class COMPONENT {
+    constructor(logger, collection, schema, module) {
+
+        // allow only <pwd>/index.js to load components
+        // abort as quick as possible
+        if (module) {
+            require("../prevent_cross_load")(module);
+        }
+
 
         this.items = [];
-        this.collection = mongodb.client.collection(name);
+
         this.schema = Joi.object({
             ...schema,
             timestamps: Joi.object({
-                created: Joi.number().allow(null).default(null),
-                updated: Joi.number().allow(null).default(null)
+                created: Joi.number().allow(null),
+                updated: Joi.number().allow(null)
             })
         });
 
-        if (process.env.DATABASE_WATCH_CHANGES === "true") {
-            try {
+        this.errors = COMPONENT_ERROR;
 
-                let changeStream = this.collection.watch();
+        this.collection = collection;
+        this.logger = logger;
 
-                this.logger.verbose("Watch for database changes");
-
-                changeStream.on("error", (err) => {
-                    if (err.code === 40573) {
-
-                        // change stream is not supported
-                        // ignore everything
-                        this.logger.warn("Database/cluster is not running as replica set, could not watch for changes: ", err);
-
-                    } else {
-
-                        this.logger.warn("Error in watch streams", err);
-
-                    }
-                });
-
-                changeStream.on("change", (event) => {
-                    // replace is used when updated via mongodb compass
-                    // updated is used when called via api/`.update` method
-                    if (event.operationType === "replace") {
-
-                        let { fullDocument } = event;
-
-                        let target = this.items.find((item) => {
-                            return String(item._id) === String(fullDocument._id);
+        /*
+                this._defineMethod2("update", (final) => {
+        
+                    final((data, target) => {
+                        return new Promise((resolve) => {
+                            resolve();
                         });
-
-                        // skip if nothing found
-                        if (!target) {
-                            return;
-                        }
-
-                        // NOTE use: extend(target, fullDocument);?!
-                        Object.assign(target, fullDocument);
-
-                        // feedback
-                        this.logger.debug(`Updated item object (${target._id}) due to changes in the database`, target);
-
-                        // trigger update event
-                        // TODO trigger update event, so changes can be detect via websockets /events API?
-                        this.events.emit("update", [target]);
-
-                    } else if (event.operationType === "update") {
-
-                        // FIXME deconstruct "documentKey" too
-                        let { updateDescription: { updatedFields } } = event;
-
-                        let target = this.items.find((item) => {
-                            return String(item._id) === String(event.documentKey._id);
+                    });
+                    
+                    return (_id, data) => {
+                        return new Promise((resolve, reject) => {
+        
+                            
+        
+        
                         });
-
-                        // skip if nothing found
-                        if (!target) {
-                            return;
-                        }
-
-                        // NOTE use: extend(target, fullDocument);?!
-                        Object.assign(target, updatedFields);
-
-                        // feedback
-                        this.logger.debug(`Updated item object (${target._id}) due to changes in the database`, target);
-
-                        // trigger update event
-                        // TODO trigger update event, so changes can be detect via websockets /events API?
-                        this.events.emit("update", [target]);
-
-                    } else if (["insert", "delete", "drop", "rename"].includes(event.operationType)) {
-
-                        // NOTE: Good solution for HA/LB
-                        // https://github.com/OpenHausIO/backend/issues/67
-                        // https://docs.mongodb.com/manual/reference/change-events/#insert-event
-                        // https://docs.mongodb.com/manual/reference/change-events/#delete-event
-                        // https://docs.mongodb.com/manual/reference/change-events/#drop-event
-                        // https://docs.mongodb.com/manual/reference/change-events/#rename-event
-                        this.logger.verbose(`$watch operation (${event.operationType}) not implemented!`);
-
                     }
+        
+                }, logger);
+        */
+
+
+        this._defineMethod2("add", (final) => {
+
+            // this gets triggerd after all post hooks            
+            /*
+            final((item) => {
+                return new Promise((resolve) => {
+
+                    this.items.push(item);
+                    resolve();
+
                 });
-
-            } catch (err) {
-
-                this.logger.error("Error while watching mongodb change streams", err);
-
-            }
-        }
-
-
-        this._defineMethod("add", (final) => {
+            });
+            */
 
             final((item) => {
                 this.items.push(item);
@@ -133,7 +132,7 @@ module.exports = class COMPONENT extends COMMON {
                         updated: null
                     };
 
-                    // TODO Sanitze input fields!?
+                    //@TODO Sanitze input fields!
                     let result = this.schema.validate(data);
 
                     if (result.error) {
@@ -160,10 +159,21 @@ module.exports = class COMPONENT extends COMMON {
             };
 
 
-        });
+        }, logger);
 
 
-        this._defineMethod("get", () => {
+        this._defineMethod2("get", (final) => {
+
+            // this gets triggerd after all post hooks            
+            final((item) => {
+                return new Promise((resolve) => {
+
+                    this.items.push(item);
+                    resolve();
+
+                });
+            });
+
             return (_id) => {
                 return new Promise((resolve) => {
 
@@ -178,10 +188,11 @@ module.exports = class COMPONENT extends COMMON {
 
                 });
             };
-        });
+
+        }, logger);
 
 
-        this._defineMethod("remove", (final) => {
+        this._defineMethod2("remove", (final) => {
 
             final((result, _id) => {
                 return new Promise((resolve) => {
@@ -219,10 +230,19 @@ module.exports = class COMPONENT extends COMMON {
                 });
             };
 
-        });
+        }, logger);
 
 
-        this._defineMethod("update", () => {
+        this._defineMethod2("update", () => {
+
+            /*
+            final((data, target) => {
+                return new Promise((resolve) => {
+                    resolve();
+                });
+            });
+            */
+
             return (_id, data) => {
                 return new Promise((resolve, reject) => {
 
@@ -236,7 +256,7 @@ module.exports = class COMPONENT extends COMMON {
                     }
 
                     data._id = String(_id);
-                    let shallow = _extend({}, target, data);
+                    let shallow = extend({}, target, data);
 
                     // cant set timestamp $set... some mongodb error occured
                     // but its any way better to set it be stimestamp before validation
@@ -257,7 +277,7 @@ module.exports = class COMPONENT extends COMMON {
                     }, {
                         $set: validation.value
                     }, {
-                        //returnOriginal: false
+                        returnOriginal: false
                     }, (err) => {
                         if (err) {
 
@@ -280,7 +300,7 @@ module.exports = class COMPONENT extends COMMON {
 
                             // TODO CHECK RESUTL!
                             // extend exisiting object in items array
-                            _extend(target, validation.value);
+                            extend(target, validation.value);
                             resolve([target]);
 
                         }
@@ -290,10 +310,20 @@ module.exports = class COMPONENT extends COMMON {
                 });
             };
 
-        });
+        }, logger);
 
 
-        this._defineMethod("find", () => {
+        this._defineMethod2("find", () => {
+
+            /*
+            final.then(() => {...});
+            final((data, target) => {
+                return new Promise((resolve) => {
+                    resolve();
+                });
+            });
+            */
+
             return (query) => {
                 return new Promise((resolve, reject) => {
 
@@ -322,66 +352,10 @@ module.exports = class COMPONENT extends COMMON {
 
                 });
             };
-        });
+
+        }, logger);
+
 
     }
-
-    /*
-        _exportItemMethod(name, promise = false) {
-            this._defineMethod(name, (final) => {
-    
-                return (...args) => {
-                    return new Promise((resolve, reject) => {
-    
-    
-    
-                    });
-                };
-    
-            });
-        }
-        */
-
-
-    /*
-
-    // TODO hook methods & emit events
-    // NOTE use/wrapp this._defineMethod for that?!
-    _defineItemMethod(name) {
-        Object.defineProperty(this, name, {
-            value: (...args) => {
-                try {
-
-                    let _id = args[0];
-
-                    let item = this.items.find((item) => {
-                        return item._id === _id;
-                    });
-
-                    if (!item) {
-                        this.logger.warn(new Error(`Item "${_id}" not found to call method "${name}" on it`));
-                        return;
-                    }
-
-                    if (Object.prototype.hasOwnProperty.call(item, name) && item[name] instanceof Function) {
-                        return item[name].apply(item, args);
-                    } else {
-                        this.loggerlogger.warn(`Property "${name}" was not found on item "${item._id}" or is not a function`);
-                    }
-
-                } catch (err) {
-
-                    this.logger.warn(err);
-
-                    // re-throw 
-                    throw err;
-
-                }
-            },
-            writable: false,
-            enumerable: false,
-            configurable: false
-        });
-        */
 
 };

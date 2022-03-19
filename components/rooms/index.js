@@ -1,16 +1,17 @@
 const mongodb = require("mongodb");
 const Joi = require("joi");
 
-const logger = require("../../system/logger").create("rooms");
-const COMMON_COMPONENT = require("../../system/component/common.js");
+//const logger = require("../../system/logger").create("rooms");
+//const COMMON_COMPONENT = require("../../system/component/common.js");
+const COMPONENT = require("../../system/component/class.component.js");
 
 const Room = require("./class.room.js");
 
-class C_ROOMS extends COMMON_COMPONENT {
+class C_ROOMS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super(logger, mongodb.client.collection("rooms"), {
+        super("rooms", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return new mongodb.ObjectID();
             }),
@@ -19,6 +20,9 @@ class C_ROOMS extends COMMON_COMPONENT {
             floor: Joi.number().allow(null).default(null),
             icon: Joi.string().allow(null).default(null)
         }, module);
+
+        // export method from item class
+        //this._exportItemMethod("customTestMethod");
 
     }
 }
