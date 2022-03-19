@@ -8,14 +8,14 @@ function queue(counter = 0, cb = () => { }) {
 
     let fired = false;
 
-    return function () {
+    return function (...args) {
 
         // decrement
         counter -= 1;
 
         if (counter <= 0 && !fired) {
             fired = true;
-            cb();
+            cb(...args);
         }
 
     };
