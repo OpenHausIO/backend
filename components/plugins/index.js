@@ -33,6 +33,10 @@ class C_PLUGINS extends COMPONENT {
             enabled: Joi.boolean().default(true)
         }, module);
 
+        this.hooks.post("add", (data, next) => {
+            next(null, new Plugin(data));
+        });
+
     }
 
 }

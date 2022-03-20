@@ -162,8 +162,13 @@ logger.create = (name, options) => {
     // eg for unit tests
     // NOTE remove/mute only console messages ?
     if (process.env.LOG_SUPPRESS === "true") {
-        console.error("WARNING: SUPPRESSING ALL LOGGER MESSAGES!!!");
+
+        if (process.env.NODE_ENV !== "test") {
+            console.error("WARNING: SUPPRESSING ALL LOGGER MESSAGES!!!");
+        }
+
         options.silent = true;
+
     }
 
 

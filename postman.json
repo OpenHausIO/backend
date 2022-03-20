@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0af8969d-ba18-497a-988f-8df479cfabbb",
+		"_postman_id": "088976bf-9c6f-4963-917c-71ff8d399985",
 		"name": "OpenHaus",
 		"description": "SmartHome/IoT application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -19,7 +19,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"pm.request.payload = JSON.parse(pm.request.body.raw);"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -28,16 +28,37 @@
 									"listen": "test",
 									"script": {
 										"exec": [
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
 											"",
+											"pm.test(\"Check room name: input = output\", () => {",
 											"",
+											"    let res = pm.response.json();",
+											"    let req = JSON.parse(pm.request.body);",
 											"",
-											"console.log(pm.request.payload)",
+											"    pm.expect(res.name).to.eql(req.name);",
 											"",
-											"pm.test(\"Input = Output name\", () => {",
+											"});",
 											"",
-											"    ",
+											"pm.test(\"Check properties\", () => {",
 											"",
-											"});"
+											"    let res = pm.response.json();",
+											"",
+											"    let props = [",
+											"        \"name\", \"timestamps\", \"_id\",",
+											"        \"number\", \"floor\", \"icon\"",
+											"    ];",
+											"",
+											"    Object.keys(res).forEach((key) => {",
+											"        pm.expect(props.includes(key)).to.be.true;",
+											"    });",
+											"",
+											"    props.forEach((item) => {",
+											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
+											"    });",
+											"",
+											"})"
 										],
 										"type": "text/javascript"
 									}
@@ -167,330 +188,6 @@
 										"api",
 										"rooms",
 										"611030bb5504e8431d3b8085"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Scenes",
-					"item": [
-						{
-							"name": "Create new scene",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"Custom scene\",\n    \"banks\": [{\n\n    }],\n    \"triggers\": [{\n        \n    }]\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"scenes"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get all scenes",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes?limit=100&offset=0",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"scenes"
-									],
-									"query": [
-										{
-											"key": "limit",
-											"value": "100"
-										},
-										{
-											"key": "offset",
-											"value": "0"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get sinlge scene",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/60e032434f603a29b89a49b0",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"scenes",
-										"60e032434f603a29b89a49b0"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Update existing scene",
-							"request": {
-								"method": "PATCH",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"New room name ;)\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/<id>",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"scenes",
-										"<id>"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Delete exisiting scene",
-							"request": {
-								"method": "DELETE",
-								"header": [],
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/<id>",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"scenes",
-										"<id>"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Trigger scene execution",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/60e032434f603a29b89a49b0/execute",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"scenes",
-										"60e032434f603a29b89a49b0",
-										"execute"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Abort scene execution",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/60e032434f603a29b89a49b0/abort",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"scenes",
-										"60e032434f603a29b89a49b0",
-										"abort"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Users",
-					"item": [
-						{
-							"name": "Create new user",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"John Doe\",\n    \"password\": \"Pa$$w0rd\",\n    \"email\": \"john.doe@example.com\",\n    \"timestamps\": {\n        \"expiration\": \"4784539513000\"\n    }\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/users",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"users"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get all users",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/users",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"users"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get sinlge user",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/users/<id>",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"users",
-										"<id>"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Update existing user",
-							"request": {
-								"method": "PATCH",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name\": \"John Doe\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/users/6110353fba8ba44727d361b6",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"users",
-										"6110353fba8ba44727d361b6"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Delete exisiting user",
-							"request": {
-								"method": "DELETE",
-								"header": [],
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/users/<id>",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"users",
-										"<id>"
 									]
 								}
 							},
@@ -1194,201 +891,14 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							""
-						]
-					}
-				}
-			]
-		},
-		{
-			"name": "Authentication",
-			"item": [
-				{
-					"name": "User Login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"console.log(pm.response.code)",
-									"",
-									"if(pm.response.code === 200){",
-									"",
-									"",
-									"",
-									"let jsonData = pm.response.json();",
-									"",
-									"if(jsonData.success){",
-									"    //pm.environment.set(\"X-AUTH-TOKEN\", );",
-									"    pm.collectionVariables.set(\"X-AUTH-TOKEN\", jsonData.token)",
-									"}",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/auth/login",
-							"protocol": "http",
-							"host": [
-								"{{HOST}}"
-							],
-							"port": "{{PORT}}",
-							"path": [
-								"auth",
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "User Logout",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*",
-									"// TODO: Unset token after logout",
-									"console.log(pm.response.code)",
-									"if(pm.response.code === 200){",
-									"",
-									"",
-									"",
-									"let jsonData = pm.response.json();",
-									"",
-									"if(jsonData.success){",
-									"    pm.environment.set(\"X-AUTH-TOKEN\", );",
-									"    pm.collectionVariables.set(\"X-AUTH-TOKEN\", jsonData.token)",
-									"}",
-									"}",
-									"*/"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/auth/logout",
-							"protocol": "http",
-							"host": [
-								"{{HOST}}"
-							],
-							"port": "{{PORT}}",
-							"path": [
-								"auth",
-								"logout"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "User Register",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"John Doe\",\n    \"password\": \"Pa$$w0rd\",\n    \"email\": \"john.doe@example.com\",\n    \"timestamps\": {\n        \"expiration\": \"4784539513000\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/auth/register",
-							"protocol": "http",
-							"host": [
-								"{{HOST}}"
-							],
-							"port": "{{PORT}}",
-							"path": [
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "User Confirm",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"_id\": \"xxx\",\n    \"token\": \"xxx\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/auth/register",
-							"protocol": "http",
-							"host": [
-								"{{HOST}}"
-							],
-							"port": "{{PORT}}",
-							"path": [
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"description": "TODO!",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
+							"pm.test(\"application/content = json\", () => {",
+							"    pm.response.to.be.json",
+							"});",
+							"",
+							"pm.test(\"Response has no error field\", () => {",
+							"    let json = pm.response.json();",
+							"    pm.expect(!json.error);",
+							"});"
 						]
 					}
 				}

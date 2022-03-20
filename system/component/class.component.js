@@ -137,7 +137,7 @@ module.exports = class COMPONENT extends COMMON {
                     let result = this.schema.validate(data);
 
                     if (result.error) {
-                        reject(this.errors.validation(result.error));
+                        reject(result.error);
                         return;
                     }
 
@@ -183,12 +183,8 @@ module.exports = class COMPONENT extends COMMON {
 
         this._defineMethod("remove", (final) => {
 
-            final((result, _id) => {
+            final((target) => {
                 return new Promise((resolve) => {
-
-                    let target = this.items.find((item) => {
-                        return String(item._id) === String(_id);
-                    });
 
                     let index = this.items.indexOf(target);
                     this.items.splice(index, 1);
@@ -199,19 +195,26 @@ module.exports = class COMPONENT extends COMMON {
             });
 
             return (_id) => {
-                console.log("REMOGE", _id);
                 return new Promise((resolve, reject) => {
+
+                    let target = this.items.find((obj) => {
+                        return obj._id === _id;
+                    });
 
                     this.collection.removeOne({
                         _id: new mongodb.ObjectID(_id)
-                    }, (err, result) => {
+                    }, (err, { result }) => {
                         if (err) {
 
                             reject(err);
 
                         } else {
 
-                            resolve([result, _id]);
+                            if (result.n === 1 && result.ok === 1 && target) {
+                                resolve([target, result, _id]);
+                            } else {
+                                reject(new Error("Invalid result returnd"));
+                            }
 
                         }
                     });

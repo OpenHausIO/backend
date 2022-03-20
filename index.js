@@ -1,5 +1,6 @@
 const path = require("path");
 const http = require("http");
+const fs = require("fs");
 const readline = require("readline");
 const process = require("process");
 const mongodb = require("mongodb");
@@ -31,6 +32,7 @@ process.env = Object.assign({
     DATABASE_WATCH_CHANGES: "false",
     HTTP_PORT: "8080",
     HTTP_ADDRESS: "0.0.0.0",
+    HTTP_SOCKET: "",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
     LOG_LEVEL: "verbose",
     LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
@@ -246,27 +248,93 @@ const init_http = () => {
 
         logger.debug("Init http server...");
 
-        let server = http.createServer();
+        const servers = [
 
-        server.on("error", (err) => {
-            logger.error(err, `Could not start http server: ${err.message}`);
-            reject(err);
-        });
+            // http server for ip/port
+            new Promise((resolve, reject) => {
 
-        server.on("listening", () => {
+                let server = http.createServer();
 
-            let addr = server.address();
-            logger.info(`HTTP Server listening on http://${addr.address}:${addr.port}`);
+                server.on("error", (err) => {
+                    logger.error(err, `Could not start http server: ${err.message}`);
+                    reject(err);
+                });
+
+                server.on("listening", () => {
+
+                    let addr = server.address();
+                    logger.info(`HTTP Server listening on http://${addr.address}:${addr.port}`);
+
+                    resolve(server);
+
+                });
+
+                require("./routes")(server);
+
+                // bind/start http server
+                server.listen(Number(process.env.HTTP_PORT), process.env.HTTP_ADDRESS);
+
+            }),
+
+            // http server fo unix socket
+            new Promise((resolve, reject) => {
+                if (process.env.HTTP_SOCKET !== "") {
+
+                    let server = http.createServer();
+
+                    server.on("error", (err) => {
+
+                        logger.error(err, `Could not start http server: ${err.message}`);
+                        reject(err);
+
+                    });
+
+                    server.on("listening", () => {
+
+                        logger.info(`HTTP Server listening on ${process.env.HTTP_SOCKET}`);
+
+                        resolve(server);
+
+                    });
+
+                    require("./routes")(server);
+
+                    try {
+
+                        // cleanup 
+                        fs.unlinkSync(process.env.HTTP_SOCKET);
+
+                    } catch (err) {
+                        if (err.code !== "ENOENT") {
+
+                            reject(err);
+
+                        }
+                    } finally {
+
+                        // bind/start http server
+                        server.listen(process.env.HTTP_SOCKET);
+
+                    }
+
+                } else {
+                    resolve();
+                }
+            })
+
+        ];
+
+        Promise.all(servers).then(() => {
 
             resolve();
 
+        }).catch((err) => {
+
+            logger.error(err, "Could not start http server(s)", err);
+
+            reject(err);
+
         });
-
-
-        require("./routes")(server);
-
-        // bind/start http server
-        server.listen(Number(process.env.HTTP_PORT), process.env.HTTP_ADDRESS);
 
     });
 };

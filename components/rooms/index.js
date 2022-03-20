@@ -21,6 +21,10 @@ class C_ROOMS extends COMPONENT {
             icon: Joi.string().allow(null).default(null)
         }, module);
 
+        this.hooks.post("add", (data, next) => {
+            next(null, new Room(data));
+        });
+
         // export method from item class
         //this._exportItemMethod("customTestMethod");
 

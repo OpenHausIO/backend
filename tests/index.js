@@ -22,7 +22,7 @@ process.env = Object.assign({
     LOG_PATH: "/tmp/OpenHaus/unit-tests",
     LOG_LEVEL: "verbose",
     LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
-    LOG_SUPPRESS: "false",
+    LOG_SUPPRESS: "true",
     LOG_TARGET: "",
     NODE_ENV: "test",
     DEBUG: "",
