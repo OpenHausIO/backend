@@ -19,7 +19,7 @@ describe("helper/request", () => {
     it("- [GET] Do not follow redirect", (done) => {
         request("http://127.0.0.1/redirect-to?url=http%3A%2F%2Fexample.com&status_code=301", {
             followRedirects: false
-        }, (err, { body, status, headers }) => {
+        }, (err, { status, headers }) => {
 
             assert(err === null);
             assert(status === 301);

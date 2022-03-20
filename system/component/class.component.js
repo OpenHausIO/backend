@@ -183,7 +183,7 @@ module.exports = class COMPONENT extends COMMON {
 
         this._defineMethod("remove", (final) => {
 
-            final((target, _id) => {
+            final((target) => {
                 return new Promise((resolve) => {
 
                     let index = this.items.indexOf(target);
@@ -198,7 +198,6 @@ module.exports = class COMPONENT extends COMMON {
                 return new Promise((resolve, reject) => {
 
                     let target = this.items.find((obj) => {
-                        console.log("Find target", _id, obj)
                         return obj._id === _id;
                     });
 
