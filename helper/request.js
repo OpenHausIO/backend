@@ -1,24 +1,7 @@
 const url = require("url");
 
-/**
- * 
- * @param {string} uri 
- * @param {options} options 
- * @param {function} cb 
- * @returns 
- */
-module.exports = function request(uri, options, cb) {
 
-    if (!cb && options instanceof Function) {
-        cb = options;
-        options = {};
-    }
-
-    options = Object.assign({
-        method: "GET",
-        body: ""
-    }, options);
-
+function perform(uri, options, cb) {
 
     let { protocol } = new url.URL(uri);
 
@@ -60,9 +43,61 @@ module.exports = function request(uri, options, cb) {
         cb(err);
     });
 
-    request.end(options.body);
+
+    if (options.callEnd) {
+        request.end(options.body);
+    }
     //request.write(options.body + "\r\n");
 
     return request;
+
+}
+
+
+/**
+ * 
+ * @param {string} uri 
+ * @param {options} options 
+ * @param {function} cb 
+ * @returns 
+ */
+module.exports = function request(uri, options, cb) {
+
+    if (!cb && options instanceof Function) {
+        cb = options;
+        options = {};
+    }
+
+    if (!cb) {
+        cb = () => { };
+    }
+
+    options = Object.assign({
+        method: "GET",
+        body: "",
+        followRedirects: true,
+        callEnd: true,
+    }, options);
+
+
+    return perform(uri, options, (err, result) => {
+        if (err) {
+
+            cb(err);
+
+        } else {
+
+            if (options.followRedirects && result.status >= 300 && result.status < 400) {
+
+                perform(result.headers.location, options, cb);
+
+            } else {
+
+                cb(null, result);
+
+            }
+
+        }
+    });
 
 };

@@ -13,6 +13,7 @@ describe("Helper functions", function () {
     require("./test.observe.js");
     require("./test.promisify.js");
     require("./test.queue.js");
+    require("./test.request.js");
     require("./test.sanitize.js");
     require("./test.timeout.js");
 
