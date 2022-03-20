@@ -6,7 +6,7 @@ const request = require("../../helper/request");
 describe("helper/request", () => {
 
     it("- [GET] Return http status code 200", (done) => {
-        request("https://httpbin.org/status/200", (err, { status }) => {
+        request("http://127.0.0.1/status/200", (err, { status }) => {
 
             assert(err === null);
             assert(status, 200);
