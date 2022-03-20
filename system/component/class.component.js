@@ -137,7 +137,7 @@ module.exports = class COMPONENT extends COMMON {
                     let result = this.schema.validate(data);
 
                     if (result.error) {
-                        reject(this.errors.validation(result.error));
+                        reject(result.error);
                         return;
                     }
 
