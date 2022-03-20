@@ -5,8 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha ./tests/index.js",
-    "test:helper": "./node_modules/.bin/mocha ./tests/helper/index.js",
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha ./tests/index.js",
+    "test:helper": "NODE_ENV=test ./node_modules/.bin/mocha ./tests/helper/index.js",
     "test:newman": "newman run postman.json",
     "start": "./node_modules/.bin/nodemon -w . -w .env index.js",
     "lint": "./node_modules/.bin/eslint .",
