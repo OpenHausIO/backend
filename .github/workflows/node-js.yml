@@ -15,9 +15,11 @@ jobs:
         runs-on: ${{ matrix.os }}
 
         # httpbin for helper/request
-        container:
-            image: kennethreitz/httpbin
-            ports: 80:80
+        services:
+            httpbin:
+                image: kennethreitz:httpbin
+                ports: 
+                    - 80:80
 
         strategy:
             matrix:
