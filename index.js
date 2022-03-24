@@ -230,6 +230,7 @@ const init_components = () => {
                 // the try/catch block is for unhandled exception, not for startup errors
                 component.events.on("error", (err) => {
                     logger.error(err, `Component "${name}" error!`);
+                    process.exit(1); // fix #53
                 });
 
             } catch (err) {
@@ -403,7 +404,8 @@ const starter = new Promise((resolve) => {
 ].reduce((cur, prev) => {
     return cur.then(prev).catch((err) => {
 
-        console.log("ASDFASDFSADFSADf", err);
+        // this does not get triggerd
+        // needed? see issue #53
 
         // feedback
         logger.error(err, `Initzalisilni failed: ${err.message}`);
