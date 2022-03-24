@@ -1,194 +1,80 @@
 const path = require("path");
-const winston = require("winston");
-const safe = require("colors/safe");
-const dateFormat = require("dateformat");
-const { createLogger, format, transports } = winston;
+const { Writable } = require("stream");
+const { createWriteStream } = require("fs");
+const { EOL } = require("os");
 
 
-// NOTE use https://www.npmjs.com/package/triple-beam?
-//TODO: https://github.com/winstonjs/winston#working-with-multiple-loggers-in-winston
-
-// TODO: Add logger.tracer method
-// Create "sub" logger, with custom format.
-
-const LOGGER_LEVELS = {
-    levels: {
-        error: 0,
-        warn: 1,
-        notice: 2,
-        info: 3,
-        debug: 4,
-        verbose: 5
-    },
-    colors: {
-        error: "red",
-        warn: "yellow",
-        notice: "magenta",
-        info: "blue",
-        debug: "gray",
-        verbose: "cyan"
-    }
-};
-
-function overrideLog(log, logger) {
-    return (level, msg, ...args) => {
-        if (msg instanceof Error) {
-
-            log.apply(logger, [level, ...args, {
-                error: msg.stack || msg
-            }]);
-
-        } else {
-
-            log.apply(logger, [level, msg, ...args]);
-
-        }
-    };
-}
-
-const consoleFormat = winston.format((info, opts = {}) => {
-
-    opts = Object.assign({
-        attachErrorToMessage: true,
-        name: "system"
-    }, opts);
-
-    let { message } = info;
-
-    // prevent to log empty "message" or undefined
-    if (!message && info.error) {
-        message = info.error.message || "Error passed as Argument";
-    }
-
-    let colorize = safe[LOGGER_LEVELS.colors[info.level]];
-    let timestamp = dateFormat(info.timestamp, "yyyy.mm.dd - HH:MM.ss.l");
+const Logger = require("./class.logger.js");
+const formatter = require("./formatter.js");
 
 
-    // build message string
-    info.message = `[${colorize(timestamp)}]`;
-    info.message += `[${colorize(info.level)}]`;
-    info.message += `[${colorize(opts.name)}]`;
-    info.message += ` ${message}`;
+const file = path.resolve(process.env.LOG_PATH, "system.log");
+const stream = createWriteStream(file);
 
-
-    // attach error stack to message?
-    if (info.error && opts.attachErrorToMessage) {
-        info.message += `\r\n${info.error}`;
-    }
-
-    // hack to avoid "format.simple()" or such shit
-    info[Symbol.for("message")] = info.message;
-
-    return info;
-
+stream.on("error", (err) => {
+    console.error(err);
+    process.exit(1);
 });
 
 
+const stdout = new Writable({
+    write: (chunk, encoding, cb) => {
+
+        chunk = JSON.parse(chunk);
+        chunk.message = formatter(chunk);
+
+        //console.log(chunk.message);
+        process.stdout.write(chunk.message + EOL);
+
+        if (chunk.error) {
+            console.log(JSON.parse(chunk.error).stack + EOL);
+        }
+
+        cb(null);
+
+    }
+});
 
 
-const GLOBAL_OPTIONS = {
-    levels: LOGGER_LEVELS.levels,
-    level: process.env.LOG_LEVEL || "verbose",
-    format: format.combine(
-        format.timestamp(),
-        format.errors({ stack: true }),
-        format.splat(),
-        format.json(),
-        //format.simple()
-    ),
-    transports: [
-        new winston.transports.File({
-            format: format.json(),
-            filename: path.resolve(process.env.LOG_PATH, `system.log`)
-        })
-    ]
+const options = {
+    name: "system",
+    streams: [
+        stdout,
+        stream,
+    ],
+    level: process.env.LOG_LEVEL
 };
 
 
-
-const logger = createLogger(GLOBAL_OPTIONS);
-logger.log = overrideLog(logger.log, logger);
+const logger = new Logger(options);
 
 
+Object.defineProperty(logger, "create", {
+    value: function create(name) {
 
+        let file = path.resolve(process.env.LOG_PATH, `${name}.log`);
+        let stream = createWriteStream(file);
 
-
-
-
-if (process.env.NODE_ENV !== "production") {
-
-    let transport = new transports.Console({
-        format: consoleFormat()
-    });
-
-    logger.add(transport);
-
-}
-
-
-
-logger.create = (name, options) => {
-
-    options = Object.assign({
-        //child logger options
-        // winston logger options
-    }, GLOBAL_OPTIONS, options);
-
-
-    if (process.env.LOG_TARGET) {
-        if (process.env.LOG_TARGET == name) {
-            options.silent = false;
-        }
-    } else {
-        options.silent = false;
-    }
-
-    // allways log system messages
-    if (process.env.LOG_TARGET && RegExp("system*").test(name)) {
-        options.silent = false;
-    }
-
-    /*
-    if (name != "endpoints") {
-        options.silent = true;
-    } else {
-        options.silent = false;
-    }
-
-    console.log(options.silent, name)
-*/
-
-    // supress all logger messages
-    // eg for unit tests
-    // NOTE remove/mute only console messages ?
-    if (process.env.LOG_SUPPRESS === "true") {
-
-        if (process.env.NODE_ENV !== "test") {
-            console.error("WARNING: SUPPRESSING ALL LOGGER MESSAGES!!!");
-        }
-
-        options.silent = true;
-
-    }
-
-
-    let child = winston.loggers.add(name, options);
-    child.log = overrideLog(child.log, child);
-
-    if (process.env.NODE_ENV !== "production") {
-
-        let transport = new transports.Console({
-            format: consoleFormat({ name })
+        stream.on("error", (err) => {
+            console.error(err);
+            process.exit(1);
         });
 
-        child.add(transport);
+        let opts = Object.assign({}, options, {
+            name,
+            streams: [
+                stdout,
+                stream
+            ]
+        });
 
-    }
+        return new Logger(opts);
 
-    return child;
-
-};
-
+    },
+    writable: false,
+    configurable: false,
+    enumerable: false
+});
 
 
 module.exports = logger;
