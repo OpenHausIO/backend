@@ -16,7 +16,7 @@ module.exports = class COMPONENT extends COMMON {
 
         super(require("../../system/logger").create(name));
 
-        this.items = [];
+        this.items = []; // NOTE hide this behind a proxy object to watch for changes, like update schema when changed?
         this.collection = mongodb.client.collection(name);
         this.schema = Joi.object({
             ...schema,
@@ -32,6 +32,15 @@ module.exports = class COMPONENT extends COMMON {
                 let changeStream = this.collection.watch();
 
                 this.logger.verbose("Watch for database changes");
+
+                // NOTE if we dont watch for the close event
+                // the watched stream keeps mocha waiting for exit
+                // till the timeout error is reached
+                mongodb.connection.once("close", () => {
+                    changeStream.close(() => {
+                        this.logger.verbose("Watchstream closed!");
+                    });
+                });
 
                 changeStream.on("error", (err) => {
                     if (err.code === 40573) {

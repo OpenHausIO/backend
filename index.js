@@ -154,6 +154,7 @@ const init_db = () => {
             // monky patch db instance
             // use this instance in other files
             //mongodb.client = client.db(process.env.DATABASE_NAME);
+            mongodb.connection = client;
             mongodb.client = client.db();
 
             // feedback

@@ -19,7 +19,7 @@ process.env = Object.assign({
     DATABASE_TIMEOUT: "5", // FIXME: Does nothing in db config
     DATABASE_URL: "",
     DATABASE_WATCH_CHANGES: "false",
-    LOG_PATH: "/tmp/OpenHaus/unit-tests",
+    LOG_PATH: path.resolve(process.cwd(), "logs"),
     LOG_LEVEL: "verbose",
     LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
     LOG_SUPPRESS: "true",
@@ -61,8 +61,10 @@ describe("Database", () => {
         });
     });
 
-    after((done) => {
-        mongodb.connection.close(done);
-    });
+});
 
+after((done) => {
+    mongodb.connection.close(() => {
+        done();
+    });
 });
