@@ -7,10 +7,11 @@ module.exports = (app, router) => {
     });
 
     const componentNames = [
-        "rooms",
         "devices",
         "endpoints",
-        "plugins"
+        "plugins",
+        "rooms",
+        "vault"
     ];
 
 
