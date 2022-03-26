@@ -11,6 +11,20 @@ const C_VAULT = require("../components/vault");
 const { encode } = require("../helper/sanitize");
 const iterate = require("../helper/iterate");
 
+// copied from https://github.com/vkarpov15/mongo-sanitize
+function sanitize(v) {
+    if (v instanceof Object) {
+        for (var key in v) {
+            if (/^\$/.test(key)) {
+                delete v[key];
+            } else {
+                sanitize(v[key]);
+            }
+        }
+    }
+    return v;
+};
+
 module.exports = (server) => {
 
     const app = express();
@@ -55,6 +69,9 @@ module.exports = (server) => {
                     return value;
                 }
             });
+
+            // strip out any keys that start with "$"
+            req.body = sanitize(req.body);
 
             next();
 
