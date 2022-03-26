@@ -23,7 +23,7 @@ function sanitize(v) {
         }
     }
     return v;
-};
+}
 
 module.exports = (server) => {
 
