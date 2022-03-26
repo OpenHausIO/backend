@@ -17,6 +17,7 @@
     "clean": "npm run prune && npm run modclean",
     "debug": "NODE_ENV=debug node inspect index.js",
     "build:docker-image": "docker build . -t openhaus/backend:latest",
+    "build:dist": "grunt build",
     "db:export": "mongodump --db OpenHaus --archive=./demo-database.gz",
     "db:import": "mongorestore --db OpenHaus --archive=./demo-database.gz"
   },
@@ -41,6 +42,11 @@
   },
   "devDependencies": {
     "eslint": "^7.32.0",
+    "grunt": "^1.4.1",
+    "grunt-contrib-compress": "^2.0.0",
+    "grunt-contrib-uglify": "^5.0.1",
+    "grunt-env": "^1.0.1",
+    "grunt-run": "^0.8.1",
     "mocha": "^8.4.0",
     "modclean": "^3.0.0-beta.1",
     "newman": "^5.3.2",
