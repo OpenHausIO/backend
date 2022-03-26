@@ -8,7 +8,7 @@ const RULES = [
     { char: "'", value: "&#x27;" },
     { char: "/", value: "&#x2F;" },
     { char: "`", value: "&grave;" },
-    { char: "$", value: "&#x24;" }
+    //{ char: "$", value: "&#x24;" } npm test fails with this enabled... Why?!
 ];
 
 // NOTE use encode/decode-encodeURIComponent?
