@@ -16,7 +16,6 @@ process.env = Object.assign({
     DATABASE_HOST: "127.0.0.1",
     DATABASE_PORT: "27017",
     DATABASE_NAME: "OpenHaus-unit-tests",
-    DATABASE_TIMEOUT: "5", // FIXME: Does nothing in db config
     DATABASE_URL: "",
     DATABASE_WATCH_CHANGES: "false",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
@@ -39,9 +38,7 @@ describe("Database", () => {
     it(`- Should connect to ${process.env.DATABASE_URL}`, (done) => {
         mongodb.MongoClient.connect(process.env.DATABASE_URL, {
             useUnifiedTopology: true,
-            useNewUrlParser: true,
-            connectTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000, // TODO: fix, does nothing
-            socketTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000 // TODO: Fix, does nothing
+            useNewUrlParser: true
         }, (err, client) => {
 
             if (err) {
