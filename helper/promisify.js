@@ -12,7 +12,6 @@ function promisfy(worker, cb) {
                 reject(err);
             } else {
 
-                // NOTE: GOOD PRACTICE?!
                 if (args.length === 1 && !cb) {
                     resolve(args[0]);
                 } else {

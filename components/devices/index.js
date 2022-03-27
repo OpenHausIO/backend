@@ -21,8 +21,6 @@ const Interface = require("./class.interface.js");
 const Device = require("./class.device.js");
 
 
-// TODO delete does not work from API
-
 class C_DEVICES extends COMPONENT {
 
     constructor() {
@@ -37,7 +35,7 @@ class C_DEVICES extends COMPONENT {
             room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
             enabled: Joi.boolean().default(true),
             //interfaces: Joi.array().items(Interface.schema()).min(1).required()
-            interfaces: Joi.array().min(1).items(Interface.schema()).required() // TODO validate interfaces schema
+            interfaces: Joi.array().min(1).items(Interface.schema()).required()
         }, module);
 
 

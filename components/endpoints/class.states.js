@@ -1,6 +1,5 @@
 const State = require("./class.state.js");
 
-// NOTE: create request/response classes for commands like http?
 module.exports = class States extends Array {
 
     /**

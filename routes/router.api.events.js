@@ -37,6 +37,7 @@ module.exports = (app, router) => {
 
     // create reemit more automaticly
     // TODO: loop over events defined in .events
+    // https://nodejs.org/dist/latest-v16.x/docs/api/events.html#emittereventnames
     componentNames.forEach((name) => {
         try {
 

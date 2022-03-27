@@ -53,15 +53,7 @@ describe("component", function () {
 
     });
 
-    // TODO check for "unwanted" proerties/methods
-    // To a prototype lookup for all items/methods
-    // E.g. instance should only have: get(), add(), update(), remove(), find(), items, collectin, schema
-    // E.g. for prototype lookup (component inerhits from common): logger, _defineMethod()
-    // E.g. Native methods/properties, like for objects: hasOWnPropertie(), keys()
-    //console.log(Object.getOwnPropertyNames(instance)) // returns properties & first level methods, but not "BASE" methods like .init()
-    //console.log(Object.getOwnPropertyNames(instance))
-    //console.log(getMethods(instance));
-    // NOTE following code, good solution?!
+
     describe("- should *not* have other items than the following  (excluding native object properties)", () => {
 
         // items/properties to ignore
