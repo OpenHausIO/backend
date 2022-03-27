@@ -7,7 +7,7 @@ FROM node:16-alpine as builder
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
-RUN apk --no-cache add python make g++
+RUN apk --no-cache add python3 make g++
 
 COPY ./package*.json ./
 RUN npm install
