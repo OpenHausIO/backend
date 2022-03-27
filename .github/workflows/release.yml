@@ -1,0 +1,55 @@
+# This workflow will do a clean install of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Release
+
+on:
+    push:
+        branches: [main]
+    #workflow_dispatch:
+
+jobs:
+    build:
+        #runs-on: [ubuntu-18.04, ubuntu-latest]
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [16.x]
+
+        steps:
+            - uses: actions/checkout@v2     
+
+            - name: get-npm-version
+              id: package-version
+              uses: martinbeentjes/npm-get-version-action@master
+
+            # node.js setup
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v2
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: "npm"
+
+            # run npm commands
+            - run: npm install
+            - run: npm run build:dist
+            - run: grunt bundle
+
+            # create release
+            - name: release
+              uses: actions/create-release@v1
+              id: create_release
+              with:
+                draft: false
+                prerelease: false
+                release_name: backend-v${{ steps.package-version.outputs.current-version}}
+                tag_name: v${{ steps.package-version.outputs.current-version}}
+                body_path: CHANGELOG.md
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Attach *.tgz file
+              uses: actions/upload-artifact@v3
+              with:
+                path: backend-v${{ steps.package-version.outputs.current-version}}.tgz
