@@ -51,8 +51,8 @@ jobs:
               with:
                 draft: false
                 prerelease: false
-                release_name: backend-v${{ steps.package-version.outputs.current-version}}
-                tag_name: v${{ github.ref }}
+                release_name: backend-v${{steps.package-version.outputs.current-version}}
+                tag_name: foo
                 body: "Test release"
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -60,4 +60,4 @@ jobs:
             - name: Attach *.tgz file
               uses: actions/upload-artifact@v3
               with:
-                path: backend-v${{ steps.package-version.outputs.current-version}}.tgz
+                path: backend-v${{steps.package-version.outputs.current-version}}.tgz
