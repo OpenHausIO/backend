@@ -36,6 +36,13 @@ jobs:
             - run: npm install
             - run: npm run build:dist
             - run: grunt bundle
+            
+            # create changelog
+            - name: Changelog
+              uses: scottbrenner/generate-changelog-action@master
+              id: Changelog
+              env:
+                REPO: ${{ github.repository }}
 
             # create release
             - name: release
@@ -46,7 +53,8 @@ jobs:
                 prerelease: false
                 release_name: backend-v${{ steps.package-version.outputs.current-version}}
                 tag_name: v${{ steps.package-version.outputs.current-version}}
-                body_path: CHANGELOG.md
+                body: |
+                  ${{ steps.Changelog.outputs.changelog }}
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
