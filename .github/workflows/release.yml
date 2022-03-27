@@ -57,7 +57,17 @@ jobs:
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Attach *.tgz file
-              uses: actions/upload-artifact@v3
+            - name: Upload attachment
+              uses: actions/upload-release-asset@v1
+              env:
+                GITHUB_TOKEN: ${{ github.token }}
               with:
-                path: backend-v${{steps.package-version.outputs.current-version}}.tgz
+                upload_url: ${{ steps.create_release.outputs.upload_url }}
+                asset_path: backend-v${{steps.package-version.outputs.current-version}}.tgz
+                asset_name: backend-v${{steps.package-version.outputs.current-version}}.tgz
+                asset_content_type: application/gzip
+
+#            - name: Attach *.tgz file
+#              uses: actions/upload-artifact@v3
+#              with:
+#                path: backend-v${{steps.package-version.outputs.current-version}}.tgz
