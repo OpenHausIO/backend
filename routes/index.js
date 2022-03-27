@@ -2,14 +2,28 @@ const express = require("express");
 const bodyParser = require("body-parser");
 
 const C_PLUGINS = require("../components/plugins");
-const C_USERS = require("../components/users");
 const C_ROOMS = require("../components/rooms");
 const C_DEVICES = require("../components/devices");
 const C_ENDPOINTS = require("../components/endpoints");
+const C_VAULT = require("../components/vault");
 //const C_SCENES = require("../components/scenes");
 
 const { encode } = require("../helper/sanitize");
 const iterate = require("../helper/iterate");
+
+// copied from https://github.com/vkarpov15/mongo-sanitize
+function sanitize(v) {
+    if (v instanceof Object) {
+        for (var key in v) {
+            if (/^\$/.test(key)) {
+                delete v[key];
+            } else {
+                sanitize(v[key]);
+            }
+        }
+    }
+    return v;
+}
 
 module.exports = (server) => {
 
@@ -17,39 +31,28 @@ module.exports = (server) => {
     const auth = express.Router();
     const api = express.Router();
 
+    app.use(bodyParser.json({
+        limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
+    }));
+
 
     // mount api router
     app.use("/auth", auth);
     app.use("/api", api);
 
 
-    if (process.env.CORS_ENABLED === "true") {
-        api.use((req, res, next) => {
-
-            res.setHeader("Access-Control-Allow-Origin", process.env.CORS_ORIGIN);
-            res.setHeader("Access-Control-Allow-Headers", ["X-AUTH-TOKEN", ...process.env.CORS_HEADERS.split(",")].join(","));
-            res.setHeader("Access-Control-Allow-Methods", [process.env.CORS_METHODS.split(",")].join(","));
-
-            next();
-
-        });
-    }
-
-
-    require("./router.auth.js")(app, auth);
-
-
     // /api routes
     (() => {
 
         // use json as content-type
+        /*
         api.use(bodyParser.json({
             limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
         }));
+        */
 
 
         // serailize api input fields
-        // NOTE move into component?!
         api.use((req, res, next) => {
 
             // sanitze api input fields?
@@ -66,6 +69,9 @@ module.exports = (server) => {
                 }
             });
 
+            // strip out any keys that start with "$"
+            req.body = sanitize(req.body);
+
             next();
 
         });
@@ -76,43 +82,16 @@ module.exports = (server) => {
 
         // define sub router for api/component routes
         const pluginsRouter = express.Router();
-        const usesrRouter = express.Router();
         const roomsRouter = express.Router();
         const devicesRouter = express.Router();
         const endpointsRouter = express.Router();
+        const vaultRouter = express.Router();
         //const scenesRouter = express.Router();
         const eventsRouter = express.Router();
 
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
         require("./rest-handler.js")(C_PLUGINS, pluginsRouter);
-
-        // http://127.0.0.1/api/users
-        api.use("/users", (req, res, next) => {
-
-            // store original method
-            let json = res.json;
-
-            // override .json
-            res.json = (data) => {
-
-                // iterate over each response, to censor password
-                data = iterate(data, (key, value, type, parent) => {
-                    if (key === "password") {
-                        delete parent.key;
-                    } else {
-                        return value;
-                    }
-                });
-
-                json.call(res, data);
-
-            };
-
-            next();
-
-        }, usesrRouter);
-        require("./rest-handler.js")(C_USERS, usesrRouter);
 
         // http://127.0.0.1/api/rooms
         api.use("/rooms", roomsRouter);
@@ -127,6 +106,11 @@ module.exports = (server) => {
         api.use("/endpoints", endpointsRouter);
         require("./rest-handler.js")(C_ENDPOINTS, endpointsRouter);
         require("./router.api.endpoints.js")(app, endpointsRouter);
+
+        // http://127.0.0.1/api/vaults
+        api.use("/vault", vaultRouter);
+        require("./rest-handler.js")(C_VAULT, vaultRouter);
+        require("./router.api.vault.js")(app, vaultRouter);
 
         // http://127.0.0.1/api/scenes
         //api.use("/scenes", scenesRouter);
@@ -146,14 +130,14 @@ module.exports = (server) => {
         });
 
         // https://expressjs.com/de/guide/error-handling.html
-        app.use((req, res, next, error) => {
+        app.use((err, req, res) => {
 
-            console.error(error.stack);
+            console.error(err.stack, req);
 
             res.status(500);
 
             if (process.env.NODE_ENV !== "production") {
-                res.end(error.message);
+                res.end(err.message);
             } else {
                 res.end();
             }

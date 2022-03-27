@@ -7,10 +7,10 @@ const RULES = [
     { char: '"', value: "&quot;" },
     { char: "'", value: "&#x27;" },
     { char: "/", value: "&#x2F;" },
-    { char: "`", value: "&grave;" }
+    { char: "`", value: "&grave;" },
+    //{ char: "$", value: "&#x24;" } npm test fails with this enabled... Why?!
 ];
 
-// NOTE use encode/decode-encodeURIComponent?
 
 /**
  * 
@@ -18,7 +18,6 @@ const RULES = [
  * @param {array} rules 
  * @returns 
  */
-// NOTE Rename?`(serialize)
 function encode(str, rules = []) {
     return [
         ...RULES,
@@ -37,7 +36,6 @@ function encode(str, rules = []) {
  * @param {array} rules 
  * @returns 
  */
-// NOTE Rename?`(deserialize)
 function decode(str, rules = []) {
     return [
         ...RULES,

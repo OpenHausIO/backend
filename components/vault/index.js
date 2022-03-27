@@ -1,19 +1,20 @@
 const mongodb = require("mongodb");
 const Joi = require("joi");
 
-const logger = require("../../system/logger").create("vault");
-const COMMON_COMPONENT = require("../../system/component/common.js");
+//const logger = require("../../system/logger").create("vault");
+//const COMMON_COMPONENT = require("../../system/component/common.js");
+const COMPONENT = require("../../system/component/class.component.js");
 
 const _promisify = require("../../helper/promisify");
 
 const Secret = require("./class.secret.js");
 
-class C_VAULT extends COMMON_COMPONENT {
+class C_VAULT extends COMPONENT {
 
     constructor() {
 
         // inject logger, collection and schema object
-        super(logger, mongodb.client.collection("vault"), {
+        super("vault", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return new mongodb.ObjectID();
             }),
@@ -28,10 +29,14 @@ class C_VAULT extends COMMON_COMPONENT {
                 key: Joi.string().required(),
                 value: Joi.string().allow(null).default(null)
             }).default([])
+            //keywords: Joi.array().items(Joi.string()).default([]) ? usefull ->?
         }, module);
 
-    }
+        this.hooks.post("add", (data, next) => {
+            next(null, new Secret(data));
+        });
 
+    }
 
 
     encrypt(identifier, fields, cb) {
@@ -46,7 +51,6 @@ class C_VAULT extends COMMON_COMPONENT {
                 return;
             }
 
-            //FIXME handle null as property/key value to unset a value
 
             // encrypt secret
             target.encrypt(fields, (err, encrypted) => {
@@ -85,7 +89,6 @@ class C_VAULT extends COMMON_COMPONENT {
 
         }, cb);
     }
-
 
     decrypt(identifier, cb) {
         return _promisify((done) => {

@@ -1,7 +1,10 @@
-const { DuplexWrapper } = require("duplexer3");
+//const { DuplexWrapper } = require("duplexer3");
 const { PassThrough } = require("stream");
+const { Duplex } = require("stream");
 
-module.exports = class Adapter extends DuplexWrapper {
+// see: https://github.com/OpenHausIO/backend/issues/64
+//module.exports = class Adapter extends DuplexWrapper {
+module.exports = class Adapter extends Duplex.from {
     constructor(stack, upstream, options) {
 
         options = Object.assign({
@@ -14,7 +17,12 @@ module.exports = class Adapter extends DuplexWrapper {
 
         let read = new PassThrough(options);
         let write = new PassThrough(options);
-        super(options, write, read);
+
+
+        super({
+            readable: read,
+            writable: write
+        });
 
 
         let encode = stack.map(({ encode }) => {

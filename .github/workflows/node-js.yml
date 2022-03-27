@@ -14,14 +14,29 @@ jobs:
         #runs-on: [ubuntu-18.04, ubuntu-latest]
         runs-on: ${{ matrix.os }}
 
+        # httpbin for helper/request
+        services:
+            httpbin:
+                image: kennethreitz/httpbin
+                ports: 
+                    - 80:80
+
         strategy:
             matrix:
                 os: [ubuntu-18.04, ubuntu-latest]
-                node-version: [14.x, 16.x]
-                # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+                node-version: [16.x, 17.x]           # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+                mongodb-version: ["4.2", "4.4", "5.0"]
 
         steps:
             - uses: actions/checkout@v2
+
+            # mongodb setup
+            - name: Start MongoDB
+              uses: supercharge/mongodb-github-action@1.7.0
+              with:
+                  mongodb-version: ${{ matrix.mongodb-version }}            
+
+            # node.js setup
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v2
               with:

@@ -15,7 +15,6 @@ module.exports = class Interface {
             value: stream
         });
 
-        // NOTE: outsource this to a seperate file?!
         // share/set interface stream
         let { interfaceStreams } = global.sharedObjects;
         interfaceStreams.set(this._id, stream);
@@ -23,19 +22,46 @@ module.exports = class Interface {
     }
 
     static schema() {
-        // TODO iimplement
+
+        // settings from node.js serialport (https://serialport.io/docs/api-bindings-cpp#open)
+        const SERIAL = Joi.object({
+            device: Joi.string().required(),
+            baudRate: Joi.number().default(9600),
+            dataBits: Joi.number().allow(5, 6, 7, 8).default(8),
+            stopBits: Joi.number().allow(1, 1.5, 2).default(1),
+            parity: Joi.string().valid("even", "odd", "none").default("none"),
+            rtscts: Joi.boolean().default(false),
+            xon: Joi.boolean().default(false),
+            xoff: Joi.boolean().default(false),
+            xany: Joi.boolean().default(false),
+            hupcl: Joi.boolean().default(true),
+        }).required();
+
+        const ETHERNET = Joi.object({
+            transport: Joi.string().valid("tcp", "udp", "raw").default("tcp"),
+            host: Joi.string().required(),
+            port: Joi.number().min(1).max(65535).required(),
+            // https://regex101.com/r/wF7Nfa/1
+            // https://stackoverflow.com/a/50080404/5781499
+            mac: Joi.string().default(null).regex(/^([0-9a-fA-F]{2}[:]){5}[0-9a-fA-F]{2}$/)
+        }).required();
+
         return Joi.object({
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return new mongodb.ObjectID();
             }),
             type: Joi.string().default("ETHERNET"),
-            transport: Joi.string().valid("tcp", "udp", "ws").required(),
-            settings: {
-                host: Joi.string().required(),
-                port: Joi.number().min(1).max(65535).required()
-            },
+            //transport: Joi.string().valid("tcp", "udp", "ws").required(),   // NOTE: Change key to "socket"?! -> socket: "tcp" | "udp" | "raw"
+            settings: Joi.object().when("type", {
+                is: "ETHERNET",
+                then: ETHERNET
+            }).when("type", {
+                is: "SERIAL",
+                then: SERIAL
+            }),
             adapter: Joi.array().items("base64", "eiscp", "json", "raw").default(["raw"])
         });
+
     }
 
 

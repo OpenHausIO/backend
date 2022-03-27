@@ -1,7 +1,7 @@
 const { describe, it } = require("mocha");
 const Hooks = require("../../system/hooks");
 
-describe("system/middleware", function () {
+describe("system/hooks", function () {
 
 
     it(`use(); should always pass as last argument a "next" function`, function (done) {

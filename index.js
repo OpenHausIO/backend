@@ -1,20 +1,12 @@
 const path = require("path");
 const http = require("http");
+const fs = require("fs");
 const readline = require("readline");
 const process = require("process");
 const mongodb = require("mongodb");
 const pkg = require("./package.json");
 const { exec } = require("child_process");
-
-// https://askubuntu.com/a/577317/1034948
-if (process.execArgv.includes("--inspect")) {
-    try {
-        exec("chromium-browser & sleep 1 && xdotool type 'chrome://inspect' && xdotool key Return");
-    } catch (err) {
-        console.error("Could not open chromium browser");
-    }
-}
-
+const uuid = require("uuid");
 
 
 const env = require("dotenv").config({
@@ -31,15 +23,16 @@ if (env.error) {
 // .env override defaults
 // cli env override anything else
 process.env = Object.assign({
-    BCRYPT_SALT_ROUNDS: "12",
-    PASSWORD_MIN_LENGTH: "16",
+    UUID: "",
     DATABASE_HOST: "127.0.0.1",
     DATABASE_PORT: "27017",
     DATABASE_NAME: "OpenHaus",
-    DATABASE_TIMEOUT: "5", // FIXME: Does nothing in db config
+    //DATABASE_TIMEOUT: "5", // #8
     DATABASE_URL: "",
+    DATABASE_WATCH_CHANGES: "false",
     HTTP_PORT: "8080",
     HTTP_ADDRESS: "0.0.0.0",
+    HTTP_SOCKET: "",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
     LOG_LEVEL: "verbose",
     LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
@@ -49,13 +42,10 @@ process.env = Object.assign({
     STARTUP_DELAY: "0",
     COMMAND_RESPONSE_TIMEOUT: "2000",
     API_SANITIZE_INPUT: "true",
-    API_LIMIT_SIZE: "25",
+    API_LIMIT_SIZE: "25", // rename to "..._SIZE_LIMIT"?!
+    API_AUTH_ENABLED: "true",
     DEBUG: "",
     GC_INTERVAL: "",
-    CORS_ENABLED: "true",
-    CORS_ORIGIN: "*",
-    CORS_HEADERS: "*",
-    CORS_METHODS: "GET, PUT, PATCH, DELETE, POST",
     VAULT_MASTER_PASSWORD: "",
     VAULT_BLOCK_CIPHER: "aes-256-cbc",
     VAULT_AUTH_TAG_BYTE_LEN: "16",
@@ -65,33 +55,24 @@ process.env = Object.assign({
 }, env.parsed, process.env);
 
 
-
 // make it impossible to change process.env
 // https://github.com/nodejs/node/issues/30806#issuecomment-562133063
 process.env = Object.freeze({ ...process.env });
 
-// this does not preserve deletions
-/*
-// throws delete error for pacakge "debug"
-// https://javascript.info/proxy
-*/
-/*
-process.env = new Proxy({ ...process.env }, {
-    set: function () {
-        throw Error(`Illegal set operation!\r\nIts prohibited to change the process.env object`);
-    },
-    deleteProperty: (traget, prop) => {
-        if (prop !== "DEBUG") {
-            throw Error(`Illegal delete operation!\r\nIts prohibited to change the process.env object`);
-        }
-    },
-    preventExtensions: () => {
-        throw Error(`Illegal extension operation!\r\nIts prohibited to change the process.env object`);
+
+if (!process.env.UUID || !uuid.validate(process.env.UUID)) {
+    throw new Error(`You need to set a valid "UUID" (v4) environment variable!`);
+}
+
+
+// https://askubuntu.com/a/577317/1034948
+if (process.execArgv.includes("--inspect") && process.env.NODE_ENV === "development") {
+    try {
+        exec("chromium-browser & sleep 1 && xdotool type 'chrome://inspect' && xdotool key Return");
+    } catch (err) {
+        console.error("Could not open chromium browser");
     }
-});
-*/
-
-
+}
 
 
 if (process.env.NODE_ENV === "development") {
@@ -107,7 +88,7 @@ console.log(`Starting OpenHaus ${(process.env.NODE_ENV !== "production" ? `in "\
 
 
 //require("./system/shared_objects.js");
-// TODO find other way.
+// #9, see #86
 // hits is uglay and hard to maintain
 global.sharedObjects = {
     interfaceStreams: new Map(),
@@ -161,8 +142,8 @@ const init_db = () => {
         mongodb.MongoClient.connect(constr, {
             useUnifiedTopology: true,
             useNewUrlParser: true,
-            connectTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000, // TODO: fix, does nothing
-            socketTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000 // TODO: Fix, does nothing
+            //connectTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000, // #9
+            //socketTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000 // #9
         }, (err, client) => {
 
             if (err) {
@@ -173,6 +154,7 @@ const init_db = () => {
             // monky patch db instance
             // use this instance in other files
             //mongodb.client = client.db(process.env.DATABASE_NAME);
+            mongodb.connection = client;
             mongodb.client = client.db();
 
             // feedback
@@ -202,10 +184,8 @@ const init_components = () => {
 
         const componentNames = [
             "rooms",
-            "users",
             "devices",
             "endpoints",
-            //"scenes",
             "plugins",
             "vault"
         ].sort(() => {
@@ -250,6 +230,7 @@ const init_components = () => {
                 // the try/catch block is for unhandled exception, not for startup errors
                 component.events.on("error", (err) => {
                     logger.error(err, `Component "${name}" error!`);
+                    process.exit(1); // fix #53
                 });
 
             } catch (err) {
@@ -269,27 +250,93 @@ const init_http = () => {
 
         logger.debug("Init http server...");
 
-        let server = http.createServer();
+        const servers = [
 
-        server.on("error", (err) => {
-            logger.error(err, `Could not start http server: ${err.message}`);
-            reject(err);
-        });
+            // http server for ip/port
+            new Promise((resolve, reject) => {
 
-        server.on("listening", () => {
+                let server = http.createServer();
 
-            let addr = server.address();
-            logger.info(`HTTP Server listening on http://${addr.address}:${addr.port}`);
+                server.on("error", (err) => {
+                    logger.error(err, `Could not start http server: ${err.message}`);
+                    reject(err);
+                });
+
+                server.on("listening", () => {
+
+                    let addr = server.address();
+                    logger.info(`HTTP Server listening on http://${addr.address}:${addr.port}`);
+
+                    resolve(server);
+
+                });
+
+                require("./routes")(server);
+
+                // bind/start http server
+                server.listen(Number(process.env.HTTP_PORT), process.env.HTTP_ADDRESS);
+
+            }),
+
+            // http server fo unix socket
+            new Promise((resolve, reject) => {
+                if (process.env.HTTP_SOCKET !== "") {
+
+                    let server = http.createServer();
+
+                    server.on("error", (err) => {
+
+                        logger.error(err, `Could not start http server: ${err.message}`);
+                        reject(err);
+
+                    });
+
+                    server.on("listening", () => {
+
+                        logger.info(`HTTP Server listening on ${process.env.HTTP_SOCKET}`);
+
+                        resolve(server);
+
+                    });
+
+                    require("./routes")(server);
+
+                    try {
+
+                        // cleanup 
+                        fs.unlinkSync(process.env.HTTP_SOCKET);
+
+                    } catch (err) {
+                        if (err.code !== "ENOENT") {
+
+                            reject(err);
+
+                        }
+                    } finally {
+
+                        // bind/start http server
+                        server.listen(process.env.HTTP_SOCKET);
+
+                    }
+
+                } else {
+                    resolve();
+                }
+            })
+
+        ];
+
+        Promise.all(servers).then(() => {
 
             resolve();
 
+        }).catch((err) => {
+
+            logger.error(err, "Could not start http server(s)", err);
+
+            reject(err);
+
         });
-
-
-        require("./routes")(server);
-
-        // bind/start http server
-        server.listen(Number(process.env.HTTP_PORT), process.env.HTTP_ADDRESS);
 
     });
 };
@@ -305,6 +352,7 @@ const kickstart = () => {
         //require("./test/devices");
         //require("./test/plugins");
         //require("./test/vault");
+        //require("./test/index");
 
         //console.log(sharedObjects.interfaceStreams)
 
@@ -356,7 +404,8 @@ const starter = new Promise((resolve) => {
 ].reduce((cur, prev) => {
     return cur.then(prev).catch((err) => {
 
-        console.log("ASDFASDFSADFSADf", err);
+        // this does not get triggerd
+        // needed? see issue #53
 
         // feedback
         logger.error(err, `Initzalisilni failed: ${err.message}`);
@@ -370,7 +419,6 @@ const starter = new Promise((resolve) => {
     logger.debug("Starting plugins...");
 
     let bootable = require("./components/plugins").items.filter((obj) => {
-        // TODO check for runlevel
         return obj.autostart && obj.enabled;
     });
 
@@ -392,7 +440,7 @@ const starter = new Promise((resolve) => {
         }
     });
 
-    if (bootable.length >= started) {
+    if (bootable.length > started) {
         logger.debug(`${started}/${bootable.length} Plugins started (Someones are ignored! Check the logfiles.)`);
     } else {
         logger.debug(`${started}/${bootable.length} Plugins started`);

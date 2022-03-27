@@ -4,21 +4,22 @@ const uuid = require("uuid");
 
 
 
-const logger = require("../../system/logger").create("plugins");
-const COMMON_COMPONENT = require("../../system/component/common.js");
+//const logger = require("../../system/logger").create("plugins");
+//const COMMON_COMPONENT = require("../../system/component/common.js");
+const COMPONENT = require("../../system/component/class.component.js");
 
 
 
 const Plugin = require("./class.plugin.js");
 
 
-class C_PLUGINS extends COMMON_COMPONENT {
+class C_PLUGINS extends COMPONENT {
 
     constructor() {
 
         // inject logger, collection and schema object
         // super(logger, mongodb.client.collection("plugins"), {
-        super(logger, "plugins", {
+        super("plugins", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return new mongodb.ObjectID();
             }),
@@ -31,6 +32,10 @@ class C_PLUGINS extends COMMON_COMPONENT {
             autostart: Joi.boolean().default(true),
             enabled: Joi.boolean().default(true)
         }, module);
+
+        this.hooks.post("add", (data, next) => {
+            next(null, new Plugin(data));
+        });
 
     }
 

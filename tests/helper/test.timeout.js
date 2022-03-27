@@ -4,7 +4,6 @@ const timeout = require("../../helper/timeout");
 
 describe("helper/timeout", () => {
 
-
     it(`Should fire after 100ms`, (done) => {
         timeout(100, (timedout) => {
 

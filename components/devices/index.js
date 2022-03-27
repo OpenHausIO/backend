@@ -9,8 +9,9 @@ const Joi = require("joi");
 
 // create component logger & require root component
 // inherit methods & properites from common component
-const logger = require("../../system/logger").create("devices");
-const COMMON_COMPONENT = require("../../system/component/common.js");
+//const logger = require("../../system/logger").create("devices");
+//const COMMON_COMPONENT = require("../../system/component/common.js");
+const COMPONENT = require("../../system/component/class.component.js");
 
 
 //require("./class.interface.js");
@@ -20,15 +21,13 @@ const Interface = require("./class.interface.js");
 const Device = require("./class.device.js");
 
 
-// TODO delete does not work from API
-
-class C_DEVICES extends COMMON_COMPONENT {
+class C_DEVICES extends COMPONENT {
 
     constructor() {
 
         // inject logger, collection and schema object
         // https://stackoverflow.com/a/37746388/5781499
-        super(logger, mongodb.client.collection("devices"), {
+        super("devices", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return String(new mongodb.ObjectID());
             }),
@@ -36,7 +35,7 @@ class C_DEVICES extends COMMON_COMPONENT {
             room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
             enabled: Joi.boolean().default(true),
             //interfaces: Joi.array().items(Interface.schema()).min(1).required()
-            interfaces: Joi.array().min(1).items(Interface.schema()).required() // TODO validate interfaces schema
+            interfaces: Joi.array().min(1).items(Interface.schema()).required()
         }, module);
 
 
