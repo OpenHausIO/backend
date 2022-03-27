@@ -1,4 +1,5 @@
 const Commands = require("./class.commands.js");
+const States = require("./class.states.js");
 
 module.exports = class Endpoint {
 
@@ -13,6 +14,7 @@ module.exports = class Endpoint {
         this._id = String(obj._id);
 
         this.commands = new Commands(obj.commands);
+        this.states = new States(obj.states);
 
     }
 
