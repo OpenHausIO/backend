@@ -15,7 +15,6 @@ module.exports = class Interface {
             value: stream
         });
 
-        // NOTE: outsource this to a seperate file?!
         // share/set interface stream
         let { interfaceStreams } = global.sharedObjects;
         interfaceStreams.set(this._id, stream);
@@ -47,7 +46,6 @@ module.exports = class Interface {
             mac: Joi.string().default(null).regex(/^([0-9a-fA-F]{2}[:]){5}[0-9a-fA-F]{2}$/)
         }).required();
 
-        // TODO iimplement
         return Joi.object({
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return new mongodb.ObjectID();

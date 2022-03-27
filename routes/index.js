@@ -53,7 +53,6 @@ module.exports = (server) => {
 
 
         // serailize api input fields
-        // NOTE move into component?!
         api.use((req, res, next) => {
 
             // sanitze api input fields?

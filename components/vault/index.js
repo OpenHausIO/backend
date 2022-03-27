@@ -39,7 +39,6 @@ class C_VAULT extends COMPONENT {
     }
 
 
-    // TODO move this into constructor and work with "_defineMethod(..)"? So its hoockable & emit events
     encrypt(identifier, fields, cb) {
         return _promisify((done) => {
 
@@ -52,7 +51,6 @@ class C_VAULT extends COMPONENT {
                 return;
             }
 
-            //FIXME handle null as property/key value to unset a value
 
             // encrypt secret
             target.encrypt(fields, (err, encrypted) => {
@@ -92,7 +90,6 @@ class C_VAULT extends COMPONENT {
         }, cb);
     }
 
-    // TODO move this into constructor and work with "_defineMethod(..)"? So its hoockable & emit events
     decrypt(identifier, cb) {
         return _promisify((done) => {
 

@@ -27,7 +27,7 @@ process.env = Object.assign({
     DATABASE_HOST: "127.0.0.1",
     DATABASE_PORT: "27017",
     DATABASE_NAME: "OpenHaus",
-    DATABASE_TIMEOUT: "5", // FIXME: Does nothing in db config
+    //DATABASE_TIMEOUT: "5", // #8
     DATABASE_URL: "",
     DATABASE_WATCH_CHANGES: "false",
     HTTP_PORT: "8080",
@@ -88,7 +88,7 @@ console.log(`Starting OpenHaus ${(process.env.NODE_ENV !== "production" ? `in "\
 
 
 //require("./system/shared_objects.js");
-// TODO find other way.
+// #9, see #86
 // hits is uglay and hard to maintain
 global.sharedObjects = {
     interfaceStreams: new Map(),
@@ -142,8 +142,8 @@ const init_db = () => {
         mongodb.MongoClient.connect(constr, {
             useUnifiedTopology: true,
             useNewUrlParser: true,
-            connectTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000, // TODO: fix, does nothing
-            socketTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000 // TODO: Fix, does nothing
+            //connectTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000, // #9
+            //socketTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000 // #9
         }, (err, client) => {
 
             if (err) {
@@ -419,7 +419,6 @@ const starter = new Promise((resolve) => {
     logger.debug("Starting plugins...");
 
     let bootable = require("./components/plugins").items.filter((obj) => {
-        // TODO check for runlevel
         return obj.autostart && obj.enabled;
     });
 

@@ -44,7 +44,7 @@ function iterate(data, cb) {
 
     // cb(key, value, type, parent)
 
-    // NOTE check if thing is iterable?
+
     // https://stackoverflow.com/a/53106917/5781499
 
     for (let key in data) {

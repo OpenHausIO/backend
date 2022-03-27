@@ -10,10 +10,6 @@ module.exports = class Device {
         Object.assign(this, props);
         this._id = String(props._id);
 
-        // NOTE fix/do instanceof Duplex check to be true?!
-        // irgendwo im zusammenhang mit Streams? glesen on mdn?
-        // Bookmarks & comments durchsuchen, perhaps working laptop
-
         // create for each interface a interface class instance
         // for each interface class, create a interface stream
         this.interfaces = props.interfaces.map((obj) => {
@@ -41,7 +37,6 @@ module.exports = class Device {
         });
 
         this.interfaces.forEach((iface) => {
-            // TODO do this better, this is ugly
             global.sharedObjects.interfaces.set(iface._id, iface);
         });
 

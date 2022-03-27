@@ -17,7 +17,8 @@ module.exports = class Adapter extends Duplex.from {
 
         let read = new PassThrough(options);
         let write = new PassThrough(options);
-        //super(options, write, read);              // TODO remove after heavy testing, issue #64
+
+
         super({
             readable: read,
             writable: write

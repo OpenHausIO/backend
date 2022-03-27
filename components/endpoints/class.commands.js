@@ -2,7 +2,6 @@ const Hooks = require("../../system/hooks");
 const timeout = require("../../helper/timeout");
 const Command = require("./class.command.js");
 
-// NOTE: create request/response classes for commands like http?
 module.exports = class Commands extends Array {
 
     /**
@@ -133,7 +132,6 @@ module.exports = class Commands extends Array {
             }
 
 
-            // TODO implement/reqrite success/failure auswertung &timeout handling)
             iface.write(cmd.payload, (err) => {
                 if (err) {
 

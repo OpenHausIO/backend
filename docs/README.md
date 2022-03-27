@@ -16,7 +16,6 @@ It describes how to import the downloaded backend image, start a container and m
 | DATABASE_HOST            | `127.0.0.1`               | MongoDB Host                                                      |
 | DATABASE_PORT            | `27017`                   | MongoDB Port                                                      |
 | DATABASE_NAME            | `OpenHaus`                | MongoDB Name                                                      |
-| DATABASE_TIMEOUT         | `5`                       | Timeout for connection                                            |
 | DATABASE_URL             |                           | Full connection url, if set other database settings are ignored   |
 | DATABASE_WATCH_CHANGES   | `false`                   | Watch for changes in database and update object item              |
 | HTTP_PORT                | `8080`                    | HTTP Server port for the API                                      |
