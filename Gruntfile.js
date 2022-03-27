@@ -15,6 +15,13 @@ module.exports = function (grunt) {
             }
         },
         uglify: {
+            /*
+            // NOTE: if true, this truncate variables&class names
+            // Are original names neede for production?!
+            // i dont thinks so, its only usefull in development
+            options: {
+                mangle: false
+            },*/
             build: {
                 files: [{
                     expand: true,

@@ -3,7 +3,7 @@
 
 ## HTTP API
 See [postman.json](../postman.json) for API routes.<br />
-The collection can be easy imported and is read-to-use.
+The collection can be easy imported and is ready-to-use.
 
 ## Docker
 See the [`DOCKER.md`](./DOCKER.md) for working with docker.<br />
@@ -46,20 +46,20 @@ It describes how to import the downloaded backend image, start a container and m
 - [endpoints](./components/endpoints.md)
 - [plugins](./components/plugins.md)
 - [rooms](./components/rooms.md)
-- [<span style="color:gray">scenes</span>](./components/scenes.md)
-- [users](./components/users.md)
 
 ## Helper functions
 - [debounce(func, wait[, immediate])](./helper.md#debouncefunc-wait-immediate)
 - [extend(target, ...sources)](./helper.md#extendtarget-sources)
-- [filter(obj, predicate)](./helper.md#filterobj-predicate)
+- [infinity(worker[,delay])](./helper.md#infintyworker-delay3000)
 - [iterate(obj, cb)](./helper.md#iterateobj-cb)
 - [mixins(objs, options[, lookup])](./helper.md#mixinsobjs-options-lookup)
 - [observe(target[, options, setter, getter])](./helper.md#observetarget-options-setter-getter)
 - [promisify(worker, cb)](./helper.md#promisifyworker-cb)
 - [queue(counter, cb)](./helper.md#queuecounter-cb)
+- [request(url[, options, cb])](./helper.md#requesturloptionscb)
+- [sanitize.encode(input[,rules])](./helper.md#sanitizeencodeinputrules)
+- [sanitize.decode(input[,rules])](./helper.md#sanitizedecodeinputrules)
 - [timeout(time, cb)](./helper.md#timeouttime-cb)
-- [infinity(worker, delay)](./helper.md#infintyworker-delay)
 
 ## System
 - [components](./system/components.md)

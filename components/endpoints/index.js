@@ -10,7 +10,7 @@ const COMPONENT = require("../../system/component/class.component.js");
 
 const Endpoint = require("./class.endpoint.js");
 const Command = require("./class.command.js");
-//const States = require("./class.states.js");
+const State = require("./class.state.js");
 
 
 
@@ -27,7 +27,7 @@ class C_ENDPOINTS extends COMPONENT {
             room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
             device: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
             commands: Joi.array().items(Command.schema()).default([]),
-            //states: Joi.array().items(States.schema()).default([]),
+            states: Joi.array().items(State.schema()).default([]),
             identifier: Joi.any().allow(null).default(null),   // usefull for ssdp, etc.
             icon: Joi.string().allow(null).default(null)
         }, module);
