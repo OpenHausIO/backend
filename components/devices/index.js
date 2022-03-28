@@ -22,7 +22,6 @@ const Device = require("./class.device.js");
 
 
 class C_DEVICES extends COMPONENT {
-
     constructor() {
 
         // inject logger, collection and schema object
@@ -90,17 +89,6 @@ class C_DEVICES extends COMPONENT {
         });
 
     }
-
-    match() {
-
-        let matches = this.items.filter((device) => {
-            return device.name === "ZigBee Gateway";
-        });
-
-        return matches;
-
-    }
-
 }
 
 
