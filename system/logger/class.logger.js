@@ -76,15 +76,22 @@ module.exports = class Logger {
         let fired = false;
 
         return (msg) => {
+            if (!fired) {
 
-            counter += 1;
+                counter += 1;
 
-            this.trace(`${desc}; ${counter}/${count}; ${msg}`);
+                this.trace(`${desc}; ${counter}/${count}; ${msg}`);
 
-            if (counter >= count && !fired) {
-                this.trace(cb());
+                if (counter >= count && !fired) {
+                    this.trace(cb());
+                    fired = true;
+                }
+
+            } else {
+
+                this.warn(`${desc}; Called more than ${count} times!`);
+
             }
-
         };
 
     }
