@@ -42,10 +42,13 @@ module.exports = (app, router) => {
 
             let component = require(`../components/${name}/index.js`);
 
-            component.events.on("add", reemit("add", name));
-            component.events.on("get", reemit("get", name));
-            component.events.on("update", reemit("update", name));
-            component.events.on("remove", reemit("remove", name));
+            // gets every method which is create with `._defineMethod`
+            // find a way to find other methods? -> no, because they dont emit anything
+            Object.getOwnPropertyNames(component).filter((prop) => {
+                return component[prop] instanceof Function;
+            }).forEach((method) => {
+                component.events.on(method, reemit(method, name));
+            });
 
         } catch (err) {
 

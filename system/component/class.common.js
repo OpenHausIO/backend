@@ -2,6 +2,20 @@ const BASE = require("./class.base.js");
 
 const promisify = require("../../helper/promisify");
 
+/**
+ * @description
+ * Class description
+ * 
+ * @class COMMON
+ * 
+ * @extends BASE system/component/class.base.js
+ * 
+ * @param {Object} logger Logger instance
+ * 
+ * @property {Logger} logger Logger instance
+ * 
+ * @see Logger system/logger/
+ */
 module.exports = class COMMON extends BASE {
 
     constructor(logger) {
@@ -12,6 +26,13 @@ module.exports = class COMMON extends BASE {
 
     }
 
+    /**
+     * @function _defineMethod
+     * Defines a hookable/event emitting method on component scope
+     * 
+     * @param {String} name Name of the method that gets patche into the scope
+     * @param {Function} executor Wokrer function that does the actual implementation
+     */
     _defineMethod(name, executor) {
         Object.defineProperty(this, name, {
             value: (...args) => {

@@ -3,6 +3,14 @@ const safe = require("colors/safe");
 
 const levels = require("./levels.js");
 
+/**
+ * @function format
+ * Formats a logger record
+ * 
+ * @param {Object} rec Logging record
+ * 
+ * @returns {String} Formatted message
+ */
 module.exports = (rec) => {
 
     let methods = levels.colors[rec.level].split(",");

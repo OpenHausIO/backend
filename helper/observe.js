@@ -1,12 +1,15 @@
 // https://javascript.info/task/observable
 
 /**
+ * @function observe
+ * Observe a object like thing
  * 
- * @param {object} target 
- * @param {obect} options 
- * @param {function} setter 
- * @param {function} getter 
- * @returns 
+ * @param {Object} target 
+ * @param {Object} options 
+ * @param {Function} setter 
+ * @param {Function} getter 
+ * 
+ * @returns {Proxy} Observed object
  */
 function observe(target, options, getter, setter) {
 

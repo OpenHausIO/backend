@@ -3,6 +3,23 @@ const Interface = require("./class.interface.js");
 
 const mixins = require("../../helper/mixins.js");
 
+/**
+ * @description
+ * Device item in component `.items` array
+ * 
+ * @class Device
+ * 
+ * @param {Object} props Object that matches the item schema. See properties below:
+ * 
+ * @property {String} _id MongoDB Object id is as string
+ * @property {String} name Human readable name
+ * @property {String} room Simle identifier to find the secret when you need it
+ * @property {Boolean} enabled Can we read/write data to/from the device
+ * @property {Array} interfaces Objects that match the interface schema
+ * 
+ * @see interface components/devices/class.interface.js
+ * @see interfaceStream components/devices/class.interfaceStream.js
+ */
 module.exports = class Device {
     constructor(props) {
 

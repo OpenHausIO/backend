@@ -1,3 +1,11 @@
+/**
+ * @function extend
+ * 
+ * @param {Object} target Target to merge sources into
+ * @param {...Object} sources Source objects to merge into target
+ * 
+ * @returns {Object} target
+ */
 function extend(target, ...sources) {
 
     // https://vanillajstoolkit.com/helpers/deepmerge/

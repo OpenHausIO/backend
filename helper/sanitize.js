@@ -13,10 +13,20 @@ const RULES = [
 
 
 /**
+ * @function encode
+ * Encode/replace a string 
+ *  
+ * @param {String} str String to encode
+ * @param {Array} rules Additional array of rules to apply
  * 
- * @param {string} str 
- * @param {array} rules 
- * @returns 
+ * @returns {String} Returns the encoded string
+ * 
+ * @example
+ * ```js * 
+ * const { encode } = require(".../helper/sanitize");
+ * 
+ * encode("<harmful> ../../etc/passwd string"); // &lt;harmful&gt; ..&#x2F;..&#x2F;etc&#x2F;passwd string
+ * ```
  */
 function encode(str, rules = []) {
     return [
@@ -31,10 +41,20 @@ function encode(str, rules = []) {
 }
 
 /**
+ * @function decode
+ * Decode a encoded string
+ *  
+ * @param {String} str Input string
+ * @param {Array} rules Additional array of rules to apply
  * 
- * @param {string} str 
- * @param {array} rules 
- * @returns 
+ * @returns {String} Returns the decoded string
+ * 
+ * @example
+ * ```js
+ * const { decode } = require(".../helper/sanitize");
+ * 
+ * decode("&gt; Hello World &lt;"); // > Hello World <
+ * ```
  */
 function decode(str, rules = []) {
     return [

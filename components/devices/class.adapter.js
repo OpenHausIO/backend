@@ -4,6 +4,18 @@ const { Duplex } = require("stream");
 
 // see: https://github.com/OpenHausIO/backend/issues/64
 //module.exports = class Adapter extends DuplexWrapper {
+
+/**
+ * @description
+ * Create a encode/decode data flow with adapters
+ * 
+ * @class Adapter 
+ * @extends Duplex https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#class-streamduplex
+ * 
+ * @param {Array} stack Gute frage....
+ * @param {Object} upstream Upstream socket connecto to device (WebSocket)
+ * @param {Object} options Duplex stream options
+ */
 module.exports = class Adapter extends Duplex.from {
     constructor(stack, upstream, options) {
 

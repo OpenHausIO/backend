@@ -12,7 +12,20 @@ const COMPONENT = require("../../system/component/class.component.js");
 
 const Plugin = require("./class.plugin.js");
 
+/**
+ * @description
+ * The Plugin component handles everything that has to do with plugins
+ * 
+ * @class C_PLUGINS
+ * @extends COMPONENT system/component/class.component.js
 
+ * @example 
+ * ```js
+ * const C_PLUGINS = require(".../components/plugins");
+ * 
+ * console.log(C_PLUGINS.items);
+ * ```
+ */
 class C_PLUGINS extends COMPONENT {
 
     constructor() {

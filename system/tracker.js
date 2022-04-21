@@ -1,10 +1,10 @@
-
-// @TODO Remove?!
-
 /**
+ * @function track
+ * Track the line of exection
+ *
+ * @param {Number} depth Deept of dtracking
  * 
- * @param {number} depth 
- * @returns 
+ * @returns {Object} object with information of caller `.line` & `.filename`
  */
 module.exports = function track(depth = 0) {
 

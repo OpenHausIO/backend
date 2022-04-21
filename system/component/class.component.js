@@ -6,7 +6,35 @@ const _propertys = require("../../helper/propertys");
 
 const COMMON = require("./class.common.js");
 
-
+/**
+ * @description
+ * Parent class for components which provides hookable, event emitting methods:
+ * - add
+ * - get
+ * - update
+ * - remove
+ * - find
+ * 
+ * @class COMPONENT
+ * 
+ * @extends COMMON system/component/class.common.js
+ * 
+ * @property {Array} items Store where instance of items are keept
+ * @property {Object} collection MongoDB collection instance 
+ * @property {Object} schema Joi Object schema which is extend by a timestamp object:
+ * @property {Object} timestamps Timestamps
+ * @property {Number} timestamps.created Set to `Date.now()` when a item is created/added
+ * @property {Number} timestamps.updated Set to `Date.now()` when a item is updated
+ * 
+ * @emits add When function has completed
+ * @emits get When function has completed
+ * @emits remove When function has completed
+ * @emits update When function has completed
+ * @emits find When function has completed
+ * 
+ * @link https://mongodb.github.io/node-mongodb-native/3.7/api/Db.html#collection
+ * @link https://joi.dev/api/?v=17.6.0#object
+ */
 module.exports = class COMPONENT extends COMMON {
 
     constructor(name, schema, parent) {
@@ -168,7 +196,12 @@ module.exports = class COMPONENT extends COMMON {
             }
         }
 
-
+        /**
+         * @function add
+         * Adds a new item that matches the component schema
+         * 
+         * @param {Object} data Object that matches the component schema
+         */
         this._defineMethod("add", (final) => {
 
             final((item) => {
@@ -215,6 +248,12 @@ module.exports = class COMPONENT extends COMMON {
         });
 
 
+        /**
+         * @function get
+         * Returns a item that matches the <_id> property
+         * 
+         * @param {String} _id Item ObjectId as string (<._id>)
+         */
         this._defineMethod("get", () => {
             return (_id) => {
                 return new Promise((resolve) => {
@@ -233,6 +272,12 @@ module.exports = class COMPONENT extends COMMON {
         });
 
 
+        /**
+         * @function remove
+         * Removes a item from the database and the `.items` array
+         *
+         * @param {String} _id Removes item with matching ObjectId as string (<._id>)
+         */
         this._defineMethod("remove", (final) => {
 
             final((target) => {
@@ -277,6 +322,13 @@ module.exports = class COMPONENT extends COMMON {
         });
 
 
+        /**
+         * @function update
+         * Updates a existing item in the database  & `.items` array
+         * 
+         * @param {String} _id Item ObjectId as string (<._id>)
+         * @param {Object} data Partial object properties to update item
+         */
         this._defineMethod("update", () => {
             return (_id, data) => {
                 return new Promise((resolve, reject) => {
@@ -348,6 +400,12 @@ module.exports = class COMPONENT extends COMMON {
         });
 
 
+        /**
+         * @function find
+         * Find matching item with key/values 
+         * 
+         * @param {Object} query key/value pair to search for in `.items` array
+         */
         this._defineMethod("find", () => {
             return (query) => {
                 return new Promise((resolve, reject) => {
@@ -381,21 +439,38 @@ module.exports = class COMPONENT extends COMMON {
 
     }
 
+
+    // 
     /*
-        _exportItemMethod(name, promise = false) {
-            this._defineMethod(name, (final) => {
+        _exportItemMethod(name, prop) {
+            this._defineMethod(name, () => {
     
-                return (...args) => {
+                return (_id, ...args) => {
+    
+                    // _promisify(() => {}, args.pop()); ?!
+    
                     return new Promise((resolve, reject) => {
     
+                        let target = this.items.find((item) => {
+                            return item._id === _id;
+                        });
     
+                        if (!target) {
+                            reject(new Error(`Item with _id "${_id}" not found`));
+                            return;
+                        }
+    
+                        if (target[prop] instanceof Function) {
+                            target[prop].apply(target, args);
+                        }
     
                     });
+    
                 };
     
             });
         }
-        */
+    */
 
 
     /*

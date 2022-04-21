@@ -3,6 +3,15 @@ const util = require("util");
 
 const levels = require("./levels");
 
+/**
+ * @description
+ * Logger class which create a custom logger object
+ * 
+ * @param {Object} options Options object
+ * @param {String} options.level Logging level: `error`, `warn`, `info`, `debug`, `verbose`, `trace`
+ * @param {String} options.name Logger name that is shown in messages
+ * @param {Array} options.streams Array of streams where to write data
+ */
 module.exports = class Logger {
 
     constructor(options) {
@@ -70,21 +79,57 @@ module.exports = class Logger {
 
     }
 
+    /**
+     * @function tracer
+     * Provides a logger that decrements a counter, which can be used to illustrate a function flow
+     * 
+     * @param {String} desc Description of the thing you want to "trace"
+     * @param {Number} count How many client calls till "Finished!" is logged?
+     * @param {Function} cb Callback which returns a custom "finish" message
+     * 
+     * @example
+     * ```js
+     * const Logger = require(".../system/logger/class.logger.js");
+     * const logger = new Logger({
+     *   streams: [
+     *     process.stdout
+     *   ]
+     * });
+     * 
+     * const tracer = logger.tracer("Called 3 times", 3, () => {
+     *   console.log(".tracer has called 3 times");
+     *   return "Yeah! You got it, its done.";
+     * });
+     * 
+     * tracer("Foo");
+     * tracer("Bar");
+     * tracer("Baz");
+     * ```
+     * 
+     * @returns {Function} Wrapped logger function
+     */
     tracer(desc, count, cb = () => "Finished!") {
 
         let counter = 0;
         let fired = false;
 
         return (msg) => {
+            if (!fired) {
 
-            counter += 1;
+                counter += 1;
 
-            this.trace(`${desc}; ${counter}/${count}; ${msg}`);
+                this.trace(`${desc}; ${counter}/${count}; ${msg}`);
 
-            if (counter >= count && !fired) {
-                this.trace(cb());
+                if (counter >= count && !fired) {
+                    this.trace(cb());
+                    fired = true;
+                }
+
+            } else {
+
+                this.warn(`${desc}; Called more than ${count} times!`);
+
             }
-
         };
 
     }

@@ -1,7 +1,31 @@
 const Joi = require("joi");
 const mongodb = require("mongodb");
 
-/*
+
+/**
+ * @description
+ * Single command
+ * 
+ * @class Command
+ * 
+ * @param {Object} obj Object that matches the item schema. See properties below:
+ * 
+ * @property {String} [_id=ObjectID] MongoDB ObjectID as String
+ * @property {String} interface Device Interface `_id`
+ * @property {String} name Human friendly name
+ * @property {String} alias Machine friendly name, e.g.: `POWER_ON`
+ * @property {String} [identifier=null] Simple/custom identifiert for custom command handler
+ * @property {String} payload The payload to send over the device interface
+ * @property {String} [description=""] Command description, displayed on the frontend
+ * @property {Array} params Possible parameter for the command
+ * @property {String} params[].key Custom key
+ * @property {Any} params[].value Value to set
+ * @property {String} params[].default Default thing if nothing is send from client
+ * @property {String} params[].min Min value if param type is a number
+ * @property {String} params[].max Max value if param type is a number
+ * 
+ * @example 
+ * ```json
 {
     _id: "604a75e6eb5de037846df24c",
     name: "Power On",                           // Human redable
@@ -39,15 +63,10 @@ const mongodb = require("mongodb");
     payload: "AMTTG",
     interface: "603fe5d18791152879a9babd"
 }
-*/
-
+  ```
+ */
 module.exports = class Command {
 
-    /**
-     * Command object
-     * @constructor
-     * @param {*} obj 
-     */
     constructor(obj) {
 
         Object.assign(this, obj);
@@ -57,9 +76,12 @@ module.exports = class Command {
 
 
     /**
+     * @function schema
      * Command schema
+     * 
      * @static
-     * @returns Joi Object
+     * 
+     * @returns {Object} Joi Object
      */
     static schema() {
         return Joi.object({
@@ -84,9 +106,16 @@ module.exports = class Command {
 
 
     /**
+     * @function validate
      * Validate schema object
-     * @param {*} obj 
-     * @returns 
+     * 
+     * @param {Object} obj Input data to validate
+     * 
+     * @static
+     * 
+     * @link https://joi.dev/api/?v=17.6.0#anyvalidatevalue-options
+     * 
+     * @returns {Object} Joi validation response 
      */
     static validate(obj) {
         return Command.schema().validate(obj);
