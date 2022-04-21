@@ -1,13 +1,29 @@
 const Commands = require("./class.commands.js");
 const States = require("./class.states.js");
 
+/**
+ * @description
+ * Endpoint item, stored in the component `.items` Array.
+ * 
+ * @class Endpoint
+ * 
+ * @param {Object} obj Object that matches the item schema. See properties below:
+ * 
+ * @property {String} [_id=ObjectID] MongoDB ObjectID as String
+ * @property {String} name User friendly name
+ * @property {Boolean} [enabled=true] Is hits item active?
+ * @property {String} room MongoDB ObjectID as String
+ * @property {String} device MongoDB ObjectID as String
+ * @property {Commands} commands Commands Array
+ * @property {States} states States Array
+ * @property {String} [identifier=null] Machine readable/hardcoded identifier
+ * @property {String} icon [Fontawesome](https://fontawesome.com/) icon class
+ * 
+ * @see Rooms components/rooms/
+ * @see Devices components/devices/
+ * @see InterfaceStream components/devices/class.interfaceStream.js
+ */
 module.exports = class Endpoint {
-
-    /**
-     * Endpoint constructor
-     * @constructor
-     * @param {*} obj 
-     */
     constructor(obj) {
 
         Object.assign(this, obj);
@@ -17,5 +33,4 @@ module.exports = class Endpoint {
         this.states = new States(obj.states);
 
     }
-
 };

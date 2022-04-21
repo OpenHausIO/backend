@@ -9,6 +9,33 @@ const _promisify = require("../../helper/promisify");
 
 const Secret = require("./class.secret.js");
 
+/**
+ * @description
+ * Vault component to handle secrets, credentials & tokens.<br />
+ * This is used to store encrypted access data for gateways/APIs.<br />
+ * Use this if a API needs to be authenticated.<br />
+ *  
+ * @class C_VAULT
+ * @extends COMPONENT system/component/class.component.js
+ * 
+ * @example 
+ * ```js
+ * const C_VAULT = require(".../components/vault");
+ * 
+ * C_VAULT.decrypt("FRITZBOX", (err, fields) => {
+ *   console.log(err, fields);
+ * });
+ * ```
+ * 
+ * @example 
+ * ```js
+ * const C_VAULT = require(".../components/vault");
+ * 
+ * C_VAULT.events.on("add", (item) => {
+ *   console.log("New vault/secret added", item)
+ * });
+ * ```
+ */
 class C_VAULT extends COMPONENT {
 
     constructor() {
@@ -39,6 +66,15 @@ class C_VAULT extends COMPONENT {
     }
 
 
+    /**
+     * @function encrypt
+     * Encrypt a vault
+     * 
+     * @param {String} identifier 
+     * @param {Array} fields 
+     * 
+     * @returns {Function} cb 
+     */
     encrypt(identifier, fields, cb) {
         return _promisify((done) => {
 
@@ -90,6 +126,17 @@ class C_VAULT extends COMPONENT {
         }, cb);
     }
 
+
+    /**
+     * @function decrypt
+     * 
+     * Decrypt a vault
+     * 
+     * @param {String} identifier 
+     * @param {Function} cb Callback
+     * 
+     * @returns  {Function} cb 
+     */
     decrypt(identifier, cb) {
         return _promisify((done) => {
 

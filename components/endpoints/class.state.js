@@ -1,13 +1,28 @@
 const Joi = require("joi");
 const mongodb = require("mongodb");
 
+/**
+ * @description
+ * This is a functions as a state for a endpoint.<br />
+ * E.g "Power" state, or "Volume"
+ * 
+ * @class State
+ * 
+ * @param {Object} obj Object that matches the item schema. See properties below:
+ * 
+ * @property {String} [_id=ObjectID] MongoDB ObjectID as String
+ * @property {String} name State name. E.g.: <code>Power</code> or <code>Temperature</code>
+ * @property {String} [description=null] State description, e.g.: <code>Power state</code> or <code>Room temperature</code>
+ * @property {String,Number,Boolean} value The setted value
+ * @property {String,Number,Boolean} type Type of state value
+ * @property {String} [identifier=null] Machine readable identifier, e.g.: <code>POWER</code> or <code>TEMPERATURE</code>
+ * @property {Object} timestamps Timestamps that are set when added or updated
+ * @property {Number} [timestamps.created=Date.now()] Set when added
+ * @property {Number} timestamps.updated Every time set to Date.now() when a value is set
+ */
 module.exports = class State {
 
-    /**
-     * State object
-     * @constructor
-     * @param {*} obj 
-     */
+
     constructor(obj) {
 
         Object.assign(this, obj);
@@ -46,9 +61,14 @@ module.exports = class State {
 
 
     /**
-     * State schema
+     * @function schema
+     * State schema, see properties above.
+     * 
      * @static
-     * @returns Joi Object
+     * 
+     * @returns {Object} Joi Object
+     * 
+     * @link https://joi.dev/api/?v=17.6.0#anyvalidatevalue-options
      */
     static schema() {
         return Joi.object({
@@ -85,9 +105,16 @@ module.exports = class State {
 
 
     /**
+     * @function validate
      * Validate schema object
-     * @param {*} obj 
-     * @returns 
+     * 
+     * @static
+     * 
+     * @param {Object} obj Input data that matches the schema
+     * 
+     * @returns {Object} Joi validation object
+     * 
+     * @link https://joi.dev/api/?v=17.6.0#anyvalidatevalue-options
      */
     static validate(obj) {
         return State.schema().validate(obj);

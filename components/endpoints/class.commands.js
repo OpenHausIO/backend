@@ -2,13 +2,21 @@ const Hooks = require("../../system/hooks");
 const timeout = require("../../helper/timeout");
 const Command = require("./class.command.js");
 
+/**
+ * @description
+ * Houses <Command> classes, just like a regular array, with custom methods
+ * 
+ * @class Commands
+ * 
+ * @param {Array} arr Array with items that inherit
+ * 
+ * @property {Map} handler Handler functions for commands
+ * @property {Hooks} hooks Hooks class instance
+ * 
+ * @extends Array
+ */
 module.exports = class Commands extends Array {
 
-    /**
-     * Commands object, array like
-     * @constructor
-     * @param {Array} arr Command objects
-     */
     constructor(arr) {
 
         super();
@@ -41,11 +49,12 @@ module.exports = class Commands extends Array {
 
 
     /**
+     * @function execute
      * Execute command
+     * 
      * @param {String} _id MongoDB ObjectID as string (Command id)
      * @param {Array} params Command parameters 
      * @param {Function} cb Callback
-     * @returns 
      */
     execute(_id, params, cb) {
 
@@ -176,10 +185,12 @@ module.exports = class Commands extends Array {
 
 
     /**
+     * @function handle
      * Set custom command handler
+     * 
      * @param {Array,Boolean,String} aliases Register <handler> for command/alias
-     * @param {function} handler Function that handle the command execution
-     * @param {function} cb Callback for errors/success
+     * @param {Function} handler Function that handle the command execution
+     * @param {Function} cb Callback for errors/success
      */
     handle(aliases, handler, cb = () => { }) {
 

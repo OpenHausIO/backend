@@ -1,11 +1,16 @@
 /**
+ * @function iterate
  * Iterate over each (child) item and preserves object structure
+ * 
  * @param {*} data Anything you want to iterate over its items
  * @param {function} cb function that is called for/on each item
+ * 
  * @returns input data (may be modified by callback function)
+ * 
  * @example
- * ```
- const input = JSON.stringify({
+ * ```js
+ * const _iterate = require(".../helper/iterate.js");
+const input = JSON.stringify({
     data: true,
     timestamp: Date.now(),
     array: [1, 2, 3],
@@ -20,7 +25,7 @@ const output = JSON.parse(input);
 
 console.log(output.buffer)
 
-const modified = iterate(output, (key, value, type, parent) => {
+const modified = _iterate(output, (key, value, type, parent) => {
 
     //console.log(`${key} = ${value}; ${type},; parent = ${parent}`)
 

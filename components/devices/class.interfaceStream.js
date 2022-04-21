@@ -11,6 +11,16 @@ const kSource = Symbol("source");
 // https://www.freecodecamp.org/news/node-js-streams-everything-you-need-to-know-c9141306be93/
 // https://livebook.manning.com/book/node-js-in-practice/chapter-5/37
 
+/**
+ * @description
+ * Handle the Stream implementation for Interfaces
+ * 
+ * @class InterfaceStream
+ * @extends Duplex https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#class-streamduplex
+ *  
+ * @property {Object} [options={}] Duplex stream options
+ * @property {Array} [adapter=["raw"]] Adapter to use for encoding/decoding data
+ */
 module.exports = class InterfaceStream extends Duplex {
 
     // not called, because mixins/prroxy?

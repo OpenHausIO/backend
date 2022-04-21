@@ -1,8 +1,38 @@
 const Middleware = require("./middleware.js");
 const { v4: uuidv4 } = require("uuid");
 
+/**
+ * @description
+ * Hooks are wrapping a Middleware instance around a namespace with post/pre hooks
+ * 
+ * @class Hooks
+ * 
+ * @property {Object} namepsace Namespace wrapper for middleware instances
+ * 
+ * @example
+ * ```js
+ * const hooks = new Hooks();
+ * 
+ * hooks.pre("foo", (data, next) => {
+ *   console.log("[foo] .pre; 1", data);
+ *   next();
+ * });
+ * 
+ * hooks.post("foo", (data, next) => {
+ *   console.log("[foo] .post 2", data);
+ *   next();
+ * });
+ * 
+ * hooks.trigger("foo", {}, (err, data) => {
+ *   console.log(err || "[foo] .trigger; modified: ", data);
+ * });
+ * ```
+ */
 module.exports = class Hooks {
 
+    /**
+     * @constructor
+     */
     constructor() {
         // NOTE change to map/set?
         this.namespace = {};
@@ -11,8 +41,9 @@ module.exports = class Hooks {
     /**
      * Create request message object for websocket hooks
      * @static
+     * @deprecated
      * @param {obj} data 
-     * @returns 
+     * @returns {Object} request object
      */
     static WS_REQUEST(data) {
 
@@ -47,8 +78,9 @@ module.exports = class Hooks {
     /**
      * Create response message object for websocket hooks
      * @static
+     * @deprecated
      * @param {*} data 
-     * @returns 
+     * @returns {Object} response object
      */
     static WS_RESPONSE(data) {
 
@@ -80,6 +112,14 @@ module.exports = class Hooks {
     }
 
 
+    /**
+     * @function _namespace
+     * Create or returns a new namespace
+     * 
+     * @param {String} name Namepsace
+     * 
+     * @returns {Object} Namespace object
+     */
     _namespace(name) {
 
         if (!this.namespace[name]) {
@@ -94,6 +134,14 @@ module.exports = class Hooks {
     }
 
 
+    /**
+     * @function _handleEventType
+     * Handle event type for namespace middleware
+     * 
+     * @param {String} type Type of middleware: pre/post
+     * @param {String,Array} name Namespace
+     * @param {Function} cb Callback to add for middleware (`.use(...)`)
+     */
     _handleEventType(type, name, cb) {
         if (name instanceof Array) {
             name.forEach((name) => {
@@ -116,15 +164,61 @@ module.exports = class Hooks {
         }
     }
 
+
+    /**
+     * @function pre
+     * Add function to pre middleware stack
+     * 
+     * @param {String} name Namespace
+     * @param {Function} cb Callback
+     * 
+     * @example
+     * ```js
+     * pre("foo", (data, next) => {
+     *   data.ts = Date.now();
+     *   next();
+     * });  
+     * ```     
+     */
     pre(name, cb) {
         return this._handleEventType("pre", name, cb);
     }
 
 
+    /**
+     * @function post
+     * Add function to post middleware stack
+     * 
+     * @param {String} name Namespace
+     * @param {Function} cb Callback
+     *
+     * @example
+     * ```js
+     * post("foo", (data, next) => {
+     *   data.obj = false;
+     *   next();
+     * });
+     * ```
+     */
     post(name, cb) {
         return this._handleEventType("post", name, cb);
     }
 
+
+    /**
+     * @function trigger
+     * Trigger a pre/post middleware namespace execution
+     * 
+     * @param {String} name Namespace
+     * @param  {...any} args Arguments to pass to function stack
+     *
+     * @example
+     * ```js
+     * trigger("foo", {obj: true}, (err, obj) => {
+     *   console.log(err, obj);
+     * });
+     * ```
+     */
     trigger(name, ...args) {
 
         let { pre, post } = this._namespace(name);

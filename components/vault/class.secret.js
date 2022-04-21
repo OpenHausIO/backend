@@ -4,6 +4,24 @@ const crypto = require("crypto");
 // https://www.tutorialspoint.com/encrypt-and-decrypt-data-in-nodejs
 // https://stackoverflow.com/q/70093261/5781499
 
+/**
+ * @description
+ * Represents a single secret that wraps encrypt/decrypt methods
+ * 
+ * @class Secret
+ * 
+ * @param {Object} obj Object that matches the item schema. See properties below:
+ * 
+ * @property {String} _id MongoDB Object id is as string
+ * @property {String} name Human readable name
+ * @property {String} identifier Simle identifier to find the secret when you need it
+ * @property {Array} fields[] Fields for the secret
+ * @property {String} fields[]._id MongoDB Object id is as string
+ * @property {String} fields[].name Human readable name
+ * @property {String} [fields[].description=null] Description of the field
+ * @property {String} fields[].key Simple machine readable key. E.g.: ```PASSWORD``` or ```TOKEN```
+ * @property {String} fields[].value Value for the key field. E.g: ```Pa$$w0rd``` or ```eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c```
+ */
 class Secret {
 
     constructor(obj) {
@@ -52,6 +70,13 @@ class Secret {
     }
 
 
+    /**
+     * @function encrypt
+     * Encrypt on or more fields
+     * 
+     * @param {Object} data Key/value pair to encrypt
+     * @param {Function} cb Callback
+     */
     encrypt(data, cb) {
         try {
 
@@ -80,6 +105,13 @@ class Secret {
     }
 
 
+    /**
+     * @function decrypt
+     * Decrypt all exisiting fields
+     * 
+     * @param {Function} cb Callback
+     */
+    // @TODO add array for keys that should be decrypted?
     decrypt(cb) {
         try {
 

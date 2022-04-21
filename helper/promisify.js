@@ -1,8 +1,11 @@
 /**
+ * @function promisfy
  * Promsify a callback function
- * @param {function}} worker 
- * @param {function} cb 
- * @returns 
+ * 
+ * @param {Function} worker Function to implement the logic
+ * @param {Function} cb Optional provided callback
+ * 
+ * @returns {Promise} Callback function
  */
 function promisfy(worker, cb) {
 

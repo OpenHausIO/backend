@@ -13,7 +13,31 @@ const Command = require("./class.command.js");
 const State = require("./class.state.js");
 
 
-
+/**
+ * @description
+ * The Endpoints component is responsible for triggering commands, handle states & manage all kind of things that a endpoint does.<br />
+ * This is a line break
+ *
+ * @class C_ENDPOINTS
+ * @extends COMPONENT system/component/class.component.js
+ * 
+ * @example 
+ * ```js
+ * const C_ENDPOINTS = require(".../components/endpoints");
+ * 
+ * C_ENDPOINTS.hooks.post("update", (item, next) => {
+ *   console.log("Updated item", item);
+ *   next();
+ * });
+ * ```
+ * 
+ * @example
+ * ```js
+ * const C_ENDPOINTS = require(".../components/endpoints");
+ * 
+ * console.log(C_ENDPOINTS.items);
+ * ```
+ */
 class C_ENDPOINTS extends COMPONENT {
     constructor() {
 

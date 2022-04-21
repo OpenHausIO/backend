@@ -2,7 +2,24 @@ const Joi = require("joi");
 const { Agent } = require("http");
 const mongodb = require("mongodb");
 
-
+/**
+ * @description
+ * Implements a interface item, that hides a duplex stream in it, to read/write data from a device interface
+ * 
+ * @class Interface
+ * 
+ * @param {Object} obj Object that matches the item schema. See properties below:
+ * @param {InterfaceStream} stream Instance of a InterfaceStream object
+ * 
+ * @property {String} _id MongoDB Object id is as string
+ * @property {String} type Type of the interface, `SERIAL` or `ETHERNET`
+ * @property {Object} settings Interface specifiy type settings.
+ * @property {Array} [adapter=["raw"]] Array of adapter to use for encoding/decoding data: `base64`, `eiscp`, `json`, `raw`
+ * 
+ * @see interfaceStream components/devices/class.interfaceStream.js
+ * @link https://github.com/OpenHausIO/backend/blob/dev/components/devices/class.interface.js#L27
+ * @link https://github.com/OpenHausIO/backend/blob/dev/components/devices/class.interface.js#L40
+ */
 module.exports = class Interface {
 
     constructor(obj, stream) {
@@ -21,6 +38,14 @@ module.exports = class Interface {
 
     }
 
+    /**
+     * @function schema
+     * Interface schema 
+     * 
+     * @static
+     * 
+     * @returns {Object} https://joi.dev/api/?v=17.6.0#anyvalidatevalue-options
+     */
     static schema() {
 
         // settings from node.js serialport (https://serialport.io/docs/api-bindings-cpp#open)
@@ -65,6 +90,16 @@ module.exports = class Interface {
     }
 
 
+    /**
+     * @function httpAgent
+     * Creates a custom http agent which use the underalying interfaceStream to forward data
+     * 
+     * @param {Object} [options] httpAgent options 
+     * 
+     * @returns {Object} httpAgent object
+     * 
+     * @link https://nodejs.org/dist/latest-v16.x/docs/api/http.html#new-agentoptions 
+     */
     httpAgent(options) {
 
         options = Object.assign({
