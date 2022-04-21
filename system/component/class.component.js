@@ -2,6 +2,7 @@ const mongodb = require("mongodb");
 const Joi = require("joi");
 
 const _extend = require("../../helper/extend");
+const _propertys = require("../../helper/propertys");
 
 const COMMON = require("./class.common.js");
 
@@ -16,8 +17,49 @@ module.exports = class COMPONENT extends COMMON {
 
         super(require("../../system/logger").create(name));
 
-        this.items = []; // NOTE hide this behind a proxy object to watch for changes, like update schema when changed?
+        // "secret" items array
+        let items = [];
+
+        //this.items = []; // NOTE hide this behind a proxy object to watch for changes, like update schema when changed?
+        this.items = new Proxy(items, {
+            get: (target, prop) => {
+
+                // ignore all methods/properties
+                // NOTE check if prop is a number/index?
+                if (![..._propertys(items) && typeof (prop) === "number"].includes(prop)) {
+                    this.events.emit("get", target[prop]);
+                }
+
+                return target[prop];
+
+            },
+            set(obj, prop, value) {
+
+                // ignore all methods/properties
+                if (![..._propertys(items) && typeof (prop) === "number"].includes(prop)) {
+
+                    // preparation for #75
+
+                    // apply missing item properties here
+                    // verfiy object item, if verfiy fails, return false
+                    //console.log("Add item: %j", value);
+
+                    //let { error } = schema.validate(value);
+                    //return error ? false : true;
+                    // save update obj in database?
+
+                    //return false;
+
+                }
+
+                obj[prop] = value;
+                return true;
+
+            }
+        });
+
         this.collection = mongodb.client.collection(name);
+
         this.schema = Joi.object({
             ...schema,
             timestamps: Joi.object({
@@ -130,7 +172,8 @@ module.exports = class COMPONENT extends COMMON {
         this._defineMethod("add", (final) => {
 
             final((item) => {
-                this.items.push(item);
+                //this.items.push(item);
+                items.push(item);
                 return Promise.resolve();
             });
 
