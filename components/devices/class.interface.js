@@ -34,11 +34,12 @@ module.exports = class Interface {
             xon: Joi.boolean().default(false),
             xoff: Joi.boolean().default(false),
             xany: Joi.boolean().default(false),
-            hupcl: Joi.boolean().default(true),
+            hupcl: Joi.boolean().default(true)
         }).required();
 
         const ETHERNET = Joi.object({
-            transport: Joi.string().valid("tcp", "udp", "raw").default("tcp"),
+            //transport: Joi.string().valid("tcp", "udp", "raw").default("tcp"),
+            socket: Joi.string().valid("tcp", "udp", "raw").default("tcp"),
             host: Joi.string().required(),
             port: Joi.number().min(1).max(65535).required(),
             // https://regex101.com/r/wF7Nfa/1
@@ -51,7 +52,6 @@ module.exports = class Interface {
                 return new mongodb.ObjectID();
             }),
             type: Joi.string().default("ETHERNET"),
-            //transport: Joi.string().valid("tcp", "udp", "ws").required(),   // NOTE: Change key to "socket"?! -> socket: "tcp" | "udp" | "raw"
             settings: Joi.object().when("type", {
                 is: "ETHERNET",
                 then: ETHERNET
@@ -59,7 +59,8 @@ module.exports = class Interface {
                 is: "SERIAL",
                 then: SERIAL
             }),
-            adapter: Joi.array().items("base64", "eiscp", "json", "raw").default(["raw"])
+            adapter: Joi.array().items("base64", "eiscp", "json", "raw").default(["raw"]),
+            description: Joi.string().allow(null).default(null)
         });
 
     }
