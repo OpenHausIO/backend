@@ -11,16 +11,6 @@ class Plugin {
         Object.assign(this, obj);
         this._id = String(obj._id);
 
-        // needed?!
-        // plugin gets not loaded if its disabled
-        // so its not possible for a disabled plugin to enable itself
-        Object.defineProperty(this, "enabled", {
-            value: obj.enabled,
-            configurable: false,
-            writable: false,
-            enumerable: true
-        });
-
     }
 
     /**
