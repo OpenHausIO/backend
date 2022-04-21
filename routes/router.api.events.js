@@ -16,19 +16,18 @@ module.exports = (app, router) => {
 
 
     function reemit(event, component) {
-        return (data) => {
+        return (args) => {
+
+            let obj = JSON.stringify({
+                component,
+                event,
+                args,
+                data: args[0]
+            });
 
             wss.clients.forEach((client) => {
                 if (client.readyState === WebSocket.OPEN) {
-
-                    let obj = JSON.stringify({
-                        component,
-                        event,
-                        data: data[0]
-                    });
-
                     client.send(obj);
-
                 }
             });
 
