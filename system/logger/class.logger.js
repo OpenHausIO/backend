@@ -7,6 +7,8 @@ const levels = require("./levels");
  * @description
  * Logger class which create a custom logger object
  * 
+ * @class Logger
+ * 
  * @param {Object} options Options object
  * @param {String} options.level Logging level: `error`, `warn`, `info`, `debug`, `verbose`, `trace`
  * @param {String} options.name Logger name that is shown in messages
