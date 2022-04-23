@@ -2,14 +2,14 @@
  * @function
  * Expose a function/method on a array object
  * 
- * @param {Array} arr 
- * @param {String} method 
- * @param {String} key 
+ * @param {Array} arr Array where to look for exposing method
+ * @param {String} method Name of the method to look for
+ * @param {String} [key=_id] Identifier key
  * 
  * @returns Wrapped method that accepts as first argument a _id
  * 
  * @example
- * 
+ * ```js
  * class Item {
  *
  *  constructor(obj) {
@@ -59,7 +59,7 @@
  * console.log(fnc2(2))
  * console.log(fnc3(0, () => { return "foo" }));
  * console.log(fnc1, fnc2, fnc3)
- * 
+ * ```
  */
 function expose(arr, method, key = "_id") {
     return (_id, ...args) => {
