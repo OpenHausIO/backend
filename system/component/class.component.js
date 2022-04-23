@@ -2,7 +2,6 @@ const mongodb = require("mongodb");
 const Joi = require("joi");
 
 const _extend = require("../../helper/extend");
-const _propertys = require("../../helper/propertys");
 
 const COMMON = require("./class.common.js");
 
@@ -54,7 +53,7 @@ module.exports = class COMPONENT extends COMMON {
 
                 // ignore all methods/properties
                 // NOTE check if prop is a number/index?
-                if (![..._propertys(items) && typeof (prop) === "number"].includes(prop)) {
+                if (new RegExp(/^\d+$/).test(prop)) {
                     this.events.emit("get", target[prop]);
                 }
 
@@ -64,7 +63,7 @@ module.exports = class COMPONENT extends COMMON {
             set(obj, prop, value) {
 
                 // ignore all methods/properties
-                if (![..._propertys(items) && typeof (prop) === "number"].includes(prop)) {
+                if (new RegExp(/^\d+$/).test(prop)) {
 
                     // preparation for #75
 
