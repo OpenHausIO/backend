@@ -21,9 +21,9 @@ const COMMON = require("./class.common.js");
  * @property {Array} items Store where instance of items are keept
  * @property {Object} collection MongoDB collection instance 
  * @property {Object} schema Joi Object schema which is extend by a timestamp object:
- * @property {Object} timestamps Timestamps
- * @property {Number} timestamps.created Set to `Date.now()` when a item is created/added
- * @property {Number} timestamps.updated Set to `Date.now()` when a item is updated
+ * @property {Object} schema.timestamps Timestamps
+ * @property {Number} schema.timestamps.created Set to `Date.now()` when a item is created/added
+ * @property {Number} schema.timestamps.updated Set to `Date.now()` when a item is updated
  * 
  * @emits add When function has completed
  * @emits get When function has completed
