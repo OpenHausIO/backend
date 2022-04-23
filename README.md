@@ -17,6 +17,8 @@ It can be found on https://docs.open-haus.io<br />
 If something missing or unclear, open a issue.<br />
 The [docs](docs) folder is soon be removed.
 
+For the HTTP API we provide a [postman collection](postman.json).
+
 ---
 
 ## Contribution
