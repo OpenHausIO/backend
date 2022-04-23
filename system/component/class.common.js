@@ -203,15 +203,15 @@ module.exports = class COMMON extends BASE {
     }
 
     /**
- * @function _mapMethod
- * Maps a item method to the component scope
- * The mapped method is full hookable & emit evenits
- * Just like the build in component methods
- * 
- * @param {String} name Name to set on the component object
- * @param {String} method Method name on item
- * @param {Array} arr Array too look for the target item object
- */
+     * @function _mapMethod
+     * Maps a item method to the component scope
+     * The mapped method is full hookable & emit evenits
+     * Just like the build in component methods
+     * 
+     * @param {String} name Name to set on the component object
+     * @param {String} method Method name on item
+     * @param {Array} arr Array too look for the target item object
+     */
     _mapMethod(name, method, arr) {
 
         let target = _expose(arr, method);
