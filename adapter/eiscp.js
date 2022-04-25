@@ -1,5 +1,9 @@
 const { Transform } = require("stream");
 
+const logger = require("../system/logger");
+const log = logger.create("adapter/eiscp");
+
+
 module.exports = (options) => {
 
     //logger.verbose("options object: %j", options);
@@ -9,7 +13,7 @@ module.exports = (options) => {
         transform: (data, encoding, cb) => {
 
             // feedback
-            //logger.verbose("[encode] (%s) %j", encoding, data);
+            log.trace("[encode] (%s) %j", encoding, data);
 
             // Add ISCP header if not already present
             if (data.charAt(0) !== "!") {
@@ -46,7 +50,7 @@ module.exports = (options) => {
             let payload = data.toString("ascii", 18, data.length - 3);
 
             // feedback
-            //logger.verbose("[decode] %j", data);
+            log.trace("[decode] %j", payload);
 
             //data = String(data);
             cb(null, payload);
