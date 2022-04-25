@@ -129,20 +129,6 @@ module.exports = (server) => {
             });
         });
 
-        // https://expressjs.com/de/guide/error-handling.html
-        app.use((err, req, res) => {
-
-            console.error(err.stack, req);
-
-            res.status(500);
-
-            if (process.env.NODE_ENV !== "production") {
-                res.end(err.message);
-            } else {
-                res.end();
-            }
-
-        });
 
     })();
 
