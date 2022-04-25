@@ -1,6 +1,6 @@
-const path = require("path");
+const path = { dirname } = require("path");
 const { Writable } = require("stream");
-const { createWriteStream } = require("fs");
+const { createWriteStream, existsSync, mkdirSync } = require("fs");
 const { EOL } = require("os");
 
 
@@ -96,6 +96,13 @@ Object.defineProperty(logger, "create", {
     value: function create(name) {
 
         let file = path.resolve(process.env.LOG_PATH, `${name}.log`);
+
+        if (!existsSync(file)) {
+            mkdirSync(dirname(file), {
+                recursiv: true
+            });
+        }
+
         let stream = createWriteStream(file);
 
         stream.on("error", (err) => {
