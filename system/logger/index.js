@@ -1,4 +1,4 @@
-const path = { dirname } = require("path");
+const path = require("path");
 const { Writable } = require("stream");
 const { createWriteStream, existsSync, mkdirSync } = require("fs");
 const { EOL } = require("os");
@@ -98,7 +98,7 @@ Object.defineProperty(logger, "create", {
         let file = path.resolve(process.env.LOG_PATH, `${name}.log`);
 
         if (!existsSync(file)) {
-            mkdirSync(dirname(file), {
+            mkdirSync(path.dirname(file), {
                 recursiv: true
             });
         }

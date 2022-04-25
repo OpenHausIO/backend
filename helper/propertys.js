@@ -22,6 +22,6 @@ function propertys(obj) {
     //return [...properties.keys()].filter(item => typeof obj[item] === 'function')
     return properties.keys();
 
-};
+}
 
 module.exports = propertys;

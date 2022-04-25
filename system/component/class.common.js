@@ -71,7 +71,7 @@ module.exports = class COMMON extends BASE {
                         pre.start.apply(pre, [...args, (...preArgsModified) => {
 
                             //this.logger.verbose(`${name}(); 2/5; after "pre hooks": %j`, preArgsModified);
-                            log(`after "pre hooks": %j`, preArgsModified)
+                            log(`after "pre hooks": %j`, preArgsModified);
 
                             resolve(preArgsModified);
 
