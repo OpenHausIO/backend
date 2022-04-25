@@ -2,7 +2,7 @@
 
 const child_process = require("child_process");
 const WebSocket = require("ws");
-const request = require("../system/request");
+const request = require("../helper/request");
 const minimist = require("minimist");
 
 const args = minimist(process.argv.slice(2), {
