@@ -1,7 +1,7 @@
 const mongodb = require("mongodb");
 const Joi = require("joi");
 
-
+const util = require("util");
 
 //const logger = require("../../system/logger").create("endpoints");
 //const COMMON_COMPONENT = require("../../system/component/common.js");
@@ -12,6 +12,8 @@ const Endpoint = require("./class.endpoint.js");
 const Command = require("./class.command.js");
 const State = require("./class.state.js");
 
+
+const _expose = require("../../helper/expose.js");
 
 /**
  * @description
@@ -96,6 +98,43 @@ class C_ENDPOINTS extends COMPONENT {
         this.hooks.post("add", (data, next) => {
             next(null, new Endpoint(data));
         });
+
+
+        /*
+        // expose item functions
+        this.triggerCommand = _expose(this.items, "triggerCommand");
+        this.setState = _expose(this.items, "setState");
+
+        // expose/map item methods
+        this._mapMethod("foo", "foo", this.items);
+        this._mapMethod("foo1", "triggerCommand", this.items);
+        this._mapMethod("foo2", "setState", this.items);
+        */
+
+        /*
+                this._defineMethod("foo", () => {
+                    return (_id, ...args) => {
+                        return new Promise((resolve, reject) => {
+        
+                            args.push((err, ...args) => {
+                                if (err) {
+        
+                                    reject(err);
+        
+                                } else {
+        
+                                    resolve(args);
+        
+                                }
+                            });
+        
+                            _expose(this.items, "foo")(_id, ...args);
+        
+                        });
+                    };
+                })
+                */
+
 
     }
 }
