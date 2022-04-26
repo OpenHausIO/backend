@@ -97,7 +97,7 @@ Object.defineProperty(logger, "create", {
 
         let file = path.resolve(process.env.LOG_PATH, `${name}.log`);
 
-        if (!existsSync(file)) {
+        if (!existsSync(path.dirname(file))) {
             mkdirSync(path.dirname(file), {
                 recursiv: true
             });
