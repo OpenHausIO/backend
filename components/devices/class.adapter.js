@@ -48,7 +48,7 @@ module.exports = class Adapter extends Duplex.from {
         options = Object.assign({
             emitClose: false,       // false
             decodeStrings: false,    // false
-            encoding: "utf8",
+            //encoding: "utf8",     // cause bug #128
             objectMode: false    // true
         }, options);
 

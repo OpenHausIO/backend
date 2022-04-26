@@ -16,7 +16,7 @@ module.exports = (options) => {
             log.trace("[encode] (%s) %j", encoding, data);
 
             // Add ISCP header if not already present
-            if (data.charAt(0) !== "!") {
+            if (String(data).charAt(0) !== "!") {
                 data = `!1${data}`;
             }
 
@@ -38,8 +38,8 @@ module.exports = (options) => {
 
         },
         ...options,
-        encoding: "utf8",
-        objectMode: true
+        //encoding: "utf8",
+        //objectMode: true
     });
 
 
@@ -57,8 +57,8 @@ module.exports = (options) => {
 
         },
         ...options,
-        encoding: "utf8",
-        objectMode: true
+        //encoding: "utf8",
+        //objectMode: true
     });
 
 
