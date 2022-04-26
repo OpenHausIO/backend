@@ -30,19 +30,21 @@ const { v4: uuidv4 } = require("uuid");
  */
 module.exports = class Hooks {
 
-    /**
-     * @constructor
-     */
     constructor() {
         // NOTE change to map/set?
         this.namespace = {};
     }
 
     /**
+     * @function WS_REQUEST
      * Create request message object for websocket hooks
+     * 
      * @static
+     * 
      * @deprecated
+     * 
      * @param {obj} data 
+     * 
      * @returns {Object} request object
      */
     static WS_REQUEST(data) {
@@ -76,10 +78,15 @@ module.exports = class Hooks {
 
 
     /**
+     * @function WS_RESPONSE
      * Create response message object for websocket hooks
+     * 
      * @static
+     * 
      * @deprecated
+     * 
      * @param {*} data 
+     * 
      * @returns {Object} response object
      */
     static WS_RESPONSE(data) {

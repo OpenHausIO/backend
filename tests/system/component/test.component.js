@@ -64,7 +64,7 @@ describe("component", function () {
             "events", "hooks", "ready",                 // base properties
             "init",                                     // base methods
             "logger",                                   // common properties
-            "_defineMethod",                            // common methods
+            "_defineMethod", "_mapMethod",              // common methods
             "items", "collection", "schema",            // common properties
             "get", "add", "update", "remove", "find"    // component methods
         ];
