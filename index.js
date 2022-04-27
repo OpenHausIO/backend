@@ -187,7 +187,8 @@ const init_components = () => {
             "devices",
             "endpoints",
             "plugins",
-            "vault"
+            "vault",
+            "ssdp"
         ].sort(() => {
 
             // pseudo randomize start/init of components
