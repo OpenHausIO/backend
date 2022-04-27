@@ -16,7 +16,8 @@
     "build:docker-image": "docker build . -t openhaus/backend:latest",
     "build:dist": "grunt build",
     "db:export": "mongodump --db OpenHaus --archive=./demo-database.gz",
-    "db:import": "mongorestore --db OpenHaus --archive=./demo-database.gz"
+    "db:import": "mongorestore --db OpenHaus --archive=./demo-database.gz",
+    "postinstall": "scripts/post-install.sh"
   },
   "engines": {
     "node": ">=0.16.0"
