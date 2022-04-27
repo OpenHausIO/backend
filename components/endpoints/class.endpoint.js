@@ -24,6 +24,7 @@ const States = require("./class.states.js");
  * @see InterfaceStream components/devices/class.interfaceStream.js
  */
 module.exports = class Endpoint {
+
     constructor(obj) {
 
         Object.assign(this, obj);
@@ -32,5 +33,28 @@ module.exports = class Endpoint {
         this.commands = new Commands(obj.commands);
         this.states = new States(obj.states);
 
+        //this.triggerCommand = _expose(this.commands, "triggerCommand");
+        //this.setState = _expose(this.states, "setState");
+
+        //this.method1 = _expose(this.commands, "method1");
+        //this.method2 = _expose(this.states, "method2");
+
     }
+
+    /*
+    triggerCommand(...args) {
+        console.log(".triggerCommand called", args);
+    }
+
+    setState() {
+        console.log(".setState called");
+    }
+
+
+    foo(cb) {
+        console.log(".foo called");
+        cb(null, "foo", "hello");
+    }
+    */
+
 };

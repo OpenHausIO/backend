@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const logger = require("../../system/logger/index.js");
 
-const Bootstrap = require("./class.bootstrap.js");
+//const Bootstrap = require("./class.bootstrap.js");
 
 /**
  * @description
@@ -26,16 +26,6 @@ class Plugin {
         Object.assign(this, obj);
         this._id = String(obj._id);
 
-        // needed?!
-        // plugin gets not loaded if its disabled
-        // so its not possible for a disabled plugin to enable itself
-        Object.defineProperty(this, "enabled", {
-            value: obj.enabled,
-            configurable: false,
-            writable: false,
-            enumerable: true
-        });
-
     }
 
     /**
@@ -44,29 +34,79 @@ class Plugin {
      */
     boot() {
         if (this.enabled) {
-            try {
 
-                //console.log("Straing");
+            let plugin = path.resolve(process.cwd(), "plugins", this.uuid);
 
-                let plugin = path.resolve(process.cwd(), "plugins", this.uuid);
+            if (fs.existsSync(plugin)) {
 
-                if (fs.existsSync(plugin)) {
+                let init = (dependencies, cb) => {
+                    try {
 
-                    let pclass = require(path.resolve(plugin, "index.js"))(Bootstrap);
+                        const granted = dependencies.every((c) => {
+                            if (this.intents.includes(c)) {
 
-                    new pclass(this);
+                                return true;
 
-                } else {
+                            } else {
 
-                    logger.error(`Could not found plugin file/folder "${this.uuid}"`);
-                    throw new Error("Plugin not found");
+                                logger.warn(`Plugin ${this.uuid} (${this.name}) wants to access not registerd intens "${c}"`);
+                                return false;
 
+                            }
+                        });
+
+                        if (granted) {
+
+                            console.log(granted);
+
+                            let components = dependencies.map((name) => {
+                                return require(path.resolve(process.cwd(), `components/${name}`));
+                            });
+
+                            cb(this, components);
+                            return init;
+
+                        } else {
+
+                            throw new Error(`Unregisterd intents access approach`);
+
+                        }
+
+                    } catch (err) {
+
+                        logger.error(err, `Plugin could not initalize!`, err.message);
+                        throw err;
+
+                    }
+                };
+
+                init[Symbol.for("uuid")] = this.uuid;
+
+                try {
+
+                    let returns = require(path.resolve(plugin, "index.js"))(this, init);
+
+                    if (!returns) {
+                        return;
+                    }
+
+                    if (returns[Symbol.for("uuid")] !== this.uuid) {
+                        logger.warn(`Plugin "${this.uuid}" (${this.name}) does not return the init function!`);
+                        throw new Error("Invalid init function returnd!");
+                    }
+
+                } catch (err) {
+                    logger.error(`Error in plugin "${this.name}": `, err);
+                    throw err;
                 }
 
+            } else {
 
-            } catch (err) {
-                logger.warn(`Error in plugin "${this.name}": `, err);
+                logger.error(`Could not found plugin file/folder "${this.uuid}"`);
+                throw new Error("Plugin not found");
+
             }
+
         } else {
 
             let err = Error("Plugin is not enabled!");

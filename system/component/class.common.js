@@ -1,3 +1,5 @@
+const _expose = require("../../helper/expose.js");
+
 const BASE = require("./class.base.js");
 
 const promisify = require("../../helper/promisify");
@@ -47,10 +49,15 @@ module.exports = class COMMON extends BASE {
 
                 let { pre, post } = this.hooks._namespace(name);
 
+                let log = this.logger.tracer(`${name}()`, 5, () => {
+                    return `${name}(); Execution done.`;
+                });
+
                 const preHooks = (args) => {
                     return new Promise((resolve, reject) => {
 
-                        this.logger.verbose(`${name}(); 1/5; before "pre hooks": %j`, args);
+                        //this.logger.verbose(`${name}(); 1/5; before "pre hooks": %j`, args);
+                        log(`before "pre hooks": %j`, args);
 
                         pre.catch((err) => {
 
@@ -63,7 +70,8 @@ module.exports = class COMMON extends BASE {
 
                         pre.start.apply(pre, [...args, (...preArgsModified) => {
 
-                            this.logger.verbose(`${name}(); 2/5; after "pre hooks": %j`, preArgsModified);
+                            //this.logger.verbose(`${name}(); 2/5; after "pre hooks": %j`, preArgsModified);
+                            log(`after "pre hooks": %j`, preArgsModified);
 
                             resolve(preArgsModified);
 
@@ -76,7 +84,8 @@ module.exports = class COMMON extends BASE {
                 const postHooks = (args) => {
                     return new Promise((resolve, reject) => {
 
-                        this.logger.verbose(`${name}(); 3/5; before "post hooks": %j`, args);
+                        //this.logger.verbose(`${name}(); 3/5; before "post hooks": %j`, args);
+                        log(`before "post hooks": %j`, args);
 
                         post.catch((err) => {
 
@@ -88,7 +97,8 @@ module.exports = class COMMON extends BASE {
 
                         post.start.apply(post, [...args, (...postArgsModified) => {
 
-                            this.logger.verbose(`${name}(); 4/5; after "post hooks": %j`, postArgsModified);
+                            //this.logger.verbose(`${name}(); 4/5; after "post hooks": %j`, postArgsModified);
+                            log(`after "post hooks": %j`, postArgsModified);
 
                             resolve(postArgsModified);
 
@@ -153,7 +163,8 @@ module.exports = class COMMON extends BASE {
 
                     }).then((args) => {
 
-                        this.logger.verbose(`${name}(); 5/5; Resolve callback (successful). Arguments to pass: %j`, args);
+                        //this.logger.verbose(`${name}(); 5/5; Resolve callback (successful). Arguments to pass: %j`, args);
+                        log(`Resolve callback (successful).Arguments to pass: %j`, args);
 
                         // before we call "callback" (resolve _promsify)
                         // execute in worker code "final" function to pefrom operations
@@ -189,6 +200,40 @@ module.exports = class COMMON extends BASE {
             enumerable: false,
             configurable: false
         });
+    }
+
+    /**
+     * @function _mapMethod
+     * Maps a item method to the component scope
+     * The mapped method is full hookable & emit evenits
+     * Just like the build in component methods
+     * 
+     * @param {String} name Name to set on the component object
+     * @param {String} method Method name on item
+     * @param {Array} arr Array too look for the target item object
+     */
+    _mapMethod(name, method, arr) {
+
+        let target = _expose(arr, method);
+
+        this._defineMethod(name, () => {
+            return (_id, ...args) => {
+                return new Promise((resolve, reject) => {
+
+                    args.push((err, ...args) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(args);
+                        }
+                    });
+
+                    target(_id, ...args);
+
+                });
+            };
+        });
+
     }
 
 };

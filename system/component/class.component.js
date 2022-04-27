@@ -21,9 +21,9 @@ const COMMON = require("./class.common.js");
  * @property {Array} items Store where instance of items are keept
  * @property {Object} collection MongoDB collection instance 
  * @property {Object} schema Joi Object schema which is extend by a timestamp object:
- * @property {Object} timestamps Timestamps
- * @property {Number} timestamps.created Set to `Date.now()` when a item is created/added
- * @property {Number} timestamps.updated Set to `Date.now()` when a item is updated
+ * @property {Object} schema.timestamps Timestamps
+ * @property {Number} schema.timestamps.created Set to `Date.now()` when a item is created/added
+ * @property {Number} schema.timestamps.updated Set to `Date.now()` when a item is updated
  * 
  * @emits add When function has completed
  * @emits get When function has completed
@@ -44,8 +44,49 @@ module.exports = class COMPONENT extends COMMON {
 
         super(require("../../system/logger").create(name));
 
-        this.items = []; // NOTE hide this behind a proxy object to watch for changes, like update schema when changed?
+        // "secret" items array
+        let items = [];
+
+        //this.items = []; // NOTE hide this behind a proxy object to watch for changes, like update schema when changed?
+        this.items = new Proxy(items, {
+            get: (target, prop) => {
+
+                // ignore all methods/properties
+                // NOTE check if prop is a number/index?
+                if (new RegExp(/^\d+$/).test(prop)) {
+                    this.events.emit("get", target[prop]);
+                }
+
+                return target[prop];
+
+            },
+            set(obj, prop, value) {
+
+                // ignore all methods/properties
+                if (new RegExp(/^\d+$/).test(prop)) {
+
+                    // preparation for #75
+
+                    // apply missing item properties here
+                    // verfiy object item, if verfiy fails, return false
+                    //console.log("Add item: %j", value);
+
+                    //let { error } = schema.validate(value);
+                    //return error ? false : true;
+                    // save update obj in database?
+
+                    //return false;
+
+                }
+
+                obj[prop] = value;
+                return true;
+
+            }
+        });
+
         this.collection = mongodb.client.collection(name);
+
         this.schema = Joi.object({
             ...schema,
             timestamps: Joi.object({
@@ -163,7 +204,8 @@ module.exports = class COMPONENT extends COMMON {
         this._defineMethod("add", (final) => {
 
             final((item) => {
-                this.items.push(item);
+                //this.items.push(item);
+                items.push(item);
                 return Promise.resolve();
             });
 

@@ -7,6 +7,8 @@ const levels = require("./levels");
  * @description
  * Logger class which create a custom logger object
  * 
+ * @class Logger
+ * 
  * @param {Object} options Options object
  * @param {String} options.level Logging level: `error`, `warn`, `info`, `debug`, `verbose`, `trace`
  * @param {String} options.name Logger name that is shown in messages
@@ -108,17 +110,17 @@ module.exports = class Logger {
      * 
      * @returns {Function} Wrapped logger function
      */
-    tracer(desc, count, cb = () => "Finished!") {
+    tracer(desc, count, cb = () => "Finished!", level = "trace") {
 
         let counter = 0;
         let fired = false;
 
-        return (msg) => {
+        return (...args) => {
             if (!fired) {
 
                 counter += 1;
 
-                this.trace(`${desc}; ${counter}/${count}; ${msg}`);
+                this[level](`${desc}; ${counter}/${count}; ${util.format(...args)}`);
 
                 if (counter >= count && !fired) {
                     this.trace(cb());
