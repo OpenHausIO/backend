@@ -7,6 +7,7 @@ const C_DEVICES = require("../components/devices");
 const C_ENDPOINTS = require("../components/endpoints");
 const C_VAULT = require("../components/vault");
 //const C_SCENES = require("../components/scenes");
+const C_SSDP = require("../components/ssdp");
 
 const { encode } = require("../helper/sanitize");
 const iterate = require("../helper/iterate");
@@ -62,7 +63,10 @@ module.exports = (server) => {
 
             // patch/override sanitized object
             req.body = iterate(req.body, (key, value, type) => {
-                if (type === "string") {
+                // ignore device key in settings
+                // see #127, currently i have no petter idea
+                // be sure that we only ignore the device properety in the settings object
+                if (type === "string" && key !== "device" && req.body?.settings?.device) {
                     return encode(value);
                 } else {
                     return value;
@@ -88,6 +92,7 @@ module.exports = (server) => {
         const vaultRouter = express.Router();
         //const scenesRouter = express.Router();
         const eventsRouter = express.Router();
+        const ssdpRouter = express.Router();
 
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
@@ -121,6 +126,10 @@ module.exports = (server) => {
         api.use("/events", eventsRouter);
         require("./router.api.events.js")(app, eventsRouter);
 
+        // http://127.0.0.1/api/ssdp
+        api.use("/ssdp", ssdpRouter);
+        require("./router.api.ssdp.js")(app, ssdpRouter);
+        require("./rest-handler.js")(C_SSDP, ssdpRouter);
 
         api.use((req, res) => {
             res.status(404).json({
