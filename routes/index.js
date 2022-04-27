@@ -63,7 +63,10 @@ module.exports = (server) => {
 
             // patch/override sanitized object
             req.body = iterate(req.body, (key, value, type) => {
-                if (type === "string") {
+                // ignore device key in settings
+                // see #127, currently i have no petter idea
+                // be sure that we only ignore the device properety in the settings object
+                if (type === "string" && key !== "device" && req.body?.settings?.device) {
                     return encode(value);
                 } else {
                     return value;
