@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# ensure linting
+npm run lint
