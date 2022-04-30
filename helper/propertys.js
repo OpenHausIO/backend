@@ -1,5 +1,5 @@
 /**
- * @function
+ * @function propertys
  * Iterate over a object like item and return its propertys
  * 
  * @param {Object} obj Iterable object
