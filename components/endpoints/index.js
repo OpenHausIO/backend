@@ -58,42 +58,6 @@ class C_ENDPOINTS extends COMPONENT {
             icon: Joi.string().allow(null).default(null)
         }, module);
 
-        this.hooks.pre("add", (data, next) => {
-
-            if (!data.commands || !(data.commands instanceof Array)) {
-                console.log("Invalid command array");
-                return next();
-            }
-
-            try {
-
-                // NOTE Needed if defined in schema?!
-                data.commands.forEach((cmd) => {
-
-                    // TODO test static validation
-                    let { error } = Command.validate(cmd);
-
-
-                    if (error) {
-                        // TODO err does not reach frontend/client
-                        // is only display on cli/terminal but the http request is not aborted
-                        throw new Error(`Command validation failed: ${error}`);
-                    }
-
-                    cmd._id = String(new mongodb.ObjectID());
-
-                });
-
-                next();
-
-            } catch (err) {
-
-                next(err);
-
-            }
-
-        });
-
 
         this.hooks.post("add", (data, next) => {
             next(null, new Endpoint(data));
