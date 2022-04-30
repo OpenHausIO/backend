@@ -8,6 +8,7 @@ const C_ENDPOINTS = require("../components/endpoints");
 const C_VAULT = require("../components/vault");
 //const C_SCENES = require("../components/scenes");
 const C_SSDP = require("../components/ssdp");
+const C_STORE = require("../components/store");
 
 const { encode } = require("../helper/sanitize");
 const iterate = require("../helper/iterate");
@@ -99,6 +100,7 @@ module.exports = (server) => {
         //const scenesRouter = express.Router();
         const eventsRouter = express.Router();
         const ssdpRouter = express.Router();
+        const storeRouter = express.Router();
 
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
@@ -136,6 +138,10 @@ module.exports = (server) => {
         api.use("/ssdp", ssdpRouter);
         require("./router.api.ssdp.js")(app, ssdpRouter);
         require("./rest-handler.js")(C_SSDP, ssdpRouter);
+
+        // http://127.0.0.1/api/store
+        api.use("/store", storeRouter);
+        require("./rest-handler.js")(C_STORE, storeRouter);
 
         api.use((req, res) => {
             res.status(404).json({
