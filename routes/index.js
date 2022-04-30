@@ -31,6 +31,7 @@ module.exports = (server) => {
     const app = express();
     const auth = express.Router();
     const api = express.Router();
+    const logs = express.Router();
 
     app.use(bodyParser.json({
         limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
@@ -40,6 +41,11 @@ module.exports = (server) => {
     // mount api router
     app.use("/auth", auth);
     app.use("/api", api);
+    app.use("/logs", logs);
+
+
+    //require("./router.auth.js")(app, auth);
+    require("./router.logs.js")(app, logs);
 
 
     // /api routes
