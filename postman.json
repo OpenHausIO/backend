@@ -93,6 +93,26 @@
 						},
 						{
 							"name": "Get all rooms",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "GET",
 								"header": [],
@@ -123,11 +143,31 @@
 						},
 						{
 							"name": "Get sinlge room",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/<id>",
+									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/{{_id}}",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -136,7 +176,7 @@
 									"path": [
 										"api",
 										"rooms",
-										"<id>"
+										"{{_id}}"
 									]
 								}
 							},
@@ -144,6 +184,39 @@
 						},
 						{
 							"name": "Update existing room",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const HOST = pm.collectionVariables.get(\"HOST\");",
+											"const PORT = pm.collectionVariables.get(\"PORT\");",
+											"",
+											"//console.log(pm.request.url.toString())",
+											"",
+											"pm.sendRequest({",
+											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
+											"    method: 'GET',",
+											"}, function (err, res) {",
+											"    if(err){",
+											"",
+											"        consle.error(err);",
+											"",
+											"    }else {",
+											"",
+											"        let data = res.json();",
+											"        let key = Math.floor(Math.random()*data.length);",
+											"        let item = data[key];",
+											"",
+											"        pm.variables.set(\"_id\", item._id);",
+											"",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "PATCH",
 								"header": [],
@@ -157,7 +230,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/611030bb5504e8431d3b8085",
+									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/{{_id}}",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -166,7 +239,7 @@
 									"path": [
 										"api",
 										"rooms",
-										"611030bb5504e8431d3b8085"
+										"{{_id}}"
 									]
 								}
 							},
@@ -174,11 +247,35 @@
 						},
 						{
 							"name": "Delete exisiting room",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
+											"",
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/611030bb5504e8431d3b8085",
+									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/{{_id}}",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -187,11 +284,31 @@
 									"path": [
 										"api",
 										"rooms",
-										"611030bb5504e8431d3b8085"
+										"{{_id}}"
 									]
 								}
 							},
 							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
 						}
 					]
 				},
@@ -205,7 +322,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"myCustom plugin\",\n    \"enabled\": false,\n    \"version\": 1.2\n}",
+									"raw": "{\n    \"name\": \"Plugin for testing components\",\n    \"enabled\": true,\n    \"version\": 1.2,\n    \"uuid\": \"d11e7f38-91cb-4f32-89e8-3452f624bb47\",\n    \"intents\": [\"devices\", \"endpoints\", \"plugins\", \"rooms\", \"vault\"]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -331,7 +448,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Samsung Fridge\",\n    \"interfaces\": [{\n        \"type\": \"ETHERNET\",\n        \"settings\": {\n            \"host\": \"172.16.5.23\",\n            \"port\": 8080\n        }\n    }]\n}",
+									"raw": "{\n    \"name\": \"AV Receiver\",\n    \"interfaces\": [{\n        \"type\": \"ETHERNET\",\n        \"description\": \"eISCP Interface\",\n        \"settings\": {\n            \"host\": \"192.168.2.10\",\n            \"port\": 60128\n        },\n        \"adapter\": [\"eiscp\"]\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -451,7 +568,7 @@
 					"name": "Endpoints",
 					"item": [
 						{
-							"name": "Create new devices",
+							"name": "Create new endpoint",
 							"request": {
 								"method": "PUT",
 								"header": [],
@@ -500,7 +617,7 @@
 							"response": []
 						},
 						{
-							"name": "Get sinlge device",
+							"name": "Get sinlge endpoint",
 							"request": {
 								"method": "GET",
 								"header": [],
@@ -521,7 +638,7 @@
 							"response": []
 						},
 						{
-							"name": "Update existing device",
+							"name": "Update existing endpoint",
 							"request": {
 								"method": "PATCH",
 								"header": [],
@@ -551,7 +668,7 @@
 							"response": []
 						},
 						{
-							"name": "Delete exisiting device",
+							"name": "Delete exisiting endpoint",
 							"request": {
 								"method": "DELETE",
 								"header": [],
@@ -854,27 +971,165 @@
 							"response": []
 						}
 					]
+				},
+				{
+					"name": "Store",
+					"item": [
+						{
+							"name": "Create new store entry",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.request.payload = JSON.parse(pm.request.body.raw);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											"",
+											"",
+											"console.log(pm.request.payload)",
+											"",
+											"pm.test(\"Input = Output name\", () => {",
+											"",
+											"    ",
+											"",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"description\": \"Use SSL/TLS\",\n    \"key\": \"tls_enabled\",\n    \"value\": false,\n    \"namespace\": \"f94260bf-e8d2-4ab1-9653-394ce117c2d3\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/store",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"store"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all config items",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/store",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"store"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get sinlge store item",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/store/626cf0d940cbe8290f0b4e3f",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"store",
+										"626cf0d940cbe8290f0b4e3f"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update existing config entry",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"value\": 8080\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/store/626cf0d940cbe8290f0b4e3f",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"store",
+										"626cf0d940cbe8290f0b4e3f"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete config entry",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/store/<id>",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"store",
+										"<id>"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			],
 			"auth": {
-				"type": "apikey",
-				"apikey": [
-					{
-						"key": "value",
-						"value": "{{X-AUTH-TOKEN}}",
-						"type": "string"
-					},
-					{
-						"key": "key",
-						"value": "X-AUTH-TOKEN",
-						"type": "string"
-					},
-					{
-						"key": "in",
-						"value": "header",
-						"type": "string"
-					}
-				]
+				"type": "noauth"
 			},
 			"event": [
 				{
@@ -882,7 +1137,42 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							""
+							"console.log(\"compoents pre request script\")",
+							"",
+							"",
+							"/*",
+							"",
+							"        console.log(\"Name3\", name)",
+							"",
+							"        let HOST = pm.collectionVariables.get(\"HOST\");",
+							"        let PORT = pm.collectionVariables.get(\"PORT\");",
+							"",
+							"        pm.sendRequest({",
+							"            url: `http://${HOST}:${PORT}/api/${name}/`,",
+							"            method: 'GET',",
+							"        }, (err, res) => {",
+							"            if(err){",
+							"",
+							"                console.log(\"err\", err)",
+							"",
+							"                consle.error(err);",
+							"                done(err);",
+							"",
+							"            }else {",
+							"",
+							"                console.log(\"Callback\")",
+							"",
+							"                let data = res.json();",
+							"                let key = Math.floor(Math.random()*data.length);",
+							"                let item = data[key];",
+							"",
+							"                pm.variables.set(\"_id\", item._id);",
+							"",
+							"                done(null, item._id);",
+							"",
+							"            }",
+							"        });",
+							"*/"
 						]
 					}
 				},
@@ -901,6 +1191,41 @@
 							"});"
 						]
 					}
+				}
+			]
+		},
+		{
+			"name": "Logfiles",
+			"item": [
+				{
+					"name": "Get logfile entrys",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{HOST}}:{{PORT}}/logs/?offset=0&limit=3",
+							"protocol": "http",
+							"host": [
+								"{{HOST}}"
+							],
+							"port": "{{PORT}}",
+							"path": [
+								"logs",
+								""
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
