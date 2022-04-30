@@ -54,10 +54,11 @@ Object.defineProperty(logger, "create", {
 const system = createWriteStream(path.resolve(process.env.LOG_PATH, "system.log"));
 const combined = createWriteStream(path.resolve(process.env.LOG_PATH, "combined.log"));
 
-
-system.on("error", (err) => {
-    console.error(err);
-    process.exit(1);
+[system, combined].forEach((stream) => {
+    stream.on("error", (err) => {
+        console.error(err);
+        process.exit(1);
+    });
 });
 
 
