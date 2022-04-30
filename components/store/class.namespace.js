@@ -62,7 +62,7 @@ class Namespace {
                         }, (err, { result }) => {
                             if (err) {
 
-                                this.logger.warn(`Could not update value for namespace/key (${namespace}/${obj.key}):`, err.message);
+                                scope.logger.warn(`Could not update value for namespace/key (${namespace}/${obj.key}):`, err.message);
                                 reject(err);
 
                             } else {
@@ -71,7 +71,7 @@ class Namespace {
                                 obj.value = value;
 
                                 if (result.n === 1 && result.nModified === 1) {
-                                    this.logger.verbose(`Key/Value for namespace (${namespace}) updated: ${obj.key} = ${value}`);
+                                    scope.logger.verbose(`Key/Value for namespace (${namespace}) updated: ${obj.key} = ${value}`);
                                 }
 
                                 resolve(true);
