@@ -1,5 +1,5 @@
 /**
- * @function
+ * @function expose
  * Expose a function/method on a array object
  * 
  * @param {Array} arr Array where to look for exposing method
