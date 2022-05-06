@@ -33,7 +33,9 @@ module.exports = class Interface {
         });
 
         // share/set interface stream
-        let { interfaceStreams } = global.sharedObjects;
+        // see #86
+        //let { interfaceStreams } = global.sharedObjects;
+        let { interfaceStreams } = require("../../system/shared.js");
         interfaceStreams.set(this._id, stream);
 
     }

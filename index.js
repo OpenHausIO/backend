@@ -87,15 +87,16 @@ console.log(`Starting OpenHaus ${(process.env.NODE_ENV !== "production" ? `in "\
 
 
 
-//require("./system/shared_objects.js");
+require("./system/shared.js");
 // #9, see #86
 // hits is uglay and hard to maintain
+/*
 global.sharedObjects = {
     interfaceStreams: new Map(),
     interfaceServer: new Map(),
     interfaces: new Map()
 };
-
+*/
 
 
 // require logger as on of the first things
