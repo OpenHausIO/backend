@@ -3,7 +3,8 @@ const WebSocket = require("ws");
 //const iface_locked = new Map();
 
 // move that to "event bus"
-const { interfaceServer, interfaceStreams } = global.sharedObjects;
+//const { interfaceServer, interfaceStreams } = global.sharedObjects;
+const { interfaceServer, interfaceStreams } = require("../system/shared.js");
 
 
 

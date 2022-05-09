@@ -32,7 +32,7 @@ module.exports = class Logger {
             this[method] = (...args) => {
 
                 // if LOG_TARGET is set, ignore everything that does not match the logger name
-                if (process.env.LOG_TARGET !== "" && process.env.LOG_TARGET !== options.name) {
+                if (process.env.LOG_TARGET !== "" && process.env.LOG_TARGET !== options.name && options.name !== "system") {
                     return;
                 }
 

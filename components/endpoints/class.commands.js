@@ -74,7 +74,9 @@ module.exports = class Commands extends Array {
             return;
         }
 
-        let { interfaces } = global.sharedObjects;
+        // see #86
+        //let { interfaces } = global.sharedObjects;
+        let { interfaces } = require("../../system/shared.js");
         let iface = interfaces.get(cmd.interface);
 
         //console.log(cmd.interface)
