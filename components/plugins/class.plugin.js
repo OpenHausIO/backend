@@ -57,8 +57,6 @@ class Plugin {
 
                         if (granted) {
 
-                            console.log(granted);
-
                             let components = dependencies.map((name) => {
                                 return require(path.resolve(process.cwd(), `components/${name}`));
                             });
@@ -84,7 +82,8 @@ class Plugin {
 
                 try {
 
-                    let returns = require(path.resolve(plugin, "index.js"))(this, init);
+                    let log = logger.create(`plugins/${this.uuid}`);
+                    let returns = require(path.resolve(plugin, "index.js"))(this, log, init);
 
                     if (!returns) {
                         return;
