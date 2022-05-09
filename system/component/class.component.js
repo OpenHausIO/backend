@@ -90,6 +90,7 @@ module.exports = class COMPONENT extends COMMON {
         this.schema = Joi.object({
             ...schema,
             timestamps: Joi.object({
+                ...schema?.timestamps,
                 created: Joi.number().allow(null).default(null),
                 updated: Joi.number().allow(null).default(null)
             })
