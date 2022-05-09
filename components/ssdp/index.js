@@ -9,12 +9,18 @@ const SSDP = require("./class.ssdp.js");
 
 /**
  * @description
- * Listen for ssdp message and sends discovery requests<br />
+ * Listen for ssdp message and sends discovery requests.<br />
+ * This requires the "connector" software or bridging via other tools.<br />
+ * A example for bridging can you see below with `socat` & `wscat`.
+ * 
+ * The emitted message events is the parsed data received on the underlaying udp socket.<br />
+ * As third parameter the content of the `LOCATION` header field can be seen.<br />
+ * This is only available if the connector is used.
  * 
  * @class C_SSDP
  * @extends COMPONENT system/component/class.component.js
  * 
- * @emits message Received message on udp socket; Arguments: [0]=message type, [1]=headers
+ * @emits message Received message on udp socket; Arguments: [0]=message type, [1]=headers, [2]=body (location header url content as json)
  * 
  * @example
  * ```sh
@@ -31,8 +37,9 @@ const SSDP = require("./class.ssdp.js");
  * }
  * ```
  * 
- * @link router.api.ssdp.js routes/router.api.ssdp
+ * @link router.api.ssdp.js routes/router.api.ssdp.js
  * @see https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol
+ * @see https://github.com/nashwaan/xml-js
  */
 class C_SSDP extends COMPONENT {
 
