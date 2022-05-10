@@ -355,7 +355,7 @@ module.exports = class COMPONENT extends COMMON {
 
 
                     if (validation.error) {
-                        return reject(this.errors.validation(validation.error));
+                        return reject(validation.error);
                     }
 
                     this.collection.findOneAndUpdate({

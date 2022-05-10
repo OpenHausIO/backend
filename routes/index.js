@@ -8,6 +8,7 @@ const C_ENDPOINTS = require("../components/endpoints");
 const C_VAULT = require("../components/vault");
 //const C_SCENES = require("../components/scenes");
 const C_SSDP = require("../components/ssdp");
+const C_STORE = require("../components/store");
 
 const { encode } = require("../helper/sanitize");
 const iterate = require("../helper/iterate");
@@ -31,6 +32,7 @@ module.exports = (server) => {
     const app = express();
     const auth = express.Router();
     const api = express.Router();
+    const logs = express.Router();
 
     app.use(bodyParser.json({
         limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
@@ -40,6 +42,11 @@ module.exports = (server) => {
     // mount api router
     app.use("/auth", auth);
     app.use("/api", api);
+    app.use("/logs", logs);
+
+
+    //require("./router.auth.js")(app, auth);
+    require("./router.logs.js")(app, logs);
 
 
     // /api routes
@@ -93,6 +100,7 @@ module.exports = (server) => {
         //const scenesRouter = express.Router();
         const eventsRouter = express.Router();
         const ssdpRouter = express.Router();
+        const storeRouter = express.Router();
 
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
@@ -130,6 +138,10 @@ module.exports = (server) => {
         api.use("/ssdp", ssdpRouter);
         require("./router.api.ssdp.js")(app, ssdpRouter);
         require("./rest-handler.js")(C_SSDP, ssdpRouter);
+
+        // http://127.0.0.1/api/store
+        api.use("/store", storeRouter);
+        require("./rest-handler.js")(C_STORE, storeRouter);
 
         api.use((req, res) => {
             res.status(404).json({

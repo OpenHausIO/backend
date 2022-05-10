@@ -16,9 +16,6 @@ const SSDP = require("./class.ssdp.js");
  * 
  * @emits message Received message on udp socket; Arguments: [0]=message type, [1]=headers
  * 
- * @link router.api.ssdp.js routes/router.api.ssdp
- * @see https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol
- * 
  * @example
  * ```sh
  * socat UDP4-RECVFROM:1900,ip-add-membership=239.255.255.250:0.0.0.0,fork - | wscat --connect=ws://127.0.0.1:8080/api/ssdp
@@ -33,6 +30,9 @@ const SSDP = require("./class.ssdp.js");
  *  mx: '5'
  * }
  * ```
+ * 
+ * @link router.api.ssdp.js routes/router.api.ssdp
+ * @see https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol
  */
 class C_SSDP extends COMPONENT {
 

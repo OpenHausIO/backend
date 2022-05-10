@@ -51,12 +51,14 @@ Object.defineProperty(logger, "create", {
  * ```
  */
 
-const file = path.resolve(process.env.LOG_PATH, "system.log");
-const stream = createWriteStream(file);
+const system = createWriteStream(path.resolve(process.env.LOG_PATH, "system.log"));
+const combined = createWriteStream(path.resolve(process.env.LOG_PATH, "combined.log"));
 
-stream.on("error", (err) => {
-    console.error(err);
-    process.exit(1);
+[system, combined].forEach((stream) => {
+    stream.on("error", (err) => {
+        console.error(err);
+        process.exit(1);
+    });
 });
 
 
@@ -83,7 +85,8 @@ const options = {
     name: "system",
     streams: [
         stdout,
-        stream,
+        system,
+        combined
     ],
     level: process.env.LOG_LEVEL
 };
@@ -114,7 +117,8 @@ Object.defineProperty(logger, "create", {
             name,
             streams: [
                 stdout,
-                stream
+                stream,
+                combined
             ]
         });
 
