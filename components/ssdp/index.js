@@ -7,6 +7,8 @@ const COMPONENT = require("../../system/component/class.component.js");
 
 const SSDP = require("./class.ssdp.js");
 
+const messageHandler = require("./message-handler.js");
+
 /**
  * @description
  * Listen for ssdp message and sends discovery requests.<br />
@@ -51,19 +53,21 @@ class C_SSDP extends COMPONENT {
                 return new mongodb.ObjectID();
             }),
             description: Joi.string().allow(null).default(null),
-            nt: Joi.string().required()
+            nt: Joi.string().allow(null).default(null),
+            usn: Joi.string().allow(null).default(null),
+            headers: Joi.array().allow(null).default([]),
+            timestamps: {
+                announced: Joi.number().allow(null).default(null)
+            }
         }, module);
 
         this.hooks.post("add", (data, next) => {
             next(null, new SSDP(data));
         });
 
-        this.events.on("message", (type, headers) => {
-
-            // feedback
-            this.logger.trace(`Message received on udp socket, type: "${type}"`, headers);
-
-        });
+        // handle incoming messages
+        // triggers registerd callback for ssdp items
+        messageHandler(this);
 
     }
 
