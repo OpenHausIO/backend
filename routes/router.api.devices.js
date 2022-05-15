@@ -45,6 +45,10 @@ module.exports = (app, router) => {
                 // gets fired every time websocket client hit this url/route
                 wss.on("connection", (ws) => {
 
+                    // set connection to "alive"
+                    // see #148
+                    ws.isAlive = true;
+
                     let upstream = WebSocket.createWebSocketStream(ws, {
                         // duplex stream options
                         //emitClose: false,
@@ -71,8 +75,33 @@ module.exports = (app, router) => {
                         });
                     });
 
+                    // detect broken connection
+                    ws.on("pong", () => {
+                        ws.isAlive = true;
+                    });
 
                 });
+
+
+                let interval = setInterval(() => {
+                    wss.clients.forEach((ws) => {
+
+                        if (!ws.isAlive) {
+                            ws.terminate();
+                            return;
+                        }
+
+                        ws.isAlive = false;
+                        ws.ping();
+
+                    });
+                }, Number(process.env.API_WEBSOCKET_TIMEOUT));
+
+
+                wss.on("close", () => {
+                    clearInterval(interval);
+                });
+
 
             }
 

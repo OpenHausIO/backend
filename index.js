@@ -44,6 +44,7 @@ process.env = Object.assign({
     API_SANITIZE_INPUT: "true",
     API_LIMIT_SIZE: "25", // rename to "..._SIZE_LIMIT"?!
     API_AUTH_ENABLED: "true",
+    API_WEBSOCKET_TIMEOUT: "5000",
     DEBUG: "",
     GC_INTERVAL: "",
     VAULT_MASTER_PASSWORD: "",
