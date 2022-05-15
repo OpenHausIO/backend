@@ -31,6 +31,8 @@ module.exports = (app, router) => {
         "endpoints",
         "plugins",
         "rooms",
+        "ssdp",
+        "store",
         "vault"
     ];
 
