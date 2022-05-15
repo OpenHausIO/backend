@@ -11,17 +11,103 @@ const C_SSDP = require("../components/ssdp");
 // something to read
 // http://upnp.org/resources/documents/UPnP_UDA_tutorial_July2014.pdf
 
+// The code below breaks sometimes with the socat bridging
+// Error: unknown ssdp message type cache-control: max-age=100
+// Seems like the line handling works not perfect
+
+
+async function parseMessage(msg) {
+
+    let [header, body] = msg.split("\r\n\r\n");
+
+    return {
+        header,
+        body
+    };
+
+}
+
+async function parseHeader(header) {
+
+    let lines = header.split("\r\n");
+    let type = lines[0];
+    let fields = {};
+
+    if (type.endsWith("* HTTP/1.1")) {
+        type = type.split(" ")[0];
+    } else if (type === "HTTP/1.1 200 OK") {
+        type = "SEARCH-RESPONSE";
+    } else {
+        console.log("Unknwon type");
+    }
+
+    type = type.toLowerCase();
+
+    if (!["m-search", "notify", "search-response"].includes(type)) {
+        console.log("UNKNOWN SSDP MESSAGE");
+        throw new Error(`unknown ssdp message type ${type}`);
+    }
+
+    lines.slice(1).forEach((line) => {
+
+        let [key, ...value] = line.split(":");
+
+        let k = key.toLowerCase();
+        let v = value.join(":").trim().replaceAll(`"`, "");
+
+        fields[k] = v;
+
+    });
+
+    // delete empty key
+    // (last line from socat)
+    //delete fields[""];
+
+    return {
+        type,
+        fields
+    };
+
+}
+
 module.exports = (app, router) => {
 
     let wss = new WebSocket.Server({
         noServer: true
     });
 
+    let interval = setInterval(() => {
+        wss.clients.forEach((ws) => {
+
+            if (!ws.isAlive) {
+                ws.terminate();
+                return;
+            }
+
+            ws.isAlive = false;
+            ws.ping();
+
+        });
+    }, Number(process.env.API_WEBSOCKET_TIMEOUT));
+
+
+    wss.on("close", () => {
+        clearInterval(interval);
+    });
+
     wss.on("connection", (ws) => {
 
+        ws.isAlive = true;
         let chunks = [];
 
-        ws.on("message", (msg) => {
+        ws.on("pong", () => {
+            ws.isAlive = true;
+        });
+
+        ws.on("message", async (msg) => {
+
+            let size = msg.length;
+            let complete = (msg[size - 4] === 13, msg[size - 3] === 10) && (msg[size - 2] === 13, msg[size - 1] === 10);
 
             // Note / thoughts about future implementations
             //
@@ -36,50 +122,25 @@ module.exports = (app, router) => {
             // <or> would it be better to move the parsing part into the connector and send just json data?
             // that breaks the socat/wscat stuff
 
-            // NOTE For better parsing for the message, utilize the helper/request.js file?
-            // Create for earch connection/message a request
-            // Implement a readable use that as socket, if request is done, create from start.
 
             // i feel like this is a silly check and something more accurat should do the job
             // msg === "\r\n" && chunks[chunks.length - 1].slice(-1) === "\r\n"
-            if (msg == "") {
+            if (msg == "" || complete) {
 
-                let headers = {};
-                let type = chunks[0];
-
-                if (type.endsWith("* HTTP/1.1")) {
-                    type = type.split(" ")[0];
-                } else if (type === "HTTP/1.1 200 OK") {
-                    type = "SEARCH-RESPONSE";
-                } else {
-                    console.log("Unknwon type");
+                if (chunks.length > 0 && !complete) {
+                    msg = Buffer.concat(chunks.map((str) => {
+                        return Buffer.from(str + "\r\n");
+                    }));
                 }
 
-                // store head key/value pair in object
-                chunks.slice(1).forEach((line) => {
-
-                    let [key, ...value] = line.split(":");
-
-                    let k = key.toLowerCase();
-                    let v = value.join(":").trim().replaceAll(`"`, "");
-
-                    headers[k] = v;
-
-                });
-
-                // for better handling, convert to lowercase
-                type = type.toLowerCase();
-
-                // clear chunks
-                chunks = [];
-
-                if (!["m-search", "notify", "search-response"].includes(type)) {
-                    console.log("UNKNOWN SSDP MESSAGE");
-                    throw new Error(`unknown ssdp message type ${type}`);
-                }
+                let { header, body } = await parseMessage(msg.toString());
+                let { fields, type } = await parseHeader(header);
 
                 // emit ssdp message
-                C_SSDP.events.emit("message", type, headers);
+                C_SSDP.events.emit("message", type, fields, body);
+
+                // clear array
+                chunks = [];
 
             } else {
                 chunks.push(msg);
