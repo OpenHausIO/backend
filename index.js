@@ -185,13 +185,13 @@ const init_components = () => {
         logger.debug("Init components...");
 
         const componentNames = [
-            "rooms",
             "devices",
             "endpoints",
             "plugins",
-            "vault",
+            "rooms",
             "ssdp",
-            "store"
+            "store",
+            "vault"
         ].sort(() => {
 
             // pseudo randomize start/init of components
