@@ -44,6 +44,7 @@ process.env = Object.assign({
     API_SANITIZE_INPUT: "true",
     API_LIMIT_SIZE: "25", // rename to "..._SIZE_LIMIT"?!
     API_AUTH_ENABLED: "true",
+    API_WEBSOCKET_TIMEOUT: "5000",
     DEBUG: "",
     GC_INTERVAL: "",
     VAULT_MASTER_PASSWORD: "",
@@ -87,15 +88,16 @@ console.log(`Starting OpenHaus ${(process.env.NODE_ENV !== "production" ? `in "\
 
 
 
-//require("./system/shared_objects.js");
+require("./system/shared.js");
 // #9, see #86
 // hits is uglay and hard to maintain
+/*
 global.sharedObjects = {
     interfaceStreams: new Map(),
     interfaceServer: new Map(),
     interfaces: new Map()
 };
-
+*/
 
 
 // require logger as on of the first things
@@ -183,13 +185,13 @@ const init_components = () => {
         logger.debug("Init components...");
 
         const componentNames = [
-            "rooms",
             "devices",
             "endpoints",
             "plugins",
-            "vault",
+            "rooms",
             "ssdp",
-            "store"
+            "store",
+            "vault"
         ].sort(() => {
 
             // pseudo randomize start/init of components

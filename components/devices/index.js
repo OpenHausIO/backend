@@ -152,7 +152,13 @@ class C_DEVICES extends COMPONENT {
             room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
             enabled: Joi.boolean().default(true),
             //interfaces: Joi.array().items(Interface.schema()).min(1).required()
-            interfaces: Joi.array().min(1).items(Interface.schema()).required()
+            interfaces: Joi.array().min(1).items(Interface.schema()).required(),
+            meta: {
+                manufacturer: Joi.string().allow(null).default(null),
+                model: Joi.string().allow(null).default(null),
+                revision: Joi.number().allow(null).default(null),
+                serial: Joi.string().allow(null).default(null)
+            }
         }, module);
 
 

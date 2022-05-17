@@ -7,17 +7,22 @@ const COMPONENT = require("../../system/component/class.component.js");
 
 const SSDP = require("./class.ssdp.js");
 
+const messageHandler = require("./message-handler.js");
+
 /**
  * @description
- * Listen for ssdp message and sends discovery requests<br />
+ * Listen for ssdp message and sends discovery requests.<br />
+ * This requires the "connector" software or bridging via other tools.<br />
+ * A example for bridging can you see below with `socat` & `wscat`.
+ * 
+ * The emitted message events is the parsed data received on the underlaying udp socket.<br />
+ * As third parameter the content of the `LOCATION` header field can be seen.<br />
+ * This is only available if the connector is used.
  * 
  * @class C_SSDP
  * @extends COMPONENT system/component/class.component.js
  * 
- * @emits message Received message on udp socket; Arguments: [0]=message type, [1]=headers
- * 
- * @link router.api.ssdp.js routes/router.api.ssdp
- * @see https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol
+ * @emits message Received message on udp socket; Arguments: [0]=message type, [1]=headers, [2]=body (location header url content as json)
  * 
  * @example
  * ```sh
@@ -33,6 +38,10 @@ const SSDP = require("./class.ssdp.js");
  *  mx: '5'
  * }
  * ```
+ * 
+ * @link router.api.ssdp.js routes/router.api.ssdp.js
+ * @see https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol
+ * @see https://github.com/nashwaan/xml-js
  */
 class C_SSDP extends COMPONENT {
 
@@ -44,19 +53,21 @@ class C_SSDP extends COMPONENT {
                 return new mongodb.ObjectID();
             }),
             description: Joi.string().allow(null).default(null),
-            nt: Joi.string().required()
+            nt: Joi.string().allow(null).default(null),
+            usn: Joi.string().allow(null).default(null),
+            headers: Joi.array().allow(null).default([]),
+            timestamps: {
+                announced: Joi.number().allow(null).default(null)
+            }
         }, module);
 
         this.hooks.post("add", (data, next) => {
             next(null, new SSDP(data));
         });
 
-        this.events.on("message", (type, headers) => {
-
-            // feedback
-            this.logger.trace(`Message received on udp socket, type: "${type}"`, headers);
-
-        });
+        // handle incoming messages
+        // triggers registerd callback for ssdp items
+        messageHandler(this);
 
     }
 

@@ -53,8 +53,11 @@ module.exports = class Device {
 
         });
 
+        let { interfaces } = require("../../system/shared.js");
+
         this.interfaces.forEach((iface) => {
-            global.sharedObjects.interfaces.set(iface._id, iface);
+            //global.sharedObjects.interfaces.set(iface._id, iface);
+            interfaces.set(iface._id, iface);
         });
 
     }

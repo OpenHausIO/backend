@@ -6,11 +6,33 @@ module.exports = (app, router) => {
         noServer: true
     });
 
+    let interval = setInterval(() => {
+        wss.clients.forEach((ws) => {
+
+            if (!ws.isAlive) {
+                ws.terminate();
+                return;
+            }
+
+            ws.isAlive = false;
+            ws.ping();
+
+        });
+    }, Number(process.env.API_WEBSOCKET_TIMEOUT));
+
+
+    wss.on("close", () => {
+        clearInterval(interval);
+    });
+
+
     const componentNames = [
         "devices",
         "endpoints",
         "plugins",
         "rooms",
+        "ssdp",
+        "store",
         "vault"
     ];
 
@@ -70,7 +92,15 @@ module.exports = (app, router) => {
         } else {
 
             wss.handleUpgrade(req, req.socket, req.headers, (ws) => {
+
+                ws.isAlive = true;
+
+                ws.on("pong", () => {
+                    ws.isAlive = true;
+                });
+
                 wss.emit("connection", ws, req);
+
             });
 
         }
