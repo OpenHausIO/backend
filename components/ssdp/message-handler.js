@@ -1,9 +1,28 @@
 module.exports = (scope) => {
-    scope.events.once("ready", () => {
+    Promise.race([
+
+        // ensure the component is ready
+        // so the items array is filled
+        new Promise((resolve) => {
+            if (scope.ready) {
+                resolve();
+            }
+        }),
+
+        // ensure the component is ready
+        // so the items array is filled
+        new Promise((resolve) => {
+            scope.events.once("ready", () => {
+                resolve();
+            });
+        })
+
+    ]).then(() => {
 
         const { logger } = scope;
 
-
+        // proceed ssdp item instance
+        // deconstruct properties
         let wanted = scope.items.map(({ nt, usn, _matches, headers }) => {
             return {
                 nt,
@@ -13,6 +32,19 @@ module.exports = (scope) => {
                     return new RegExp(str, "i");
                 })
             };
+        });
+
+
+        // listen for newly added items
+        scope.events.on("added", ({ nt, usn, _matches, headers }) => {
+            wanted.push({
+                nt,
+                usn,
+                _matches,
+                keys: headers.map((str) => {
+                    return new RegExp(str, "i");
+                })
+            });
         });
 
 
