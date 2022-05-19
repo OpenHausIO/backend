@@ -131,4 +131,9 @@ Object.defineProperty(logger, "create", {
 });
 
 
+if (process.env.LOG_TARGET) {
+    logger.warn(`Log target set to "${process.env.LOG_TARGET}"`);
+}
+
+
 module.exports = logger;
