@@ -236,4 +236,30 @@ module.exports = class COMMON extends BASE {
 
     }
 
+    /**
+     * @function _ready
+     * Wait for the component to be ready and calls then the provided callback function
+     * 
+     * @param {Function} cb Callback
+     */
+    _ready(cb) {
+        Promise.race([
+
+            new Promise((resolve) => {
+                if (this.ready) {
+                    resolve();
+                }
+            }),
+
+            new Promise((resolve) => {
+                this.events.once("ready", () => {
+                    resolve();
+                });
+            })
+
+        ]).then(() => {
+            cb(this);
+        });
+    }
+
 };
