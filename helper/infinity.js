@@ -4,10 +4,10 @@
  * Worker gets called, where a callback is passed.
  * If the callback is invoked, worker is called again.
  * 
- * @param {function} worker Function that can call itself over and over
- * @param {number} delay Delay before worker is self re-called
+ * @param {Function} worker Function that can call itself over and over
+ * @param {Number} [delay=0] Delay before worker is self re-called
  */
-function infinity(worker, delay = 3000) {
+function infinity(worker, delay = 0) {
 
     const loop = () => {
         worker(() => {
