@@ -1,25 +1,5 @@
 module.exports = (scope) => {
-    Promise.race([
-
-        // ensure the component is ready
-        // so the items array is filled
-        new Promise((resolve) => {
-            if (scope.ready) {
-                resolve();
-            }
-        }),
-
-        // ensure the component is ready
-        // so the items array is filled
-        new Promise((resolve) => {
-            scope.events.once("ready", () => {
-                resolve();
-            });
-        })
-
-    ]).then(() => {
-
-        const { logger } = scope;
+    scope._ready(({ logger }) => {
 
         // proceed ssdp item instance
         // deconstruct properties

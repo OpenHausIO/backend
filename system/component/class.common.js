@@ -236,4 +236,33 @@ module.exports = class COMMON extends BASE {
 
     }
 
+    /**
+     * @function _ready
+     * Calls the provided callback as soon as the component is ready to be used.<br />
+     * If this function is called while the component is ready, the callback is immediately called.
+     * 
+     * @param {Function} cb Callback to register
+     */
+    _ready(cb) {
+        Promise.race([
+            new Promise((resolve) => {
+                if (this.ready) {
+
+                    // keep asynchron things asynchron
+                    process.nextTick(resolve);
+
+                }
+            }),
+            new Promise((resolve) => {
+                this.events.once("ready", () => {
+
+                    resolve();
+
+                });
+            })
+        ]).then(() => {
+            cb(this);
+        });
+    }
+
 };

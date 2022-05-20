@@ -17,7 +17,7 @@ module.exports = (app, router) => {
     });
 
     router.post("/:_id/decrypt", (req, res) => {
-        req.item.decrypt((err, values) => {
+        C_VAULT.decrypt(req.item._id, (err, values) => {
             if (err) {
 
                 res.status(400).end(err);
