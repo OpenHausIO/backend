@@ -105,6 +105,7 @@ module.exports = (server) => {
         const eventsRouter = express.Router();
         const ssdpRouter = express.Router();
         const storeRouter = express.Router();
+        const usersRouter = express.Router();
 
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
@@ -146,6 +147,11 @@ module.exports = (server) => {
         // http://127.0.0.1/api/store
         api.use("/store", storeRouter);
         require("./rest-handler.js")(C_STORE, storeRouter);
+
+        // http://127.0.0.1/api/users
+        api.use("/users", usersRouter);
+        require("./rest-handler.js")(C_USERS, usersRouter);
+        //require("./router.api.users.js")(app, vaultRouter);
 
         api.use((req, res) => {
             res.status(404).json({
