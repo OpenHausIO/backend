@@ -9,6 +9,7 @@ const C_VAULT = require("../components/vault");
 //const C_SCENES = require("../components/scenes");
 const C_SSDP = require("../components/ssdp");
 const C_STORE = require("../components/store");
+const C_USERS = require("../components/users");
 
 const { encode } = require("../helper/sanitize");
 const iterate = require("../helper/iterate");
@@ -42,10 +43,13 @@ module.exports = (server) => {
     // mount api router
     app.use("/auth", auth);
     app.use("/api", api);
-    app.use("/logs", logs);
 
 
     //require("./router.auth.js")(app, auth);
+
+
+    // mount logs router under /api
+    api.use("/logs", logs);
     require("./router.logs.js")(app, logs);
 
 
