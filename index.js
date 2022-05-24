@@ -401,18 +401,18 @@ const starter = new Promise((resolve) => {
 
 
 [
-    init_db,
-    init_components,
-    init_http,
+    init_db,            // phase 1
+    init_components,    // phase 2
+    init_http,          // phase 3
     kickstart
-].reduce((cur, prev) => {
+].reduce((cur, prev, i) => {
     return cur.then(prev).catch((err) => {
 
         // this does not get triggerd
         // needed? see issue #53
 
         // feedback
-        logger.error(err, `Initzalisilni failed: ${err.message}`);
+        logger.error(err, `Could not start. Error in startup phase ${i}; ${err.message}`);
 
         // exit process
         process.exit(1000);
