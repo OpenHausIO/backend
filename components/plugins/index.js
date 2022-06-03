@@ -51,6 +51,10 @@ class C_PLUGINS extends COMPONENT {
             next(null, new Plugin(data));
         });
 
+        this.collection.createIndex("uuid", {
+            unique: true
+        });
+
     }
 
 }
