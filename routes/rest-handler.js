@@ -1,4 +1,30 @@
+const _iterate = require("../helper/iterate.js");
+
 module.exports = (C_COMPONENT, router) => {
+
+    router.use((req, res, next) => {
+
+        let json = res.json;
+
+        // censor password key
+        // no password should ever be sent to the client
+        res.json = function (obj) {
+
+            _iterate(obj, (key, value) => {
+                if (key === "password") {
+                    return null;
+                } else {
+                    return value;
+                }
+            });
+
+            json.call(this, obj);
+
+        };
+
+        next();
+
+    });
 
     router.param("_id", (req, res, next, _id) => {
         C_COMPONENT.get(_id, (err, obj) => {
