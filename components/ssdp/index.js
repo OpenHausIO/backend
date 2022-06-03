@@ -55,7 +55,7 @@ class C_SSDP extends COMPONENT {
             description: Joi.string().allow(null).default(null),
             nt: Joi.string().allow(null).default(null),
             usn: Joi.string().allow(null).default(null),
-            headers: Joi.array().allow(null).default([]),
+            headers: Joi.array().items(Joi.string()).allow(null).default([]),
             timestamps: {
                 announced: Joi.number().allow(null).default(null)
             }

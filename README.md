@@ -4,8 +4,8 @@ Here are all devices/endpoints stored, messages/commands distributed and states 
 
 
 ## Requirments
-- node.js (https://nodejs.org)¹
-- MongoDB (https://www.mongodb.com)²
+- node.js¹ (https://nodejs.org)
+- MongoDB² (https://www.mongodb.com)
 
 
 ## Documentation

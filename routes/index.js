@@ -9,6 +9,7 @@ const C_VAULT = require("../components/vault");
 //const C_SCENES = require("../components/scenes");
 const C_SSDP = require("../components/ssdp");
 const C_STORE = require("../components/store");
+const C_USERS = require("../components/users");
 
 const { encode } = require("../helper/sanitize");
 const iterate = require("../helper/iterate");
@@ -34,31 +35,34 @@ module.exports = (server) => {
     const api = express.Router();
     const logs = express.Router();
 
+    // https://expressjs.com/en/guide/behind-proxies.html
+    app.set("trust proxy", [
+        "loopback",
+        "linklocal",
+        "uniquelocal"
+    ]);
+
     app.use(bodyParser.json({
         limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
     }));
 
-
-    // mount api router
-    app.use("/auth", auth);
+    // mount api router    
     app.use("/api", api);
-    app.use("/logs", logs);
 
+    // mount auth router
+    app.use("/auth", auth);
+    require("./router.auth.js")(app, auth);
 
-    //require("./router.auth.js")(app, auth);
+    // mount logs router under /api
+    api.use("/logs", logs);
     require("./router.logs.js")(app, logs);
-
 
     // /api routes
     (() => {
 
-        // use json as content-type
-        /*
-        api.use(bodyParser.json({
-            limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
-        }));
-        */
-
+        // ensure that all requests to /api are authenticated
+        // req.user = User item from component user
+        require("./auth-handler.js")(C_USERS, api);
 
         // serailize api input fields
         api.use((req, res, next) => {
@@ -101,6 +105,7 @@ module.exports = (server) => {
         const eventsRouter = express.Router();
         const ssdpRouter = express.Router();
         const storeRouter = express.Router();
+        const usersRouter = express.Router();
 
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
@@ -142,6 +147,11 @@ module.exports = (server) => {
         // http://127.0.0.1/api/store
         api.use("/store", storeRouter);
         require("./rest-handler.js")(C_STORE, storeRouter);
+
+        // http://127.0.0.1/api/users
+        api.use("/users", usersRouter);
+        require("./rest-handler.js")(C_USERS, usersRouter);
+        //require("./router.api.users.js")(app, vaultRouter);
 
         api.use((req, res) => {
             res.status(404).json({

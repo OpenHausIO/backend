@@ -48,6 +48,7 @@ module.exports = (C_COMPONENT, router) => {
         //console.log("Upate", req.item)
 
         if (!req.params["_id"]) {
+            // change to status 404?
             return res.status(400).end();
         }
 
