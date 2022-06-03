@@ -65,6 +65,10 @@ class C_SSDP extends COMPONENT {
             next(null, new SSDP(data));
         });
 
+        this.collection.createIndex("usn", {
+            unique: true
+        });
+
         // handle incoming messages
         // triggers registerd callback for ssdp items
         messageHandler(this);
