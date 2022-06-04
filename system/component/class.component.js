@@ -201,6 +201,8 @@ module.exports = class COMPONENT extends COMMON {
          * Adds a new item that matches the component schema
          * 
          * @param {Object} data Object that matches the component schema
+         * @param {Object} options Options object
+         * @param {Boolean} [options.returnDuplicate=true] When a duplicate is detected, return the already existing item instance?
          */
         this._defineMethod("add", (final) => {
 
@@ -239,6 +241,7 @@ module.exports = class COMPONENT extends COMMON {
 
                                 let item = this.items.find((item) => {
                                     for (let key in err.keyValue) {
+                                        // change to or statement?
                                         return (item[key] && item[key] == err.keyValue[key]);
                                     }
                                 });
