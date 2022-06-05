@@ -212,7 +212,7 @@ module.exports = class COMPONENT extends COMMON {
                 return Promise.resolve();
             });
 
-            return (data, options) => {
+            return (data, options = {}) => {
                 return new Promise((resolve, reject) => {
 
                     options = Object.assign({

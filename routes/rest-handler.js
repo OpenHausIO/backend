@@ -6,6 +6,11 @@ module.exports = (C_COMPONENT, router) => {
 
         let json = res.json;
 
+        // convert string true to real boolean
+        req.options = _iterate(req.query?.options || {}, (key, value) => {
+            return value == "true";
+        });
+
         // censor password key
         // no password should ever be sent to the client
         res.json = function (obj) {
@@ -96,7 +101,7 @@ module.exports = (C_COMPONENT, router) => {
     });
 
     router.put("/", (req, res) => {
-        C_COMPONENT.add(req.body, (err, result) => {
+        C_COMPONENT.add(req.body, req.options, (err, result) => {
             if (err) {
 
                 res.status(400).json({
