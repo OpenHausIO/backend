@@ -35,34 +35,34 @@ module.exports = (server) => {
     const api = express.Router();
     const logs = express.Router();
 
+    // https://expressjs.com/en/guide/behind-proxies.html
+    app.set("trust proxy", [
+        "loopback",
+        "linklocal",
+        "uniquelocal"
+    ]);
+
     app.use(bodyParser.json({
         limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
     }));
 
-
-    // mount api router
-    app.use("/auth", auth);
+    // mount api router    
     app.use("/api", api);
 
-
-    //require("./router.auth.js")(app, auth);
-
+    // mount auth router
+    app.use("/auth", auth);
+    require("./router.auth.js")(app, auth);
 
     // mount logs router under /api
     api.use("/logs", logs);
     require("./router.api.logs.js")(app, logs);
 
-
     // /api routes
     (() => {
 
-        // use json as content-type
-        /*
-        api.use(bodyParser.json({
-            limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
-        }));
-        */
-
+        // ensure that all requests to /api are authenticated
+        // req.user = User item from component user
+        require("./auth-handler.js")(C_USERS, api);
 
         // serailize api input fields
         api.use((req, res, next) => {

@@ -9,6 +9,11 @@ module.exports = (scope) => {
                 usn,
                 _matches,
                 keys: headers.map((str) => {
+                    // NOTE Implement? 
+                    // use key/value regex?
+                    // /regex header/=/regex value/
+                    // [header, ...value] = str.split("=");
+                    // How to write/specify regex string?!
                     return new RegExp(str, "i");
                 })
             };
@@ -22,6 +27,7 @@ module.exports = (scope) => {
                 usn,
                 _matches,
                 keys: headers.map((str) => {
+                    // NOTE: See header key/value handling ("NOTE Implement?")
                     return new RegExp(str, "i");
                 })
             });

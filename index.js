@@ -52,7 +52,10 @@ process.env = Object.assign({
     VAULT_AUTH_TAG_BYTE_LEN: "16",
     VAULT_IV_BYTE_LEN: "16",
     VAULT_KEY_BYTE_LEN: "32",
-    VAULT_SALT_BYTE_LEN: "16"
+    VAULT_SALT_BYTE_LEN: "16",
+    USERS_BCRYPT_SALT_ROUNDS: "12",
+    USERS_JWT_SECRET: "",
+    USERS_JWT_ALGORITHM: "HS384"
 }, env.parsed, process.env);
 
 
@@ -191,6 +194,7 @@ const init_components = () => {
             "rooms",
             "ssdp",
             "store",
+            "users",
             "vault"
         ].sort(() => {
 
@@ -258,28 +262,32 @@ const init_http = () => {
 
             // http server for ip/port
             new Promise((resolve, reject) => {
+                if (process.env.HTTP_ADDRESS !== "") {
 
-                let server = http.createServer();
+                    let server = http.createServer();
 
-                server.on("error", (err) => {
-                    logger.error(err, `Could not start http server: ${err.message}`);
-                    reject(err);
-                });
+                    server.on("error", (err) => {
+                        logger.error(err, `Could not start http server: ${err.message}`);
+                        reject(err);
+                    });
 
-                server.on("listening", () => {
+                    server.on("listening", () => {
 
-                    let addr = server.address();
-                    logger.info(`HTTP Server listening on http://${addr.address}:${addr.port}`);
+                        let addr = server.address();
+                        logger.info(`HTTP Server listening on http://${addr.address}:${addr.port}`);
 
-                    resolve(server);
+                        resolve(server);
 
-                });
+                    });
 
-                require("./routes")(server);
+                    require("./routes")(server);
 
-                // bind/start http server
-                server.listen(Number(process.env.HTTP_PORT), process.env.HTTP_ADDRESS);
+                    // bind/start http server
+                    server.listen(Number(process.env.HTTP_PORT), process.env.HTTP_ADDRESS);
 
+                } else {
+                    resolve();
+                }
             }),
 
             // http server fo unix socket

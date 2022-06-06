@@ -1,7 +1,6 @@
 {
     "recommendations": [
         "yzhang.markdown-all-in-one",
-        "Gruntfuggly.todo-tree",
-        "hediet.vscode-drawio"
+        "Gruntfuggly.todo-tree"
     ]
 }

@@ -201,6 +201,8 @@ module.exports = class COMPONENT extends COMMON {
          * Adds a new item that matches the component schema
          * 
          * @param {Object} data Object that matches the component schema
+         * @param {Object} options Options object
+         * @param {Boolean} [options.returnDuplicate=true] When a duplicate is detected, return the already existing item instance?
          */
         this._defineMethod("add", (final) => {
 
@@ -210,8 +212,12 @@ module.exports = class COMPONENT extends COMMON {
                 return Promise.resolve();
             });
 
-            return (data) => {
+            return (data, options = {}) => {
                 return new Promise((resolve, reject) => {
+
+                    options = Object.assign({
+                        returnDuplicate: true
+                    }, options);
 
                     data.timestamps = {
                         created: Date.now(),
@@ -228,9 +234,25 @@ module.exports = class COMPONENT extends COMMON {
 
                     this.collection.insertOne(result.value, (err, result) => {
                         if (err) {
+                            if (err.code === 11000 && options.returnDuplicate) {
 
-                            reject(err);
+                                // 11000 = duplicate key
+                                // search for object in .items and return it
 
+                                let item = this.items.find((item) => {
+                                    for (let key in err.keyValue) {
+                                        // change to or statement?
+                                        return (item[key] && item[key] == err.keyValue[key]);
+                                    }
+                                });
+
+                                resolve([item]);
+
+                            } else {
+
+                                reject(err);
+
+                            }
                         } else {
 
                             // resolve takes a array

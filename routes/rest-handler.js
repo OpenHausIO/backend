@@ -1,4 +1,35 @@
+const _iterate = require("../helper/iterate.js");
+
 module.exports = (C_COMPONENT, router) => {
+
+    router.use((req, res, next) => {
+
+        let json = res.json;
+
+        // convert string true to real boolean
+        req.options = _iterate(req.query?.options || {}, (key, value) => {
+            return value == "true";
+        });
+
+        // censor password key
+        // no password should ever be sent to the client
+        res.json = function (obj) {
+
+            _iterate(obj, (key, value) => {
+                if (key === "password") {
+                    return null;
+                } else {
+                    return value;
+                }
+            });
+
+            json.call(this, obj);
+
+        };
+
+        next();
+
+    });
 
     router.param("_id", (req, res, next, _id) => {
         C_COMPONENT.get(_id, (err, obj) => {
@@ -48,8 +79,7 @@ module.exports = (C_COMPONENT, router) => {
         //console.log("Upate", req.item)
 
         if (!req.params["_id"]) {
-            // change to status 404?
-            return res.status(400).end();
+            return res.status(404).end();
         }
 
         C_COMPONENT.update(req.params["_id"], req.body, (err, result) => {
@@ -71,7 +101,7 @@ module.exports = (C_COMPONENT, router) => {
     });
 
     router.put("/", (req, res) => {
-        C_COMPONENT.add(req.body, (err, result) => {
+        C_COMPONENT.add(req.body, req.options, (err, result) => {
             if (err) {
 
                 res.status(400).json({
