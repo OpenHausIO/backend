@@ -52,7 +52,7 @@ module.exports = (app, router) => {
         fs.open(logfile, (err, fd) => {
             if (err) {
                 console.error(err);
-                process.exit();
+                res.end();
             } else {
 
                 let position = 0;
@@ -65,7 +65,7 @@ module.exports = (app, router) => {
                     if (err) {
 
                         console.erro(err);
-                        process.exit();
+                        res.end();
 
                     } else {
 
@@ -87,7 +87,7 @@ module.exports = (app, router) => {
                             if (err) {
 
                                 console.erro(err);
-                                process.exit(1);
+                                res.end();
 
                             } else {
 
