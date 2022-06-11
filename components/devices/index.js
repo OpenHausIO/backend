@@ -158,7 +158,8 @@ class C_DEVICES extends COMPONENT {
                 model: Joi.string().allow(null).default(null),
                 revision: Joi.number().allow(null).default(null),
                 serial: Joi.string().allow(null).default(null)
-            }
+            },
+            icon: Joi.string().allow(null).default(null)
         }, module);
 
 
