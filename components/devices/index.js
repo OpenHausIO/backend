@@ -187,31 +187,34 @@ class C_DEVICES extends COMPONENT {
             next(null, new Device(data, this));
         });
 
-
-        this.hooks.pre("update", (_id, data, next) => {
-
-            // before we update a device item
-            // we need to convert "interface"/"adapter" instance, back to schema allowd types
-
-            let target = this.items.find((item) => {
-                return String(item._id) === String(_id);
-            });
-
-            // We should not operate on the original device object
-            // so create a shallow copy of the object and 
-            // override the shallow copy with data to update            
-            let shallow = Object.assign({}, target, data);
-
-            shallow.interfaces = target.interfaces.map((iface) => {
-                iface.adapter = iface.adapter.map((adapter) => {
-                    return adapter.name;
+        /*
+        // cause a update bug
+        // see #171
+                this.hooks.pre("update", (_id, data, next) => {
+        
+                    // before we update a device item
+                    // we need to convert "interface"/"adapter" instance, back to schema allowd types
+        
+                    let target = this.items.find((item) => {
+                        return String(item._id) === String(_id);
+                    });
+        
+                    // We should not operate on the original device object
+                    // so create a shallow copy of the object and 
+                    // override the shallow copy with data to update            
+                    let shallow = Object.assign({}, target, data);
+        
+                    shallow.interfaces = target.interfaces.map((iface) => {
+                        iface.adapter = iface.adapter.map((adapter) => {
+                            return adapter.name;
+                        });
+                        return iface;
+                    });
+        
+                    next(null, _id, shallow);
+        
                 });
-                return iface;
-            });
-
-            next(null, _id, shallow);
-
-        });
+                */
 
     }
 }
