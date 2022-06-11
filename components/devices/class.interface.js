@@ -71,7 +71,7 @@ module.exports = class Interface {
             port: Joi.number().min(1).max(65535).required(),
             // https://regex101.com/r/wF7Nfa/1
             // https://stackoverflow.com/a/50080404/5781499
-            mac: Joi.string().default(null).regex(/^([0-9a-fA-F]{2}[:]){5}[0-9a-fA-F]{2}$/)
+            mac: Joi.string().default(null).allow(null).regex(/^([0-9a-fA-F]{2}[:]){5}[0-9a-fA-F]{2}$/)
         }).required();
 
         return Joi.object({
