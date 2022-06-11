@@ -55,7 +55,7 @@ module.exports = (server) => {
 
     // mount logs router under /api
     api.use("/logs", logs);
-    require("./router.logs.js")(app, logs);
+    require("./router.api.logs.js")(app, logs);
 
     // /api routes
     (() => {

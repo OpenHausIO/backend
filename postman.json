@@ -115,7 +115,14 @@
 							],
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhbnMuaHViZXJ0QGV4YW1wbGUuY29tIiwidXVpZCI6ImM3N2E3NjJkLWM4ODYtNGQ2My1iNGM1LWU0MDJhZGNmYTdiZSIsImlhdCI6MTY1NDI2ODI4NX0.w4mkvTuJ-OXzTcmvWhwIT84oOmo2399hSEfWGbA-9SUWndMWUiHvly1A7-kSV93e",
+										"type": "text",
+										"disabled": true
+									}
+								],
 								"url": {
 									"raw": "http://{{HOST}}:{{PORT}}/api/rooms?limit=100&offset=0",
 									"protocol": "http",
@@ -285,6 +292,311 @@
 										"api",
 										"rooms",
 										"{{_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "Create new user",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check room name: input = output\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"    let req = JSON.parse(pm.request.body);",
+											"",
+											"    pm.expect(res.name).to.eql(req.name);",
+											"",
+											"});",
+											"",
+											"pm.test(\"Check properties\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"",
+											"    let props = [",
+											"        \"name\", \"timestamps\", \"_id\",",
+											"        \"number\", \"floor\", \"icon\"",
+											"    ];",
+											"",
+											"    Object.keys(res).forEach((key) => {",
+											"        pm.expect(props.includes(key)).to.be.true;",
+											"    });",
+											"",
+											"    props.forEach((item) => {",
+											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
+											"    });",
+											"",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Hans Hubert #3\",\n    \"email\": \"hans.hubert3@example.com\",\n    \"password\": \"Pa$$w0rd\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/users?options[returnDuplicate]=false",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"users"
+									],
+									"query": [
+										{
+											"key": "options[returnDuplicate]",
+											"value": "false"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all users",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-AUTH-TOKEN",
+										"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiaGFucy5odWJlcnRAZXhhbXBsZS5jb20iLCJ1dWlkIjoiYzc3YTc2MmQtYzg4Ni00ZDYzLWI0YzUtZTQwMmFkY2ZhN2JlIiwiaWF0IjoxNjUzMTUwMDIyfQ.vA26GhU8EiNW3EmMvT4aw1_p8Pd8q-9n0xjXK6-iNrx8nCdjSTcpaq1QEtbDC4uE",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/users",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get sinlge user",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/users/6288b67b1f3bc42774ce0ec1",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"users",
+										"6288b67b1f3bc42774ce0ec1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update existing user",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const HOST = pm.collectionVariables.get(\"HOST\");",
+											"const PORT = pm.collectionVariables.get(\"PORT\");",
+											"",
+											"//console.log(pm.request.url.toString())",
+											"",
+											"pm.sendRequest({",
+											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
+											"    method: 'GET',",
+											"}, function (err, res) {",
+											"    if(err){",
+											"",
+											"        consle.error(err);",
+											"",
+											"    }else {",
+											"",
+											"        let data = res.json();",
+											"        let key = Math.floor(Math.random()*data.length);",
+											"        let item = data[key];",
+											"",
+											"        pm.variables.set(\"_id\", item._id);",
+											"",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"password\": \"FooBarBaz\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/users/6288b67b1f3bc42774ce0ec1",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"users",
+										"6288b67b1f3bc42774ce0ec1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete exisiting room",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
+											"",
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/users/6288b67b1f3bc42774ce0ec1",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"users",
+										"6288b67b1f3bc42774ce0ec1"
 									]
 								}
 							},
@@ -1203,13 +1515,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/logs/?offset=0&limit=3",
+							"raw": "http://{{HOST}}:{{PORT}}/api/logs/?offset=0&limit=3",
 							"protocol": "http",
 							"host": [
 								"{{HOST}}"
 							],
 							"port": "{{PORT}}",
 							"path": [
+								"api",
 								"logs",
 								""
 							],
@@ -1222,6 +1535,81 @@
 									"key": "limit",
 									"value": "3"
 								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhbnMuaHViZXJ0QGV4YW1wbGUuY29tIiwidXVpZCI6ImM3N2E3NjJkLWM4ODYtNGQ2My1iNGM1LWU0MDJhZGNmYTdiZSIsImlhdCI6MTY1MzUyMDM1Mn0.10H4v6IhiI2mlaiSAcbTp2m4QUSueA1l4c2CPGV8L7WltZfXia8pLCnbYC243LPz",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"hans.hubert@example.com\",\n    \"password\": \"Pa$$w0rd\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{HOST}}:{{PORT}}/auth/login",
+							"protocol": "http",
+							"host": [
+								"{{HOST}}"
+							],
+							"port": "{{PORT}}",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhbnMuaHViZXJ0QGV4YW1wbGUuY29tIiwidXVpZCI6ImM3N2E3NjJkLWM4ODYtNGQ2My1iNGM1LWU0MDJhZGNmYTdiZSIsImlhdCI6MTY1MzUxOTUwNH0.5iByWpBxCHVj0c1mHEv0Skz47SSGps7BbfDOPVFppSFWwJfLwa09jx8MSBrJTC_E",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{HOST}}:{{PORT}}/auth/logout",
+							"protocol": "http",
+							"host": [
+								"{{HOST}}"
+							],
+							"port": "{{PORT}}",
+							"path": [
+								"auth",
+								"logout"
 							]
 						}
 					},
