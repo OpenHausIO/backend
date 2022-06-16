@@ -77,7 +77,7 @@ module.exports = class State {
             }),
             //interface: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(), // for what?! 
             name: Joi.string().required(),
-            description: Joi.string().default(null),
+            description: Joi.string().allow(null).default(null),
             alias: Joi.string().required(),
             value: Joi.when("type", {
                 is: "number",
@@ -88,12 +88,12 @@ module.exports = class State {
             }).when("type", {
                 is: "boolean",
                 then: Joi.boolean()
-            }).default(null),
+            }).allow(null).default(null),
             type: Joi.string().valid("number", "string", "boolean").required(),
-            identifier: Joi.string().default(null),
+            identifier: Joi.string().allow(null).default(null),
             timestamps: Joi.object({
-                created: Joi.number(),
-                updated: Joi.number()
+                created: Joi.number().allow(null),
+                updated: Joi.number().allow(null)
             }).default(() => {
                 return {
                     created: Date.now(),
