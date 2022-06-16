@@ -82,6 +82,7 @@ module.exports = class States extends Array {
             cb(new Error(`Item with _id "${_id}" not found`));
         }
 
+        target.timestamps.updated = Date.now();
         target.value = value;
 
     }
