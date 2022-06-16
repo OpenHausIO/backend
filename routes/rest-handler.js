@@ -101,7 +101,9 @@ module.exports = (C_COMPONENT, router) => {
     });
 
     router.put("/", (req, res) => {
-        C_COMPONENT.add(req.body, req.options, (err, result) => {
+        // NOTE: `req.options` breaks pre hooks
+        // redacted for quick fix, issue reopend #169
+        C_COMPONENT.add(req.body, (err, result) => {
             if (err) {
 
                 res.status(400).json({
