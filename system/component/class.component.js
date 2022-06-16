@@ -212,12 +212,12 @@ module.exports = class COMPONENT extends COMMON {
                 return Promise.resolve();
             });
 
-            return (data, options = {}) => {
+            return (data) => {
                 return new Promise((resolve, reject) => {
 
-                    options = Object.assign({
+                    let options = Object.assign({
                         returnDuplicate: true
-                    }, options);
+                    }, {});
 
                     data.timestamps = {
                         created: Date.now(),
@@ -382,11 +382,14 @@ module.exports = class COMPONENT extends COMMON {
                     }
 
                     this.collection.findOneAndUpdate({
-                        _id: new mongodb.ObjectID(_id)
+                        //_id: new mongodb.ObjectID(_id)
+                        _id
                     }, {
                         $set: validation.value
                     }, {
                         //returnOriginal: false
+                        //returnDocument: "after",
+                        //upsert: true
                     }, (err) => {
                         if (err) {
 
