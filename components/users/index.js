@@ -34,6 +34,7 @@ class C_USERS extends COMPONENT {
             password: Joi.string().required(),
             enabled: Joi.boolean().default(false),
             tokens: Joi.array().items(Joi.string()).default([]),
+            admin: Joi.boolean().default(false),
             timestamps: {
                 //would be greate to have a expiration date for users
                 //expires: Joi.number().allow(null).default(null)
