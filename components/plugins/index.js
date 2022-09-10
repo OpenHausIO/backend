@@ -44,7 +44,7 @@ class C_PLUGINS extends COMPONENT {
             //runlevel: Joi.number().min(0).max(2).default(0),
             autostart: Joi.boolean().default(true),
             enabled: Joi.boolean().default(true),
-            intents: Joi.array().items("devices", "endpoints", "plugins", "rooms", "vault", "ssdp", "store").required()
+            intents: Joi.array().items("devices", "endpoints", "plugins", "rooms", "ssdp", "store", "users", "vault",).required()
         }, module);
 
         this.hooks.post("add", (data, next) => {
