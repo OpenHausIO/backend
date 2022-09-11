@@ -232,6 +232,9 @@ module.exports = class COMPONENT extends COMMON {
                         return;
                     }
 
+                    // override string with ObjectID, see #175
+                    result.value._id = new mongodb.ObjectID(result.value._id);
+
                     this.collection.insertOne(result.value, (err, result) => {
                         if (err) {
                             if (err.code === 11000 && options.returnDuplicate) {
@@ -382,8 +385,9 @@ module.exports = class COMPONENT extends COMMON {
                     }
 
                     this.collection.findOneAndUpdate({
-                        //_id: new mongodb.ObjectID(_id)
-                        _id
+                        // casting problem, see #175
+                        _id: new mongodb.ObjectID(_id)
+                        //_id
                     }, {
                         $set: validation.value
                     }, {

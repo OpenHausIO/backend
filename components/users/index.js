@@ -27,13 +27,14 @@ class C_USERS extends COMPONENT {
         // inject logger, collection and schema object
         super("users", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return new mongodb.ObjectID();
+                return String(new mongodb.ObjectID());
             }),
             name: Joi.string().required(),
             email: Joi.string().required(),
             password: Joi.string().required(),
             enabled: Joi.boolean().default(false),
             tokens: Joi.array().items(Joi.string()).default([]),
+            admin: Joi.boolean().default(false),
             timestamps: {
                 //would be greate to have a expiration date for users
                 //expires: Joi.number().allow(null).default(null)

@@ -38,7 +38,7 @@ class C_STORE extends COMPONENT {
         // inject logger, collection and schema object
         super("store", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return new mongodb.ObjectID();
+                return String(new mongodb.ObjectID());
             }),
             key: Joi.string().required(),
             value: Joi.any().required(),
