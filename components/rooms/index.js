@@ -53,7 +53,7 @@ class C_ROOMS extends COMPONENT {
         // inject logger, collection and schema object
         super("rooms", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return new mongodb.ObjectID();
+                return String(new mongodb.ObjectID());
             }),
             name: Joi.string().required(),
             number: Joi.number().allow(null).default(null),

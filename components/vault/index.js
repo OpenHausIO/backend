@@ -43,7 +43,7 @@ class C_VAULT extends COMPONENT {
         // inject logger, collection and schema object
         super("vault", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return new mongodb.ObjectID();
+                return String(new mongodb.ObjectID());
             }),
             name: Joi.string().required(),
             identifier: Joi.string().required(),
