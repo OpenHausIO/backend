@@ -76,6 +76,7 @@ module.exports = (C_USERS, router) => {
                         return;
                     }
 
+                    req.token = decoded;
                     req.user = user;
                     next();
 
@@ -101,7 +102,7 @@ module.exports = (C_USERS, router) => {
             return;
         }
 
-        console.log("User request:", req.user, req.authenticated);
+        console.log("User request:", req.user, req.authenticated, process.env.API_AUTH_ENABLED);
 
         next();
 
