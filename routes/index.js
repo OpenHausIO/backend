@@ -34,6 +34,7 @@ module.exports = (server) => {
     const auth = express.Router();
     const api = express.Router();
     const logs = express.Router();
+    const about = express.Router();
 
     // https://expressjs.com/en/guide/behind-proxies.html
     app.set("trust proxy", [
@@ -56,6 +57,10 @@ module.exports = (server) => {
     // mount logs router under /api
     api.use("/logs", logs);
     require("./router.api.logs.js")(app, logs);
+
+    // mount logs router under /api
+    api.use("/about", about);
+    require("./router.api.about.js")(app, about);
 
     // /api routes
     (() => {
