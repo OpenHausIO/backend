@@ -1,5 +1,5 @@
 const path = require("path");
-const { Duplex } = require("stream");
+const { Duplex, finished } = require("stream");
 
 
 
@@ -10,6 +10,7 @@ const kSource = Symbol("source");
 // https://www.programmersought.com/article/42661306247/
 // https://www.freecodecamp.org/news/node-js-streams-everything-you-need-to-know-c9141306be93/
 // https://livebook.manning.com/book/node-js-in-practice/chapter-5/37
+// https://pastebin.com/H0CQdQdZ
 
 /**
  * @description
@@ -167,6 +168,26 @@ module.exports = class InterfaceStream extends Duplex {
             }
         });
 
+        let cleanup = finished(stream, {
+            error: true,
+            readable: true,
+            writable: true
+        }, (err) => {
+
+            cleanup();
+
+            console.log("Upstream is usless, detach!", err);
+
+            this.detach((existed) => {
+                console.log("upstream has been detached! was set?", existed);
+            });
+
+            if (process.env.NODE_ENV === "development") {
+                process.exit(1);
+            }
+
+        });
+
         let upstream = new Adapter(stack, stream, {
             // duplex stream options
             emitClose: false,
@@ -177,9 +198,11 @@ module.exports = class InterfaceStream extends Duplex {
         this[kSource] = upstream;
 
 
+
+
         // ignore or re-throw?!
         upstream.on("end", () => {
-            console.log("End on upstream called");
+            console.log("End on upstream emitted");
             this.emit("end");
         });
 
@@ -226,10 +249,20 @@ module.exports = class InterfaceStream extends Duplex {
         });
         */
 
+        if (!this.upstream) {
+
+            process.nextTick(() => {
+                cb(false);
+            });
+
+            return;
+
+        }
+
         let trigger = timeout(2000, () => {
 
             if (cb) {
-                cb(null);
+                cb(true);
             }
 
             this.upstream = null;

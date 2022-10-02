@@ -1,6 +1,8 @@
 const Joi = require("joi");
 const mongodb = require("mongodb");
 
+const { interfaces } = require("../../system/shared.js");
+
 
 /**
  * @description
@@ -67,10 +69,96 @@ const mongodb = require("mongodb");
  */
 module.exports = class Command {
 
+    #privates = new Map();
+
     constructor(obj) {
 
         Object.assign(this, obj);
         this._id = String(obj._id);
+
+        // set default command handler worker function
+        this.#privates.set("handler", (cmd, iface, params, done) => {
+            iface.write(cmd.payload, (err) => {
+                if (err) {
+
+                    done(err);
+
+                } else {
+
+                    iface.once("data", (chunk) => {
+
+                        // read chunk
+                        //let chunk = iface.read();
+                        let regex = new RegExp(/success|ok|1|true/, "gimu");
+
+                        // compare respond with command payload
+                        if ((chunk && chunk === cmd.payload) || regex.test(chunk)) {
+
+                            done(null, true);
+
+                        } else {
+
+                            done(null, null);
+
+                        }
+
+                    });
+
+                }
+            });
+        });
+
+    }
+
+
+    /**
+     * @function setHandler
+     * Set the handler function that implements the command sepcific execution
+     * 
+     * @param {Function} handler 
+     */
+    setHandler(handler) {
+        this.#privates.set("handler", handler);
+    }
+
+
+    /**
+     * @function getHandler
+     * Get the handler function that is currently set
+     * 
+     * @returns 
+     */
+    getHandler() {
+        return this.#privates.get("handler");
+    }
+
+
+    /**
+     * @function trigger
+     * Calls the handler function and trigger the command execution
+     * 
+     * @param {Array} [params] Parameter array
+     * @param {Function} [cb] Callback
+     */
+    trigger(params, cb = () => { }) {
+
+        if (!cb && params instanceof Function) {
+            cb = params;
+            params = [];
+        }
+
+        let worker = this.#privates.get("handler");
+        let iface = interfaces.get(this.interface);
+
+        // handle timeout stuff here?
+        // when so, timeout applys to custom functions too!
+        worker.call(this, this, iface, params, (err, success) => {
+
+            console.log("handler code done", success);
+
+            cb(err, success);
+
+        });
 
     }
 

@@ -55,7 +55,8 @@ class C_SSDP extends COMPONENT {
             description: Joi.string().allow(null).default(null),
             nt: Joi.string().allow(null).default(null),
             usn: Joi.string().allow(null).default(null),
-            headers: Joi.array().items(Joi.string()).allow(null).default([]),
+            // NOTE: Removed head field since currently no unique index can be build with it
+            //headers: Joi.array().items(Joi.string()).allow(null).default([]),
             timestamps: {
                 announced: Joi.number().allow(null).default(null)
             }
@@ -65,7 +66,10 @@ class C_SSDP extends COMPONENT {
             next(null, new SSDP(data));
         });
 
-        this.collection.createIndex("usn", {
+        this.collection.createIndex({
+            usn: 1,
+            nt: 1
+        }, {
             unique: true
         });
 

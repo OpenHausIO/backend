@@ -4,38 +4,40 @@ module.exports = (app, router) => {
         res.json(req.item.commands);
     });
 
-    router.get("/:_id/commands/:_iid", (req, res) => {
+    router.param("_iid", (req, res, next) => {
 
         let cmd = req.item.commands.find((cmd) => {
             return cmd._id === req.params._iid;
         });
 
-        if (cmd) {
-            res.json(cmd);
-        } else {
-            res.status(404);
-        }
+        req.cmd = cmd;
 
+        next();
 
     });
 
+    router.get("/:_id/commands/:_iid", (req, res) => {
+        if (req.cmd) {
+            res.json(req.cmd);
+        } else {
+            res.status(404);
+        }
+    });
+
     router.post("/:_id/commands/:_iid", (req, res) => {
-        req.item.commands.execute(req.params["_iid"], req.body, (err, success) => {
-            if (err) {
+        if (req.cmd) {
 
-                res.status(900).json({
-                    success: success || false,
-                    error: err.toString()
-                });
-
-            } else {
+            req.cmd.trigger(req.body, (success) => {
 
                 res.json({
                     success
                 });
 
-            }
-        });
+            });
+
+        } else {
+            res.status(404);
+        }
     });
 
 };
