@@ -49,6 +49,10 @@ function bridge(ws, host, port) {
             console.log("netcat spawend");
         });
 
+        nc.on("exit", (code) => {
+            console.log("netcat exited", code);
+        });
+
         nc.stderr.pipe(process.stderr);
 
         stream.pipe(nc.stdin);
