@@ -243,13 +243,25 @@ module.exports = class COMPONENT extends COMMON {
                                 // search for object in .items and return it
 
                                 let item = this.items.find((item) => {
+
+                                    return Object.keys(err.keyValue).every((value) => {
+                                        return item[value] === err.keyValue[value];
+                                    });
+
+                                    /*
                                     for (let key in err.keyValue) {
+                                        console.log("Search in add data for", key)
                                         // change to or statement?
-                                        return (item[key] && item[key] == err.keyValue[key]);
+                                        return (item[key] && item[key] == (err.keyValue[key] || null));
                                     }
+                                    */
                                 });
 
-                                resolve([item]);
+                                if (item) {
+                                    resolve([item]);
+                                } else {
+                                    reject(new Error(`Duplicate unique key/index in database, but no matching item`));
+                                }
 
                             } else {
 
@@ -445,9 +457,9 @@ module.exports = class COMPONENT extends COMMON {
 
                     let item = this.items.find((item) => {
                         // for (let key of query) { ?!
-                        for (let key in query) {
+                        for (let key in Object.keys(query)) {
 
-                            if (item[key] === query[key]) {
+                            if (query[key] === item[key]) {
                                 return true;
                             } else {
                                 return false;
@@ -457,7 +469,7 @@ module.exports = class COMPONENT extends COMMON {
                     });
 
                     if (!item) {
-                        return reject(new Error("NOT_FOUND"));
+                        return reject(new Error("NOT_FOUND"), query);
                     }
 
                     resolve([item]);
