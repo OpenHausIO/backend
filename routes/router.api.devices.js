@@ -1,4 +1,5 @@
 const WebSocket = require("ws");
+const { finished } = require("stream");
 
 //const iface_locked = new Map();
 
@@ -21,7 +22,11 @@ module.exports = (app, router) => {
         });
 
         if (!iface) {
-            return res.status(404).end("NOT FOUND");
+            return res.status(404).end();
+        }
+
+        if (iface.upstream) {
+            return res.status(423).end();
         }
 
         if ((!req.headers["upgrade"] || !req.headers["connection"])) {
@@ -49,18 +54,22 @@ module.exports = (app, router) => {
                     // see #148
                     ws.isAlive = true;
 
-                    let upstream = WebSocket.createWebSocketStream(ws, {
-                        // duplex stream options
-                        //emitClose: false,
-                        //objectMode: true,
-                        //decodeStrings: false
-                        allowHalfOpen: true
+                    let upstream = WebSocket.createWebSocketStream(ws);
+
+                    // Cleanup: https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#streamfinishedstream-options-callback
+                    let cleanup = finished(upstream, (err) => {
+                        console.log("Foo Bar uzpstream fucker", err);
+                        iface.detach(() => {
+                            console.log("Upstream useless, destoreyd");
+                            cleanup();
+                        });
                     });
 
+                    // -----------------------------------------
 
                     iface.attach(upstream);
 
-                    interfaceStreams.set(req.params._iid, iface.stream);
+                    interfaceStreams.set(req.params._iid, upstream);
 
                     //https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
                     ["close", "error"].forEach((event) => {
@@ -77,6 +86,7 @@ module.exports = (app, router) => {
 
                     // detect broken connection
                     ws.on("pong", () => {
+                        //console.log("pong", Date.now(), "\r\n\r\n")
                         ws.isAlive = true;
                     });
 
@@ -87,6 +97,7 @@ module.exports = (app, router) => {
                     wss.clients.forEach((ws) => {
 
                         if (!ws.isAlive) {
+                            console.log("Stream died, terminate it!");
                             ws.terminate();
                             return;
                         }
