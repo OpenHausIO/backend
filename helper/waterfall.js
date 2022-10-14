@@ -22,12 +22,16 @@ _waterfall([(next) => {
  * @param {Array} arr Array with functions
  * @param {Function} [cb] Optional function that gets called when all previous functions has run
  */
-function waterfall(arr, cb = () => { }) {
-    Array.prototype.reduce(Array, arr).map((fnc) => {
+function waterfall(stack, cb = () => { }) {
+    Array.prototype.reduce(Array, stack).map((fnc) => {
 
-        return () => {
+        return (arr = []) => {
             return new Promise((resolve) => {
-                fnc(resolve);
+
+                fnc(...arr, (...args) => {
+                    resolve(args);
+                });
+
             });
         };
 
