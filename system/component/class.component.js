@@ -2,6 +2,7 @@ const mongodb = require("mongodb");
 const Joi = require("joi");
 
 const _extend = require("../../helper/extend");
+const _iterate = require("../../helper/iterate");
 
 const COMMON = require("./class.common.js");
 
@@ -477,6 +478,97 @@ module.exports = class COMPONENT extends COMMON {
                 });
             };
         });
+
+    }
+
+
+    /**
+    * @function found
+    * A dynamic function which is called when either a item with matching filter is found in items array, 
+    * or a new item with matching filter is added.
+    * 
+    * Arrays as filter arguments are currently ignored and invalidate the query.
+    * As result, the function would not returny any items. Remove the array.
+    * 
+    * NOTE: The filter values are case sensetive!
+    * 
+    * @param {Object} filter Object that matches the component schema
+    * @param {Function} cb Callback function
+    * @param {Function} [nothing] Function that is called when not matching item in <items> array is found. Usefull to add then something, when its not found.
+    */
+    found(filter, cb, nothing) {
+
+        let found = false;
+
+        let handler = (input, item) => {
+
+            let matched = false;
+
+            let loop = (input, item) => {
+                _iterate(input, (key, value, type) => {
+
+                    // NOTE: Use arrays as filter property?
+                    // E.g. to search for interfaces
+                    // Or ignore it entirely
+                    if (type === "array") {
+                        matched = false;
+                        return value;
+                    }
+
+                    if (!Object.hasOwnProperty.call(item, key)) {
+                        matched = false;
+                        return value;
+                    }
+
+                    if (type === "object") {
+                        loop(value, item[key]);
+                        return; // without this on nested objects nothing is returnd...
+                    } else {
+                        matched = value === item[key];
+                    }
+
+                    return value;
+
+                });
+            };
+
+            loop(input, item);
+
+            if (matched) {
+                found = true;
+                cb(item);
+            }
+
+        };
+
+        this.items.forEach((item) => {
+            handler(filter, item);
+        });
+
+        if (!found && nothing instanceof Function) {
+            process.nextTick(() => {
+                nothing(filter);
+            });
+        }
+
+        let ev = ([item]) => {
+            handler(filter, item);
+        };
+
+        // TODO: Ensure to no create a memory leak
+        // E.g. When used in ssdp with "update" event
+        // And the announcement timestamp gets updated
+        // the function is triggerd again. How to prevent that?
+        // One solution could be to update that with hidden methods like $update
+        // that do not emit events or the hook chain.
+        this.events.on("add", ev);
+        //this.events.on("update", ev);
+
+        // return cleanup function
+        return () => {
+            this.events.removeListener("add", ev);
+            //this.events.removeListener("update", ev);
+        };
 
     }
 
