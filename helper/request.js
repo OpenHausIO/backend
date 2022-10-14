@@ -18,7 +18,6 @@ function perform(uri, options, cb) {
         throw new Error(`Unspported protocol "${protocol.slice(0, -1)}`);
     }
 
-    /*
     // NOTE: Automaticly set keep alive header when agent is passed?
     if (options?.agent && !options?.setKeepAliveHeader) {
         options.setKeepAliveHeader = true;
@@ -28,9 +27,8 @@ function perform(uri, options, cb) {
         options.headers = {
             ...options?.headers,
             "Connection": "Keep-Alive"
-        }
+        };
     }
-    */
 
     let request = require(protocol.slice(0, -1)).request(uri, options, (res) => {
 
@@ -102,7 +100,7 @@ module.exports = function request(uri, options, cb) {
         body: "",
         followRedirects: true,
         callEnd: true,
-        //setKeepAliveHeader: false
+        setKeepAliveHeader: true
     }, options);
 
 
