@@ -1,7 +1,7 @@
 const path = require("path");
 const { Duplex, finished } = require("stream");
 
-
+const { interfaceStreams } = require("../../system/shared.js");
 
 const timeout = require("../../helper/timeout");
 const Adapter = require("./class.adapter.js");
@@ -169,9 +169,9 @@ module.exports = class InterfaceStream extends Duplex {
         });
 
         let cleanup = finished(stream, {
-            error: true,
-            readable: true,
-            writable: true
+            //error: true,
+            //readable: true,
+            //writable: true
         }, (err) => {
 
             cleanup();
@@ -183,7 +183,7 @@ module.exports = class InterfaceStream extends Duplex {
             });
 
             if (process.env.NODE_ENV === "development") {
-                process.exit(1);
+                //process.exit(1);
             }
 
         });
@@ -194,6 +194,12 @@ module.exports = class InterfaceStream extends Duplex {
             end: false
         });
 
+        finished(upstream, (err) => {
+
+            console.log("Adapter upstream crashed", err);
+
+        });
+
         this.upstream = upstream;
         this[kSource] = upstream;
 
@@ -201,12 +207,14 @@ module.exports = class InterfaceStream extends Duplex {
 
 
         // ignore or re-throw?!
-        upstream.on("end", () => {
+        stream.on("end", () => {
             console.log("End on upstream emitted");
-            this.emit("end");
+            //this.emit("end");
+            this.detach();
         });
 
 
+        // Why is this commented?! and not active
         // readable events we want to re-emit
         //this._reEmit(["data", "readable"]);
 
@@ -222,7 +230,7 @@ module.exports = class InterfaceStream extends Duplex {
     }
 
 
-    detach(cb) {
+    detach(cb = () => { }) {
 
         /*
         // USE THIS?!
@@ -280,6 +288,9 @@ module.exports = class InterfaceStream extends Duplex {
 
         // destroy readable stream
         this.upstream.destroy();
+
+        // delete upstream from map
+        interfaceStreams.delete(this._id);
 
     }
 
