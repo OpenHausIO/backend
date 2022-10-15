@@ -76,9 +76,9 @@ module.exports = class Adapter extends Duplex.from {
         // build encode flow
         encode.reduce((prev, cur) => {
 
-            prev.on("error", (err) => {
+            prev.on("error", () => {
 
-                console.log("Error on stream (encode)", err);
+                //console.log("Error on stream (encode)", err);
 
                 //this.destory();                
                 //this.close();
@@ -98,9 +98,9 @@ module.exports = class Adapter extends Duplex.from {
         // stack.reverse()
         decode.reduceRight((prev, cur) => {
 
-            prev.on("error", (err) => {
+            prev.on("error", () => {
 
-                console.log("Error on stream (decode)", err);
+                //console.log("Error on stream (decode)", err);
 
                 //this.destory();
                 //this.close();

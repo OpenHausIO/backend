@@ -121,25 +121,8 @@ module.exports = class Interface {
         // https://nodejs.org/dist/latest-v14.x/docs/api/http.html#http_agent_createconnection_options_callback
         agent.createConnection = (options, cb) => {
 
-            console.log(">>>>>>>>>>>>>>> agent.creatEconnection called");
-
             let input = new PassThrough();
             let output = new PassThrough();
-
-            // feedback for debugging
-            // Remove after reconnect stream problem
-            if (process.env.NODE_ENV === "development") {
-
-                input.on("data", (chunk) => {
-                    console.log(`[${this.settings.host}:${this.settings.port}] input chain\r\n`, String(chunk));
-                });
-
-
-                output.on("data", (chunk) => {
-                    console.log(`[${this.settings.host}:${this.settings.port}] output chain\r\n`, String(chunk));
-                });
-
-            }
 
 
             this.stream.pipe(input, { end: false });
