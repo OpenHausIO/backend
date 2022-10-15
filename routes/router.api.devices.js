@@ -5,7 +5,7 @@ const { finished } = require("stream");
 
 // move that to "event bus"
 //const { interfaceServer, interfaceStreams } = global.sharedObjects;
-const { interfaceServer, interfaceStreams } = require("../system/shared.js");
+const { interfaceServer } = require("../system/shared.js");
 
 
 
@@ -57,7 +57,7 @@ module.exports = (app, router) => {
                     let upstream = WebSocket.createWebSocketStream(ws);
 
                     // Cleanup: https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#streamfinishedstream-options-callback
-                    let cleanup = finished(upstream, (err) => {
+                    let cleanup = finished(upstream, () => {
                         iface.detach(() => {
                             cleanup();
                         });

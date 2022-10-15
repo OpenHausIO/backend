@@ -75,7 +75,17 @@ module.exports = class InterfaceStream extends Duplex {
 
         } else {
 
-            console.log("write to upstream not possible");
+            console.log("write to upstream not possible", chunk);
+
+            // NOTE: Faking does not work so well.
+            // if the write was "successful" why is this function not triggerded more then once
+            // when the connector/upstream disconnect?!1!
+
+            // fake successful write
+            process.nextTick(() => {
+                cb(null);
+                this.emit("drain");
+            });
 
         }
     }
@@ -83,45 +93,43 @@ module.exports = class InterfaceStream extends Duplex {
     _read() {
         if (this.upstream /*&& !this.upstream.readableEnded*/) {
 
-            // WORKFLOW:
-            // - in this.push() schieben
-            // - bis this.push false zurück gibt
-
-            /*
-                        // https://nodejs.org/dist/latest-v14.x/docs/api/stream.html#stream_readable_read_size
-                        let chunk = null;
-            
-                        while (null !== (chunk = this.upstream.read(size))) {
-                            console.log(`Read ${chunk.length} bytes of data...`);
-                            this.push(chunk)
-                        }
-            */
-
             this.upstream.once("readable", () => {
 
-                // start reading
-                let more = true;
+                let chunk = null;
 
-
-                while (more) {
-
-                    // read from upstream
-                    let chunk = this.upstream.read();
-
-                    if (chunk) {
-
-                        // push in qeueue
-                        more = this.push(chunk);
-
-                    } else {
-
-                        // stop reading
-                        more = false;
-
-                    }
+                while (null !== (chunk = this.upstream.read())) {
+                    this.push(chunk);
                 }
 
             });
+
+            /*
+this.upstream.once("readable", () => {
+
+    // start reading
+    let more = true;
+
+
+    while (more) {
+
+        // read from upstream
+        let chunk = this.upstream.read();
+
+        if (chunk) {
+
+            // push in qeueue
+            more = this.push(chunk);
+
+        } else {
+
+            // stop reading
+            more = false;
+
+        }
+    }
+
+});
+*/
 
         } else {
 
@@ -154,7 +162,7 @@ module.exports = class InterfaceStream extends Duplex {
 
 
 
-    attach(stream, cb) {
+    attach(stream, cb = () => { }) {
 
         let stack = this.adapter.map((name) => {
             try {
@@ -168,23 +176,10 @@ module.exports = class InterfaceStream extends Duplex {
             }
         });
 
-        let cleanup = finished(stream, {
-            //error: true,
-            //readable: true,
-            //writable: true
-        }, (err) => {
+        let cleanup = finished(stream, () => {
 
             cleanup();
-
-            console.log("Upstream is usless, detach!", err);
-
-            this.detach((existed) => {
-                console.log("upstream has been detached! was set?", existed);
-            });
-
-            if (process.env.NODE_ENV === "development") {
-                //process.exit(1);
-            }
+            this.detach();
 
         });
 
@@ -194,10 +189,8 @@ module.exports = class InterfaceStream extends Duplex {
             end: false
         });
 
-        finished(upstream, (err) => {
-
-            console.log("Adapter upstream crashed", err);
-
+        let clup = finished(upstream, () => {
+            clup();
         });
 
         this.upstream = upstream;
@@ -208,54 +201,35 @@ module.exports = class InterfaceStream extends Duplex {
 
         // ignore or re-throw?!
         stream.on("end", () => {
-            console.log("End on upstream emitted");
-            //this.emit("end");
             this.detach();
         });
 
 
         // Why is this commented?! and not active
         // readable events we want to re-emit
+        // Debugging #202, seems like it breaks http parsing
         //this._reEmit(["data", "readable"]);
 
         // writabel events we waant to re-emit
         this._reEmit(["drain", "finish", "pipe", "unpipe"]);
 
-        if (cb) {
-            cb(null);
-        }
+        // continue to read from upstream
+        // seems like a fix for #202
+        this._read();
 
-        this.emit("attached", upstream);
+        process.nextTick(() => {
+
+            interfaceStreams.set(this._id, stream);
+
+            cb(null);
+            this.emit("attached", upstream);
+
+        });
 
     }
 
 
     detach(cb = () => { }) {
-
-        /*
-        // USE THIS?!
-        Promise.all([
-            new Promise((resolve) => {
-
-                // terminate wrtiable on upstream
-                this.upstream.once("close", resolve)
-                this.upstream.end();
-
-            }),
-            new Promise(() => {
-
-
-                // terminate readable on upstream
-                this.upstream.once("end", resolve);
-                this.upstream.destroy();
-
-            })
-        ]).then(() => {
-
-            // callback & emit detacehd
-
-        });
-        */
 
         if (!this.upstream) {
 
