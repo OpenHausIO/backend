@@ -56,6 +56,16 @@ module.exports = (app, router) => {
 
                     let upstream = WebSocket.createWebSocketStream(ws);
 
+                    /*
+                    // see issue #202, debugging
+                    upstream.on("data", (data) => {
+                        console.log("\r\n-----------------");
+                        console.group("upstream.data", String(data));
+                        console.groupEnd();
+                        console.log("\r\n-----------------");
+                    });
+                    */
+
                     // Cleanup: https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#streamfinishedstream-options-callback
                     let cleanup = finished(upstream, (err) => {
                         console.log("Foo Bar uzpstream fucker", err);

@@ -131,12 +131,12 @@ module.exports = class Interface {
             if (process.env.NODE_ENV === "development") {
 
                 input.on("data", (chunk) => {
-                    console.log(`[${this.settings.host}:${this.settings.port}] input chain`, chunk);
+                    console.log(`[${this.settings.host}:${this.settings.port}] input chain\r\n`, String(chunk));
                 });
 
 
                 output.on("data", (chunk) => {
-                    console.log(`[${this.settings.host}:${this.settings.port}] output chain`, chunk);
+                    console.log(`[${this.settings.host}:${this.settings.port}] output chain\r\n`, String(chunk));
                 });
 
             }
