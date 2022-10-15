@@ -1,6 +1,7 @@
 const Joi = require("joi");
 const { Agent } = require("http");
 const mongodb = require("mongodb");
+const { PassThrough, Duplex } = require("stream");
 
 /**
  * @description
@@ -120,9 +121,64 @@ module.exports = class Interface {
         // https://nodejs.org/dist/latest-v14.x/docs/api/http.html#http_agent_createconnection_options_callback
         agent.createConnection = (options, cb) => {
 
-            // TODO create fake socket
-            // do not mess with interfaceStream
-            let socket = this.stream;
+            console.log(">>>>>>>>>>>>>>> agent.creatEconnection called");
+
+            let input = new PassThrough();
+            let output = new PassThrough();
+
+            // feedback for debugging
+            // Remove after reconnect stream problem
+            if (process.env.NODE_ENV === "development") {
+
+                input.on("data", (chunk) => {
+                    console.log(`[${this.settings.host}:${this.settings.port}] input chain\r\n`, String(chunk));
+                });
+
+
+                output.on("data", (chunk) => {
+                    console.log(`[${this.settings.host}:${this.settings.port}] output chain\r\n`, String(chunk));
+                });
+
+            }
+
+
+            this.stream.pipe(input, { end: false });
+            output.pipe(this.stream, { end: false });
+
+
+            let socket = Duplex.from({
+                readable: input,
+                writable: output
+            });
+
+            /*
+                        [socket, this.stream, input, output].forEach((stream) => {
+                            let cleanup = finished(stream, (err) => {
+            
+                                console.log("Socket duplex stream ended", err);
+            
+                                let chunk;
+            
+                                while (null !== (chunk = input.read())) {
+                                    console.log(`>>>>>> Read ${chunk.length} bytes of data...`);
+                                }
+            
+                                while (null !== (chunk = output.read())) {
+                                    console.log(`>>>>>> Read ${chunk.length} bytes of data...`);
+                                }
+            
+                                input.removeAllListeners();
+                                output.removeAllListeners();
+            
+                                this.stream.unpipe(input);
+                                output.unpipe(this.stream);
+            
+                                cleanup();
+            
+                            });
+                        });
+            */
+
 
             // TODO implement other socket functions?!
             socket.ref = (...args) => { console.log("socket.ref called", ...args); };
@@ -130,6 +186,8 @@ module.exports = class Interface {
             socket.setKeepAlive = (...args) => { console.log("socket.setKeepAlive called", ...args); };
             socket.setTimeout = (...args) => { console.log("socket.setTimeout called", ...args); };
             socket.setNoDelay = (...args) => { console.log("socket.setNoDelay called", ...args); };
+            // socket.remoteAddress=this.settings.host
+            // socket.remotePort=this.settings.port
 
             //return socket;
             cb(null, socket);

@@ -1,6 +1,7 @@
 const Joi = require("joi");
 const mongodb = require("mongodb");
 
+const _timeout = require("../../helper/timeout.js");
 const { interfaces } = require("../../system/shared.js");
 
 
@@ -76,8 +77,17 @@ module.exports = class Command {
         Object.assign(this, obj);
         this._id = String(obj._id);
 
+        // command duration timeout
+        this.#privates.set("timeout", Number(process.env.COMMAND_RESPONSE_TIMEOUT));
+
         // set default command handler worker function
         this.#privates.set("handler", (cmd, iface, params, done) => {
+
+            if (!cmd.payload) {
+                done(new Error("NO_PAYLOAD_DEFINED"));
+                return;
+            }
+
             iface.write(cmd.payload, (err) => {
                 if (err) {
 
@@ -106,6 +116,7 @@ module.exports = class Command {
 
                 }
             });
+
         });
 
     }
@@ -126,10 +137,32 @@ module.exports = class Command {
      * @function getHandler
      * Get the handler function that is currently set
      * 
-     * @returns 
+     * @returns {Function} Setted handler function
      */
     getHandler() {
         return this.#privates.get("handler");
+    }
+
+
+    /**
+     * @function setTimeout
+     * Set the duration of a command timeout
+     * 
+     * @param {Number} n Timeout in msec
+     */
+    setTimeout(n) {
+        this.#privates.set("timeout", n);
+    }
+
+
+    /**
+     * @function getTimeout
+     * Returns the setted timeout
+     * 
+     * @returns {Number} Timeout in msec
+     */
+    getTimeout() {
+        return this.#privates.get("timeout");
     }
 
 
@@ -150,15 +183,23 @@ module.exports = class Command {
         let worker = this.#privates.get("handler");
         let iface = interfaces.get(this.interface);
 
+        let timer = _timeout(this.#privates.get("timeout"), (timedout, duration, args) => {
+            if (timedout) {
+
+                console.log("Command timedout! Execution was not successful, worker function:", worker);
+                cb(null, false);
+
+            } else {
+
+                console.log("Command handler executed", duration, args);
+                cb(...args);
+
+            }
+        });
+
         // handle timeout stuff here?
         // when so, timeout applys to custom functions too!
-        worker.call(this, this, iface, params, (err, success) => {
-
-            console.log("handler code done", success);
-
-            cb(err, success);
-
-        });
+        worker.call(this, this, iface, params, timer);
 
     }
 
