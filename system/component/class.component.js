@@ -2,7 +2,6 @@ const mongodb = require("mongodb");
 const Joi = require("joi");
 
 const _extend = require("../../helper/extend");
-const _iterate = require("../../helper/iterate");
 
 const COMMON = require("./class.common.js");
 
@@ -541,14 +540,14 @@ module.exports = class COMPONENT extends COMMON {
                     // ignore non existing property on target & set result to false
                     if (!target || !Object.hasOwnProperty.call(target, key)) {
                         found = false;
-                        return
+                        return;
                     }
 
                     if (filter[key] === target[key]) {
-                        found = true
+                        found = true;
                     } else {
                         found = false;
-                        return
+                        return;
                     }
 
                 }
