@@ -2,7 +2,7 @@ const mongodb = require("mongodb");
 const Joi = require("joi");
 
 const _extend = require("../../helper/extend");
-const _iterate = require("../../helper/iterate");
+const _merge = require("../../helper/merge");
 
 const COMMON = require("./class.common.js");
 
@@ -143,11 +143,20 @@ module.exports = class COMPONENT extends COMMON {
                             return;
                         }
 
-                        // NOTE use: extend(target, fullDocument);?!
-                        Object.assign(target, fullDocument);
+                        // get original property descriptor
+                        //let descriptor = Object.getOwnPropertyDescriptors(target);
+                        //console.log("replace event", descriptor.config)
+
+                        // no matter from what tool the update is triggerd
+                        //Object.assign(target, fullDocument);
+                        _merge(target, fullDocument);
+
+                        // override existing properties
+                        //Object.defineProperties(target, descriptor);
+                        //console.log("replace event", Object.getOwnPropertyDescriptors(target).config)
 
                         // feedback
-                        this.logger.debug(`Updated item object (${target._id}) due to changes in the database`, target);
+                        this.logger.debug(`Updated item object (${target._id}) due to changes in the collection`);
 
                         // trigger update event
                         // TODO trigger update event, so changes can be detect via websockets /events API?
@@ -156,10 +165,12 @@ module.exports = class COMPONENT extends COMMON {
                     } else if (event.operationType === "update") {
 
                         // FIXME deconstruct "documentKey" too
-                        let { updateDescription: { updatedFields } } = event;
+                        //let { updateDescription: { updatedFields } } = event;
+                        let { updateDescription: { updatedFields }, documentKey } = event;
 
                         let target = this.items.find((item) => {
-                            return String(item._id) === String(event.documentKey._id);
+                            //return String(item._id) === String(event.documentKey._id);
+                            return String(item._id) === String(documentKey._id);
                         });
 
                         // skip if nothing found
@@ -167,11 +178,18 @@ module.exports = class COMPONENT extends COMMON {
                             return;
                         }
 
+                        // get original property descriptor
+                        //let descriptor = Object.getOwnPropertyDescriptors(target);
+
                         // NOTE use: extend(target, fullDocument);?!
-                        Object.assign(target, updatedFields);
+                        //Object.assign(target, updatedFields);
+                        _merge(target, updatedFields);
+
+                        // override existing properties
+                        //Object.defineProperties(target, descriptor);
 
                         // feedback
-                        this.logger.debug(`Updated item object (${target._id}) due to changes in the database`, target);
+                        this.logger.debug(`Updated item object (${target._id}) due to changes in the collection`);
 
                         // trigger update event
                         // TODO trigger update event, so changes can be detect via websockets /events API?
@@ -390,12 +408,19 @@ module.exports = class COMPONENT extends COMMON {
 
                     //@TODO Sanitize values
                     let validation = this.schema.validate(shallow);
-                    delete validation.value._id; // _id is immutable
-
 
                     if (validation.error) {
                         return reject(validation.error);
                     }
+
+                    // when validation is correct, assign the original property descriptors
+                    // if not, this breaks custom setter/getter
+                    // NOTE: Works only when DATABASE_WATCH_CHANGES=false
+                    let descriptor = Object.getOwnPropertyDescriptors(target);
+                    Object.defineProperties(validation.value, descriptor);
+
+                    // _id is immutable. remove it
+                    delete validation.value._id;
 
                     this.collection.findOneAndUpdate({
                         // casting problem, see #175
@@ -498,45 +523,42 @@ module.exports = class COMPONENT extends COMMON {
     */
     found(filter, cb, nothing) {
 
-        let found = false;
+        let matched = false;
 
-        let handler = (input, item) => {
+        let handler = (filter, input) => {
 
-            let matched = false;
+            let found = false;
 
-            let loop = (input, item) => {
-                _iterate(input, (key, value, type) => {
+            let loop = (filter, target) => {
+                for (let key in filter) {
 
-                    // NOTE: Use arrays as filter property?
-                    // E.g. to search for interfaces
-                    // Or ignore it entirely
-                    if (type === "array") {
-                        matched = false;
-                        return value;
+                    if (typeof filter[key] === "object") {
+                        loop(filter[key], target[key]);
+                        return;
                     }
 
-                    if (!Object.hasOwnProperty.call(item, key)) {
-                        matched = false;
-                        return value;
+                    // ignore non existing property on target & set result to false
+                    if (!target || !Object.hasOwnProperty.call(target, key)) {
+                        found = false;
+                        return;
                     }
 
-                    if (type === "object") {
-                        loop(value, item[key]);
-                        return; // without this on nested objects nothing is returnd...
+                    if (filter[key] === target[key]) {
+                        found = true;
                     } else {
-                        matched = value === item[key];
+                        found = false;
+                        return;
                     }
 
-                    return value;
-
-                });
+                }
             };
 
-            loop(input, item);
+            // start loop
+            loop(filter, input);
 
-            if (matched) {
-                found = true;
-                cb(item);
+            if (found) {
+                matched = true;
+                cb(input);
             }
 
         };
@@ -545,12 +567,13 @@ module.exports = class COMPONENT extends COMMON {
             handler(filter, item);
         });
 
-        if (!found && nothing instanceof Function) {
+        if (!matched && nothing instanceof Function) {
             process.nextTick(() => {
                 nothing(filter);
             });
         }
 
+        // NOTE: Why is a array from the add eventlistener returned?!
         let ev = ([item]) => {
             handler(filter, item);
         };

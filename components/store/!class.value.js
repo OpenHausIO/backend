@@ -25,6 +25,10 @@ class Value {
         Object.assign(this, obj);
         this._id = String(obj._id);
 
+        //let val = obj.value;
+
+        console.log("Initial value", obj.value);
+
         Object.defineProperty(this, "value", {
             set: (value) => {
 
@@ -34,11 +38,13 @@ class Value {
                     //return false;
                 }
 
+                //val = value;
                 obj.value = value;
                 process.nextTick(changed, this);
 
             },
             get: () => {
+                //return val;
                 return obj.value;
             },
             configurable: true,
