@@ -72,9 +72,12 @@ module.exports = (server) => {
         // serailize api input fields
         api.use((req, res, next) => {
 
-            if (!req.headers["content-type"].includes("application/json")) {
-                return res.status(451).end();
+            /*            
+            // HTTP header should be set only for PUT and POST requests. So it can be ignored completly?!
+            if (!req.headers["content-type"]?.includes("application/json")) {
+                return res.status(415).end();
             }
+            */
 
             // sanitze api input fields?
             if (!(process.env.API_SANITIZE_INPUT === "true" && req.body)) {
