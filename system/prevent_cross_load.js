@@ -1,6 +1,7 @@
 const path = require("path");
 
-module.exports = (mod, envs = ["test", "development"]) => {
+// TODO: Make this function obsolete when plugins run in worker threads
+module.exports = (mod, envs = ["test"]) => {
     if (mod.parent.filename !== path.resolve(process.cwd(), "index.js")) {
 
         let msg = `Crossloading detected!\r\n`;
@@ -18,7 +19,7 @@ module.exports = (mod, envs = ["test", "development"]) => {
 
         } else {
 
-            console.error(msg);
+            //console.error(msg);
 
         }
 
