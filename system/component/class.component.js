@@ -166,12 +166,12 @@ module.exports = class COMPONENT extends COMMON {
                     } else if (event.operationType === "update") {
 
                         // FIXME deconstruct "documentKey" too
-                        let { updateDescription: { updatedFields } } = event;
-                        //let { updateDescription: { updatedFields }, documentKey } = event;
+                        //let { updateDescription: { updatedFields } } = event;
+                        let { updateDescription: { updatedFields }, documentKey } = event;
 
                         let target = this.items.find((item) => {
-                            return String(item._id) === String(event.documentKey._id);
-                            //return String(item._id) === String(documentKey._id);
+                            //return String(item._id) === String(event.documentKey._id);
+                            return String(item._id) === String(documentKey._id);
                         });
 
                         // skip if nothing found
