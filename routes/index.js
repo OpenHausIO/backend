@@ -72,6 +72,10 @@ module.exports = (server) => {
         // serailize api input fields
         api.use((req, res, next) => {
 
+            if (!req.headers["content-type"].includes("application/json")) {
+                return res.status(451).end();
+            }
+
             // sanitze api input fields?
             if (!(process.env.API_SANITIZE_INPUT === "true" && req.body)) {
                 return next();
