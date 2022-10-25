@@ -75,7 +75,19 @@ module.exports = class InterfaceStream extends Duplex {
 
         } else {
 
-            console.log("write to upstream not possible", chunk);
+            /*
+            console.log("write to upstream not possible", chunk, this.writableLength, "destroey:", this.destroyed,
+                "writableEnded", this.writableEnded, "corked:", this.writableCorked, "needdrain:", this.writableNeedDrain);
+
+            this._readableState.buffer.clear();
+            this._readableState.length = 0;
+
+            this._writableState.length = 0;
+            this._writableState.writelen = 0;
+
+
+            console.log(this._writableState, this._readableState)
+            */
 
             // NOTE: Faking does not work so well.
             // if the write was "successful" why is this function not triggerded more then once
@@ -84,7 +96,6 @@ module.exports = class InterfaceStream extends Duplex {
             // fake successful write
             process.nextTick(() => {
                 cb(null);
-                this.emit("drain");
             });
 
         }
@@ -93,6 +104,8 @@ module.exports = class InterfaceStream extends Duplex {
     _read() {
         if (this.upstream /*&& !this.upstream.readableEnded*/) {
 
+            // NOTE: Check if listener is allready assigned?
+            // To prevent memeory leak
             this.upstream.once("readable", () => {
 
                 let chunk = null;
@@ -241,14 +254,13 @@ this.upstream.once("readable", () => {
 
         }
 
+        // force cleanup after 2s
         let trigger = timeout(2000, () => {
-
-            if (cb) {
-                cb(true);
-            }
 
             this.upstream = null;
             this[kSource] = null;
+
+            cb(true);
 
             this.emit("detached");
 
