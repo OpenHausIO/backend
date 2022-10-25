@@ -2,6 +2,7 @@ const mongodb = require("mongodb");
 const Joi = require("joi");
 
 const _extend = require("../../helper/extend");
+const _merge = require("../../helper/merge");
 
 const COMMON = require("./class.common.js");
 
@@ -146,11 +147,9 @@ module.exports = class COMPONENT extends COMMON {
                         //let descriptor = Object.getOwnPropertyDescriptors(target);
                         //console.log("replace event", descriptor.config)
 
-                        // NOTE use: extend(target, fullDocument);?!
-                        // FIXME: Property descriptor assigning does not work!
-                        // NOTE: Is this neede for mongodb comprass? Should be working:
                         // no matter from what tool the update is triggerd
-                        Object.assign(target, fullDocument);
+                        //Object.assign(target, fullDocument);
+                        _merge(target, fullDocument);
 
                         // override existing properties
                         //Object.defineProperties(target, descriptor);
@@ -180,13 +179,14 @@ module.exports = class COMPONENT extends COMMON {
                         }
 
                         // get original property descriptor
-                        let descriptor = Object.getOwnPropertyDescriptors(target);
+                        //let descriptor = Object.getOwnPropertyDescriptors(target);
 
                         // NOTE use: extend(target, fullDocument);?!
-                        Object.assign(target, updatedFields);
+                        //Object.assign(target, updatedFields);
+                        _merge(target, updatedFields);
 
                         // override existing properties
-                        Object.defineProperties(target, descriptor);
+                        //Object.defineProperties(target, descriptor);
 
                         // feedback
                         this.logger.debug(`Updated item object (${target._id}) due to changes in the collection`);
