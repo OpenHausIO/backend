@@ -4,19 +4,18 @@ const Value = require("./class.value.js");
 
 /**
  * @description
- * Represents a single key/value item.
+ * Contains a collection of values that are used as configuration object
  * 
- * @class Value
+ * @class Store
  * 
  * @param {Object} obj Object that matches the item schema. See properties below:
  * 
  * @property {String} _id MongoDB Object id is as string
- * @property {String} key Object key, like in a regular object
- * @property {String|Boolean|Numver} value Value of the property <key>
- * @property {String} type Type of <value> key: "string", "boolean" or "number"
- * @property {String} description Description for what the key is used
+ * @property {Array} config Array of value instances, see "value" link below
+ * @property {String} item Can be a Endpoint or Device _id, or what ever you want
  * @property {String} namespace Object namespace, `uuid -v4`
- * @property {String} item MongoDB ObjectID for for what item the config applays (E.g: device or endpoint item)
+ * 
+ * @see value components/store/class.value.js
  */
 class Store {
 
@@ -56,10 +55,28 @@ class Store {
 
     }
 
+
+    /**
+     * @function changes
+     * Returns a EventEmitter that can be used to watch for changes
+     * 
+     * @fire changed Emitted when the value changed
+     * 
+     * @returns {EventEmitter} node.js EventEmitter instance
+     * 
+     * @link https://nodejs.org/dist/latest-v16.x/docs/api/events.html#class-eventemitter
+     */
     changes() {
         return this.#privates.get("events");
     }
 
+
+    /**
+     * @function lean
+     * Create a new lean object with key/value based on schema
+     * 
+     * @returns {Object} Key/value object
+     */
     lean() {
 
         /*

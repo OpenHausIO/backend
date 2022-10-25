@@ -1,3 +1,5 @@
+const { EventEmitter } = require("events");
+
 /**
  * @description
  * Collects all items with the same namespace and handle them like they were stored on the same object.<br />
@@ -27,8 +29,10 @@
  * }
  * ```
  */
-class Namespace {
-    constructor(namespace, scope) {
+class Namespace extends EventEmitter {
+    constructor(namespace, scope, item) {
+
+        super();
 
         Object.defineProperty(this, "__namespace", {
             value: namespace,
@@ -37,8 +41,15 @@ class Namespace {
             writable: false
         });
 
+        Object.defineProperty(this, "__item", {
+            value: item,
+            configurable: false,
+            enumerable: false,
+            writable: false
+        });
+
         scope.items.filter((obj) => {
-            return obj.namespace === namespace;
+            return obj.namespace === namespace && obj?.item === item;
         }).forEach((obj) => {
             // TODO: Handly asynchron setter correct
             // https://medium.com/trabe/async-getters-and-setters-is-it-possible-c18759b6f7e4
@@ -75,6 +86,7 @@ class Namespace {
                                 }
 
                                 resolve(true);
+                                this.emit("changed", obj.key, value);
 
                             }
                         });
