@@ -4,8 +4,10 @@ const uuid = require("uuid");
 
 const COMPONENT = require("../../system/component/class.component.js");
 
+//const Value = require("./class.value.js");
+//const Namespace = require("./class.namespace.js");
+const Store = require("./class.store.js");
 const Value = require("./class.value.js");
-const Namespace = require("./class.namespace.js");
 
 /**
  * @description
@@ -38,34 +40,19 @@ class C_STORE extends COMPONENT {
         // inject logger, collection and schema object
         super("store", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectID());
+                return String(new mongodb.ObjectId());
             }),
-            key: Joi.string().required(),
-            value: Joi.any().required(),
-            description: Joi.string().required(),
+            config: Joi.array().min(1).items(Value.schema()).required(),
+            item: Joi.string().allow(null).default(null),
             namespace: Joi.string().default(() => {
                 return uuid.v4();
-            })
+            }),
         }, module);
 
         this.hooks.post("add", (data, next) => {
-            next(null, new Value(data));
+            next(null, new Store(data, this));
         });
 
-    }
-
-    /**
-     * @function namespace
-     * Return all items with the specified namespace<br />
-     * Wraps getter/setter for values which are updateing things in the database
-     * 
-     * @param {String} namespace UUIDv4 string used as namespace
-     * @returns {Namespace} Namespace class instance
-     * 
-     * @see Namespace components/store/class.namespace.js
-     */
-    namespace(namespace) {
-        return new Namespace(namespace, this);
     }
 
 }
@@ -88,7 +75,7 @@ instance.init((scope, ready) => {
         } else {
 
             data = data.map((obj) => {
-                return new Value(obj);
+                return new Store(obj, scope);
             });
 
             scope.items.push(...data);
