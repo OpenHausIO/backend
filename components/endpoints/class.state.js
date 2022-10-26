@@ -73,7 +73,7 @@ module.exports = class State {
     static schema() {
         return Joi.object({
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectID());
+                return String(new mongodb.ObjectId());
             }),
             //interface: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(), // for what?! 
             name: Joi.string().required(),

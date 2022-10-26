@@ -41,6 +41,8 @@ class Value {
             get: () => {
                 return obj.value;
             },
+            // NOTE: Changes this to "false"?:
+            // https://github.com/OpenHausIO/backend/blob/64a70b03826ad22ed614d951c48a049f34341a95/components/endpoints/class.state.js#L56
             configurable: true,
             enumerable: true
         });
@@ -50,7 +52,7 @@ class Value {
     static schema() {
         return Joi.object({
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectID());
+                return String(new mongodb.ObjectId());
             }),
             key: Joi.string().required(),
             value: Joi.any().required(),

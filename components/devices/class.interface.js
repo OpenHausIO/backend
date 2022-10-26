@@ -77,7 +77,7 @@ module.exports = class Interface {
 
         return Joi.object({
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return new mongodb.ObjectID();
+                return String(new mongodb.ObjectId());
             }),
             type: Joi.string().default("ETHERNET"),
             settings: Joi.object().when("type", {

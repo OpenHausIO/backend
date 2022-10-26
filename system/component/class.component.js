@@ -251,8 +251,8 @@ module.exports = class COMPONENT extends COMMON {
                         return;
                     }
 
-                    // override string with ObjectID, see #175
-                    result.value._id = new mongodb.ObjectID(result.value._id);
+                    // override string with ObjectId, see #175
+                    result.value._id = new mongodb.ObjectId(result.value._id);
 
                     this.collection.insertOne(result.value, (err, result) => {
                         if (err) {
@@ -355,7 +355,7 @@ module.exports = class COMPONENT extends COMMON {
                     });
 
                     this.collection.removeOne({
-                        _id: new mongodb.ObjectID(_id)
+                        _id: new mongodb.ObjectId(_id)
                     }, (err, { result }) => {
                         if (err) {
 
@@ -424,7 +424,7 @@ module.exports = class COMPONENT extends COMMON {
 
                     this.collection.findOneAndUpdate({
                         // casting problem, see #175
-                        _id: new mongodb.ObjectID(_id)
+                        _id: new mongodb.ObjectId(_id)
                         //_id
                     }, {
                         $set: validation.value

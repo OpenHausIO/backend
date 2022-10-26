@@ -50,7 +50,7 @@ class C_SSDP extends COMPONENT {
         // inject logger, collection and schema object
         super("ssdp", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectID());
+                return String(new mongodb.ObjectId());
             }),
             description: Joi.string().allow(null).default(null),
             nt: Joi.string().allow(null).default(null),
