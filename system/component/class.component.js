@@ -6,6 +6,8 @@ const _merge = require("../../helper/merge");
 
 const COMMON = require("./class.common.js");
 
+//const PENDING_CHANGE_EVENTS = new Set();
+
 /**
  * @description
  * Parent class for components which provides hookable, event emitting methods:
@@ -164,7 +166,6 @@ module.exports = class COMPONENT extends COMMON {
 
                     } else if (event.operationType === "update") {
 
-                        // FIXME deconstruct "documentKey" too
                         //let { updateDescription: { updatedFields } } = event;
                         let { updateDescription: { updatedFields }, documentKey } = event;
 
@@ -177,6 +178,20 @@ module.exports = class COMPONENT extends COMMON {
                         if (!target) {
                             return;
                         }
+
+                        // when a change was initialized local, ignore changes from mongodb
+                        /*
+                        if (PENDING_CHANGE_EVENTS.has(target._id)) {
+
+                            // feedback
+                            this.logger.verbose("Local change detected, ignore event from change stream");
+
+                            // cleanup
+                            PENDING_CHANGE_EVENTS.delete(target._id);
+
+                            return;
+                        }
+                        */
 
                         // get original property descriptor
                         //let descriptor = Object.getOwnPropertyDescriptors(target);
@@ -276,6 +291,9 @@ module.exports = class COMPONENT extends COMMON {
                                     */
                                 });
 
+                                // add id to pending change events
+                                //PENDING_CHANGE_EVENTS.add(item._id);
+
                                 if (item) {
                                     resolve([item]);
                                 } else {
@@ -364,7 +382,12 @@ module.exports = class COMPONENT extends COMMON {
                         } else {
 
                             if (result.n === 1 && result.ok === 1 && target) {
+
+                                // add id to pending change events
+                                //PENDING_CHANGE_EVENTS.add(target._id);
+
                                 resolve([target, result, _id]);
+
                             } else {
                                 reject(new Error("Invalid result returnd"));
                             }
@@ -451,6 +474,9 @@ module.exports = class COMPONENT extends COMMON {
                             // Wir arbeiten auf generischier eben hier!
                             // Umwandlung von object/string zu/von object/string
                             // muss in middlware erflogen!!!!!!!!!!!!!!
+
+                            // add id to pending change events
+                            //PENDING_CHANGE_EVENTS.add(target._id);
 
                             // TODO CHECK RESUTL!
                             // extend exisiting object in items array
