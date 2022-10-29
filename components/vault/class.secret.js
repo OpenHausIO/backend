@@ -56,7 +56,7 @@ class Secret {
     static schema() {
         return Joi.object({
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectID());
+                return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
             description: Joi.string().allow(null).default(null),
