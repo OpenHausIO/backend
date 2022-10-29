@@ -55,7 +55,16 @@ class Value {
                 return String(new mongodb.ObjectId());
             }),
             key: Joi.string().required(),
-            value: Joi.any().required(),
+            value: Joi.when("type", {
+                is: "number",
+                then: Joi.number()
+            }).when("type", {
+                is: "string",
+                then: Joi.string()
+            }).when("type", {
+                is: "boolean",
+                then: Joi.boolean()
+            }).allow(null).default(null),
             type: Joi.string().valid("string", "number", "boolean").required(),
             description: Joi.string().required()
         });
