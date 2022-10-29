@@ -164,13 +164,15 @@ module.exports = class Interface {
 
 
             // TODO implement other socket functions?!
-            socket.ref = (...args) => { console.log("socket.ref called", ...args); };
-            socket.unref = (...args) => { console.log("socket.unref called", ...args); };
-            socket.setKeepAlive = (...args) => { console.log("socket.setKeepAlive called", ...args); };
-            socket.setTimeout = (...args) => { console.log("socket.setTimeout called", ...args); };
-            socket.setNoDelay = (...args) => { console.log("socket.setNoDelay called", ...args); };
-            // socket.remoteAddress=this.settings.host
-            // socket.remotePort=this.settings.port
+            if (process.env.NODE_ENV !== "production") {
+                socket.ref = (...args) => { console.log("socket.ref called", ...args); };
+                socket.unref = (...args) => { console.log("socket.unref called", ...args); };
+                socket.setKeepAlive = (...args) => { console.log("socket.setKeepAlive called", ...args); };
+                socket.setTimeout = (...args) => { console.log("socket.setTimeout called", ...args); };
+                socket.setNoDelay = (...args) => { console.log("socket.setNoDelay called", ...args); };
+                // socket.remoteAddress=this.settings.host
+                // socket.remotePort=this.settings.port
+            }
 
             //return socket;
             cb(null, socket);
