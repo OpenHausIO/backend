@@ -158,7 +158,7 @@ module.exports = class COMPONENT extends COMMON {
                         //console.log("replace event", Object.getOwnPropertyDescriptors(target).config)
 
                         // feedback
-                        this.logger.debug(`Updated item object (${target._id}) due to changes in the collection`);
+                        this.logger.debug(`Updated item object (${target._id}) due to changes in the collection (replace)`);
 
                         // trigger update event
                         // TODO trigger update event, so changes can be detect via websockets /events API?
@@ -167,7 +167,7 @@ module.exports = class COMPONENT extends COMMON {
                     } else if (event.operationType === "update") {
 
                         //let { updateDescription: { updatedFields } } = event;
-                        let { updateDescription: { updatedFields }, documentKey } = event;
+                        let { documentKey } = event;
 
                         let target = this.items.find((item) => {
                             //return String(item._id) === String(event.documentKey._id);
@@ -176,7 +176,13 @@ module.exports = class COMPONENT extends COMMON {
 
                         // skip if nothing found
                         if (!target) {
+
+                            // feedback
+                            this.logger.warn("Could not find object id in items array", documentKey._id);
+
+                            // abort here
                             return;
+
                         }
 
                         // when a change was initialized local, ignore changes from mongodb
@@ -193,22 +199,21 @@ module.exports = class COMPONENT extends COMMON {
                         }
                         */
 
-                        // get original property descriptor
-                        //let descriptor = Object.getOwnPropertyDescriptors(target);
+                        // event now contain dot notation partial update
+                        // to make things simpler, just fetch the doc and merge it
+                        this.collection.find(documentKey).toArray((err, [doc]) => {
 
-                        // NOTE use: extend(target, fullDocument);?!
-                        //Object.assign(target, updatedFields);
-                        _merge(target, updatedFields);
+                            // merge docs
+                            _merge(target, doc);
 
-                        // override existing properties
-                        //Object.defineProperties(target, descriptor);
+                            // feedback
+                            this.logger.debug(`Updated item object (${target._id}) due to changes in the collection (update)`);
 
-                        // feedback
-                        this.logger.debug(`Updated item object (${target._id}) due to changes in the collection`);
+                            // trigger update event
+                            // TODO trigger update event, so changes can be detect via websockets /events API?
+                            this.events.emit("update", [target]);
 
-                        // trigger update event
-                        // TODO trigger update event, so changes can be detect via websockets /events API?
-                        this.events.emit("update", [target]);
+                        });
 
                     } else if (["insert", "delete", "drop", "rename"].includes(event.operationType)) {
 
@@ -307,11 +312,32 @@ module.exports = class COMPONENT extends COMMON {
                             }
                         } else {
 
-                            // resolve takes a array
-                            // these are arguments passed to the callback function
-                            // when resolve is called, the cb function gets as first argument, null
-                            // and every entry from the array as parameter
-                            resolve([result.ops[0]]);
+                            if (result.acknowledged) {
+                                this.collection.find({
+                                    _id: result.insertedId
+                                }).toArray((err, doc) => {
+                                    if (err) {
+
+                                        this.logger.warn("Could not fetch added doc", err);
+                                        reject(err);
+
+                                    } else {
+
+
+                                        // resolve takes a array
+                                        // these are arguments passed to the callback function
+                                        // when resolve is called, the cb function gets as first argument, null
+                                        // and every entry from the array as parameter
+                                        resolve([doc]);
+
+                                    }
+                                });
+                            } else {
+
+                                reject("Could not fetch added doc");
+                                this.logger.warn("Could not fetch added doc", result);
+
+                            }
 
                         }
                     });
@@ -536,7 +562,7 @@ module.exports = class COMPONENT extends COMMON {
     /**
     * @function found
     * A dynamic function which is called when either a item with matching filter is found in items array, 
-    * or a new item with matching filter is added.
+    * or a new item with matching filter is added. It "search" as long as the wanted item is found.
     * 
     * Arrays as filter arguments are currently ignored and invalidate the query.
     * As result, the function would not returny any items. Remove the array.
