@@ -30,10 +30,12 @@ module.exports = (app, router) => {
     router.get("/", (req, res) => {
 
         res.json({
+            /*
             environment: {
                 NODE_ENV: process.env.NODE_ENV,
                 HTTP_PORT: process.env.HTTP_PORT
             },
+            */
             heap: v8.getHeapStatistics(),
             cpu: {
                 cores: os.cpus(),
