@@ -64,7 +64,7 @@ module.exports = class COMMON extends BASE {
                             this.logger.verbose(err, `${name}(); Pre hooks aborted`);
                             //logger.debug("Pre hooks aborted?");
 
-                            reject();
+                            reject(err);
 
                         });
 
@@ -91,7 +91,7 @@ module.exports = class COMMON extends BASE {
 
                             this.logger.verbose(err, `${name}(); Post hooks aborted`);
 
-                            reject();
+                            reject(err);
 
                         });
 
@@ -190,6 +190,8 @@ module.exports = class COMMON extends BASE {
                         if (err instanceof Error) {
                             this.logger.warn(err, `${name}(); Error catched in function stack execution`);
                         }
+
+                        done(err);
 
                     });
 
