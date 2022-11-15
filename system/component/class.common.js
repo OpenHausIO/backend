@@ -155,7 +155,7 @@ module.exports = class COMMON extends BASE {
 
                         });
 
-                    }).then(([args]) => {
+                    }).then((args) => {
 
                         // execute post hooks middleware
                         // catch error that happens for logging
@@ -165,7 +165,6 @@ module.exports = class COMMON extends BASE {
 
                         //this.logger.verbose(`${name}(); 5/5; Resolve callback (successful). Arguments to pass: %j`, args);
                         log(`Resolve callback (successful).Arguments to pass: %j`, args);
-                        this.logger.verbose(`Component method "${name}" completed.`);
 
                         // before we call "callback" (resolve _promsify)
                         // execute in worker code "final" function to pefrom operations
