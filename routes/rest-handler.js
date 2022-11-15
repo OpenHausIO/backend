@@ -107,7 +107,7 @@ module.exports = (C_COMPONENT, router) => {
             if (err) {
 
                 res.status(400).json({
-                    error: err
+                    error: err.message
                 });
 
             } else {
