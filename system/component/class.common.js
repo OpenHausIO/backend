@@ -177,7 +177,7 @@ module.exports = class COMMON extends BASE {
                             // "resolve" promisify 
                             done(null, ...args);
 
-                            this.events.emit(name, args);
+                            this.events.emit(name, ...args);
 
                         }).catch((err) => {
                             this.logger.warn(err, `${name}(); Something happend on "final"`);

@@ -315,7 +315,7 @@ module.exports = class COMPONENT extends COMMON {
                             if (result.acknowledged) {
                                 this.collection.find({
                                     _id: result.insertedId
-                                }).toArray((err, doc) => {
+                                }).toArray((err, [doc]) => {
                                     if (err) {
 
                                         this.logger.warn("Could not fetch added doc", err);
@@ -626,7 +626,7 @@ module.exports = class COMPONENT extends COMMON {
         }
 
         // NOTE: Why is a array from the add eventlistener returned?!
-        let ev = ([item]) => {
+        let ev = (item) => {
             handler(filter, item);
         };
 
