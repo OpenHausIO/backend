@@ -34,6 +34,12 @@ class Value {
                     //return false;
                 }
 
+                // ignore usless set
+                // fix #219
+                if (value == obj.value) {
+                    return;
+                }
+
                 obj.value = value;
                 process.nextTick(changed, this);
 
