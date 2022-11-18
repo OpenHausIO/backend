@@ -77,7 +77,7 @@ module.exports = class Interface {
 
         return Joi.object({
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return new mongodb.ObjectID();
+                return String(new mongodb.ObjectId());
             }),
             type: Joi.string().default("ETHERNET"),
             settings: Joi.object().when("type", {
@@ -164,6 +164,7 @@ module.exports = class Interface {
 
 
             // TODO implement other socket functions?!
+            //if (process.env.NODE_ENV !== "production") {
             socket.ref = (...args) => { console.log("socket.ref called", ...args); };
             socket.unref = (...args) => { console.log("socket.unref called", ...args); };
             socket.setKeepAlive = (...args) => { console.log("socket.setKeepAlive called", ...args); };
@@ -171,6 +172,7 @@ module.exports = class Interface {
             socket.setNoDelay = (...args) => { console.log("socket.setNoDelay called", ...args); };
             // socket.remoteAddress=this.settings.host
             // socket.remotePort=this.settings.port
+            //}
 
             //return socket;
             cb(null, socket);

@@ -28,10 +28,16 @@ class Value {
         Object.defineProperty(this, "value", {
             set: (value) => {
 
-                if (typeof (value) !== obj.type) {
+                if (typeof (value) !== obj.type && value !== null) {
                     // throw error or just set false?
                     throw new TypeError(`value is not type of ${obj.type}, its: ${typeof value}`);
                     //return false;
+                }
+
+                // ignore usless set
+                // fix #219
+                if (value == obj.value) {
+                    return;
                 }
 
                 obj.value = value;
@@ -41,6 +47,8 @@ class Value {
             get: () => {
                 return obj.value;
             },
+            // NOTE: Changes this to "false"?:
+            // https://github.com/OpenHausIO/backend/blob/64a70b03826ad22ed614d951c48a049f34341a95/components/endpoints/class.state.js#L56
             configurable: true,
             enumerable: true
         });
@@ -50,10 +58,19 @@ class Value {
     static schema() {
         return Joi.object({
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectID());
+                return String(new mongodb.ObjectId());
             }),
             key: Joi.string().required(),
-            value: Joi.any().required(),
+            value: Joi.when("type", {
+                is: "number",
+                then: Joi.number()
+            }).when("type", {
+                is: "string",
+                then: Joi.string()
+            }).when("type", {
+                is: "boolean",
+                then: Joi.boolean()
+            }).allow(null).default(null),
             type: Joi.string().valid("string", "number", "boolean").required(),
             description: Joi.string().required()
         });

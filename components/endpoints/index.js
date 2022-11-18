@@ -46,7 +46,7 @@ class C_ENDPOINTS extends COMPONENT {
         // inject logger, collection and schema object
         super("endpoints", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectID());
+                return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
             enabled: Joi.boolean().default(true),

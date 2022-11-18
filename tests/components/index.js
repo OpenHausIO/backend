@@ -35,48 +35,8 @@ describe("Components", () => {
 
                 });
 
-
-                describe(`Trigger pre hooks`, () => {
-
-                    delete require.cache[require.resolve(`../../components/${name}`)];
-                    let C_COMPONENT = require(`../../components/${name}`);
-
-                    ["add", "get", "remove", "update", "find"].forEach((method) => {
-                        it(`Method: ${method}`, (done) => {
-
-                            C_COMPONENT.hooks.pre(method, () => {
-                                done();
-                            });
-
-                            C_COMPONENT[method]({});
-
-                        });
-                    });
-
-                });
-
-
-                /*
-                // TODO: Implement
-                describe(`Trigger post hooks`, () => {
-
-                    delete require.cache[require.resolve(`../../components/${name}`)];
-                    let C_COMPONENT = require(`../../components/${name}`);
-
-                    ["add", "get", "remove", "update", "find"].forEach((method) => {
-                        it(`Method: ${method}`, (done) => {
-
-                            C_COMPONENT.hooks.pre(method, () => {
-                                done()
-                            });
-
-                            C_COMPONENT[method]({});
-
-                        });
-                    });
-
-                });
-                */
+                // component specific tests
+                require(`./${name}.js`);
 
             });
         });

@@ -11,6 +11,8 @@ if (env.error) {
     env.parsed = {};
 }
 
+console.clear();
+
 process.env = Object.assign({
     UUID: "",
     DATABASE_HOST: "127.0.0.1",
@@ -54,7 +56,7 @@ describe("Database", () => {
 
             require("./helper/index.js");
             require("./system/index.js");
-            //require("./components/index.js");
+            require("./components/index.js");
 
         });
     });

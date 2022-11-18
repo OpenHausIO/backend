@@ -215,7 +215,7 @@ module.exports = class Command {
     static schema() {
         return Joi.object({
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectID());
+                return String(new mongodb.ObjectId());
             }),
             interface: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),                       // device interface mongodb _id
             name: Joi.string().required(),                                              // Command name, something easy to identify

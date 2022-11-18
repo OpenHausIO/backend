@@ -146,7 +146,7 @@ class C_DEVICES extends COMPONENT {
         // https://stackoverflow.com/a/37746388/5781499
         super("devices", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectID());
+                return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
             room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
@@ -173,7 +173,7 @@ class C_DEVICES extends COMPONENT {
 
             // NOTE Needed if defined in schema?!
             data.interfaces.forEach((iface) => {
-                iface._id = String(new mongodb.ObjectID());
+                iface._id = String(new mongodb.ObjectId());
             });
 
             next();

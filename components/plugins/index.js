@@ -34,7 +34,7 @@ class C_PLUGINS extends COMPONENT {
         // super(logger, mongodb.client.collection("plugins"), {
         super("plugins", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectID());
+                return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
             uuid: Joi.string().default(() => {

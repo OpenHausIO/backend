@@ -6,6 +6,8 @@ const _merge = require("../../helper/merge");
 
 const COMMON = require("./class.common.js");
 
+//const PENDING_CHANGE_EVENTS = new Set();
+
 /**
  * @description
  * Parent class for components which provides hookable, event emitting methods:
@@ -156,7 +158,7 @@ module.exports = class COMPONENT extends COMMON {
                         //console.log("replace event", Object.getOwnPropertyDescriptors(target).config)
 
                         // feedback
-                        this.logger.debug(`Updated item object (${target._id}) due to changes in the collection`);
+                        this.logger.debug(`Updated item object (${target._id}) due to changes in the collection (replace)`);
 
                         // trigger update event
                         // TODO trigger update event, so changes can be detect via websockets /events API?
@@ -164,9 +166,8 @@ module.exports = class COMPONENT extends COMMON {
 
                     } else if (event.operationType === "update") {
 
-                        // FIXME deconstruct "documentKey" too
                         //let { updateDescription: { updatedFields } } = event;
-                        let { updateDescription: { updatedFields }, documentKey } = event;
+                        let { documentKey } = event;
 
                         let target = this.items.find((item) => {
                             //return String(item._id) === String(event.documentKey._id);
@@ -175,25 +176,44 @@ module.exports = class COMPONENT extends COMMON {
 
                         // skip if nothing found
                         if (!target) {
+
+                            // feedback
+                            this.logger.warn("Could not find object id in items array", documentKey._id);
+
+                            // abort here
                             return;
+
                         }
 
-                        // get original property descriptor
-                        //let descriptor = Object.getOwnPropertyDescriptors(target);
+                        // when a change was initialized local, ignore changes from mongodb
+                        /*
+                        if (PENDING_CHANGE_EVENTS.has(target._id)) {
 
-                        // NOTE use: extend(target, fullDocument);?!
-                        //Object.assign(target, updatedFields);
-                        _merge(target, updatedFields);
+                            // feedback
+                            this.logger.verbose("Local change detected, ignore event from change stream");
 
-                        // override existing properties
-                        //Object.defineProperties(target, descriptor);
+                            // cleanup
+                            PENDING_CHANGE_EVENTS.delete(target._id);
 
-                        // feedback
-                        this.logger.debug(`Updated item object (${target._id}) due to changes in the collection`);
+                            return;
+                        }
+                        */
 
-                        // trigger update event
-                        // TODO trigger update event, so changes can be detect via websockets /events API?
-                        this.events.emit("update", [target]);
+                        // event now contain dot notation partial update
+                        // to make things simpler, just fetch the doc and merge it
+                        this.collection.find(documentKey).toArray((err, [doc]) => {
+
+                            // merge docs
+                            _merge(target, doc);
+
+                            // feedback
+                            this.logger.debug(`Updated item object (${target._id}) due to changes in the collection (update)`);
+
+                            // trigger update event
+                            // TODO trigger update event, so changes can be detect via websockets /events API?
+                            this.events.emit("update", [target]);
+
+                        });
 
                     } else if (["insert", "delete", "drop", "rename"].includes(event.operationType)) {
 
@@ -251,8 +271,8 @@ module.exports = class COMPONENT extends COMMON {
                         return;
                     }
 
-                    // override string with ObjectID, see #175
-                    result.value._id = new mongodb.ObjectID(result.value._id);
+                    // override string with ObjectId, see #175
+                    result.value._id = new mongodb.ObjectId(result.value._id);
 
                     this.collection.insertOne(result.value, (err, result) => {
                         if (err) {
@@ -276,6 +296,9 @@ module.exports = class COMPONENT extends COMMON {
                                     */
                                 });
 
+                                // add id to pending change events
+                                //PENDING_CHANGE_EVENTS.add(item._id);
+
                                 if (item) {
                                     resolve([item]);
                                 } else {
@@ -289,11 +312,32 @@ module.exports = class COMPONENT extends COMMON {
                             }
                         } else {
 
-                            // resolve takes a array
-                            // these are arguments passed to the callback function
-                            // when resolve is called, the cb function gets as first argument, null
-                            // and every entry from the array as parameter
-                            resolve([result.ops[0]]);
+                            if (result.acknowledged) {
+                                this.collection.find({
+                                    _id: result.insertedId
+                                }).toArray((err, [doc]) => {
+                                    if (err) {
+
+                                        this.logger.warn("Could not fetch added doc", err);
+                                        reject(err);
+
+                                    } else {
+
+
+                                        // resolve takes a array
+                                        // these are arguments passed to the callback function
+                                        // when resolve is called, the cb function gets as first argument, null
+                                        // and every entry from the array as parameter
+                                        resolve([doc]);
+
+                                    }
+                                });
+                            } else {
+
+                                reject("Could not fetch added doc");
+                                this.logger.warn("Could not fetch added doc", result);
+
+                            }
 
                         }
                     });
@@ -354,17 +398,23 @@ module.exports = class COMPONENT extends COMMON {
                         return obj._id === _id;
                     });
 
-                    this.collection.removeOne({
-                        _id: new mongodb.ObjectID(_id)
-                    }, (err, { result }) => {
+                    this.collection.deleteOne({
+                        _id: new mongodb.ObjectId(_id)
+                    }, (err, result) => {
                         if (err) {
 
                             reject(err);
 
                         } else {
 
-                            if (result.n === 1 && result.ok === 1 && target) {
+                            //if (result.n === 1 && result.ok === 1 && target) {
+                            if (result.acknowledged && result.deletedCount > 0) {
+
+                                // add id to pending change events
+                                //PENDING_CHANGE_EVENTS.add(target._id);
+
                                 resolve([target, result, _id]);
+
                             } else {
                                 reject(new Error("Invalid result returnd"));
                             }
@@ -416,15 +466,15 @@ module.exports = class COMPONENT extends COMMON {
                     // when validation is correct, assign the original property descriptors
                     // if not, this breaks custom setter/getter
                     // NOTE: Works only when DATABASE_WATCH_CHANGES=false
-                    let descriptor = Object.getOwnPropertyDescriptors(target);
-                    Object.defineProperties(validation.value, descriptor);
+                    //let descriptor = Object.getOwnPropertyDescriptors(target);
+                    //Object.defineProperties(validation.value, descriptor);
 
                     // _id is immutable. remove it
                     delete validation.value._id;
 
                     this.collection.findOneAndUpdate({
                         // casting problem, see #175
-                        _id: new mongodb.ObjectID(_id)
+                        _id: new mongodb.ObjectId(_id)
                         //_id
                     }, {
                         $set: validation.value
@@ -452,9 +502,13 @@ module.exports = class COMPONENT extends COMMON {
                             // Umwandlung von object/string zu/von object/string
                             // muss in middlware erflogen!!!!!!!!!!!!!!
 
+                            // add id to pending change events
+                            //PENDING_CHANGE_EVENTS.add(target._id);
+
                             // TODO CHECK RESUTL!
                             // extend exisiting object in items array
-                            _extend(target, validation.value);
+                            //_extend(target, validation.value);
+                            _merge(target, validation.value);
                             resolve([target]);
 
                         }
@@ -510,7 +564,7 @@ module.exports = class COMPONENT extends COMMON {
     /**
     * @function found
     * A dynamic function which is called when either a item with matching filter is found in items array, 
-    * or a new item with matching filter is added.
+    * or a new item with matching filter is added. It "search" as long as the wanted item is found.
     * 
     * Arrays as filter arguments are currently ignored and invalidate the query.
     * As result, the function would not returny any items. Remove the array.
@@ -574,7 +628,7 @@ module.exports = class COMPONENT extends COMMON {
         }
 
         // NOTE: Why is a array from the add eventlistener returned?!
-        let ev = ([item]) => {
+        let ev = (item) => {
             handler(filter, item);
         };
 
