@@ -9,6 +9,9 @@ on:
     pull_request:
         branches: [main, dev]
 
+env:
+    VAULT_MASTER_PASSWORD: Pa$$w0rd
+
 jobs:
     build:
         #runs-on: [ubuntu-18.04, ubuntu-latest]
