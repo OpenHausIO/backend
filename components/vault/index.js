@@ -59,7 +59,7 @@ const instance = module.exports = new C_VAULT();
 // set items/build cache
 instance.init((scope, ready) => {
 
-    if (process.env.VAULT_MASTER_PASSWORD.length <= 0) {
+    if (!process.env.VAULT_MASTER_PASSWORD) {
         return ready(new Error("You need to set a `VAULT_MASTER_PASSWORD` environment variable!"));
     }
 
