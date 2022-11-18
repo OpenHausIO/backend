@@ -398,16 +398,17 @@ module.exports = class COMPONENT extends COMMON {
                         return obj._id === _id;
                     });
 
-                    this.collection.removeOne({
+                    this.collection.deleteOne({
                         _id: new mongodb.ObjectId(_id)
-                    }, (err, { result }) => {
+                    }, (err, result) => {
                         if (err) {
 
                             reject(err);
 
                         } else {
 
-                            if (result.n === 1 && result.ok === 1 && target) {
+                            //if (result.n === 1 && result.ok === 1 && target) {
+                            if (result.acknowledged && result.deletedCount > 0) {
 
                                 // add id to pending change events
                                 //PENDING_CHANGE_EVENTS.add(target._id);
@@ -465,8 +466,8 @@ module.exports = class COMPONENT extends COMMON {
                     // when validation is correct, assign the original property descriptors
                     // if not, this breaks custom setter/getter
                     // NOTE: Works only when DATABASE_WATCH_CHANGES=false
-                    let descriptor = Object.getOwnPropertyDescriptors(target);
-                    Object.defineProperties(validation.value, descriptor);
+                    //let descriptor = Object.getOwnPropertyDescriptors(target);
+                    //Object.defineProperties(validation.value, descriptor);
 
                     // _id is immutable. remove it
                     delete validation.value._id;
@@ -506,7 +507,8 @@ module.exports = class COMPONENT extends COMMON {
 
                             // TODO CHECK RESUTL!
                             // extend exisiting object in items array
-                            _extend(target, validation.value);
+                            //_extend(target, validation.value);
+                            _merge(target, validation.value);
                             resolve([target]);
 
                         }
