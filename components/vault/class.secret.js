@@ -31,6 +31,12 @@ class Secret {
         Object.defineProperty(this, "value", {
             set(value) {
 
+                // ignore usless set
+                // related to #219
+                if (value == obj.value) {
+                    return;
+                }
+
                 obj.value = value;
 
                 process.nextTick(changed);
