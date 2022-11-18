@@ -28,7 +28,7 @@ class Value {
         Object.defineProperty(this, "value", {
             set: (value) => {
 
-                if (typeof (value) !== obj.type) {
+                if (typeof (value) !== obj.type && value !== null) {
                     // throw error or just set false?
                     throw new TypeError(`value is not type of ${obj.type}, its: ${typeof value}`);
                     //return false;
