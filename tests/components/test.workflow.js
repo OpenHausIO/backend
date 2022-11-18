@@ -2,6 +2,8 @@ const assert = require("assert");
 const { it } = require("mocha");
 const sinon = require("sinon");
 
+const _iterate = require("../../helper/iterate.js");
+
 module.exports = (C_COMPONENT, method, worker) => {
 
     let pre = sinon.spy();
@@ -22,6 +24,38 @@ module.exports = (C_COMPONENT, method, worker) => {
             pre,
             post
         });
+    });
+
+    it(`Every array in item should have a _id property`, (done) => {
+        try {
+
+            _iterate(C_COMPONENT.items[0], (key, value, type) => {
+
+                if (type === "array") {
+
+                    let result = value.every((entry) => {
+                        if (entry instanceof Object) {
+                            return Object.hasOwnProperty.call(entry, "_id");
+                        } else {
+                            return true;
+                        }
+                    });
+
+                    assert.ok(result === true);
+
+                }
+
+                return value;
+
+            });
+
+            done(null);
+
+        } catch (err) {
+
+            done(err);
+
+        }
     });
 
     it(`Should fire pre hook "${method}"`, (done) => {
