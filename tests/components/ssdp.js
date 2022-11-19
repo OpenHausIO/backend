@@ -17,7 +17,7 @@ try {
         }, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof SSDP, true);
 
                 done(err);
@@ -35,7 +35,7 @@ try {
         C_COMPONENT.get(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof SSDP, true);
 
                 done(err);
@@ -55,7 +55,7 @@ try {
         }, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof SSDP, true);
                 assert.equal(item.usn, "uuid:f91b07f6-66b5-11ed-93f0-2f945bff9869");
 
@@ -74,7 +74,7 @@ try {
         C_COMPONENT.remove(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof SSDP, true);
 
                 done(err);

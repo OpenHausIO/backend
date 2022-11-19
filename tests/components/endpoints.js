@@ -20,7 +20,7 @@ try {
         }, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Endpoint, true);
 
                 done(err);
@@ -38,7 +38,7 @@ try {
         C_COMPONENT.get(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Endpoint, true);
 
                 done(err);
@@ -58,7 +58,7 @@ try {
         }, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Endpoint, true);
                 assert.equal(item.name, "Endpoint #2 - updated");
 
@@ -77,7 +77,7 @@ try {
         C_COMPONENT.remove(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Endpoint, true);
 
                 done(err);

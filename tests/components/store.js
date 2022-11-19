@@ -23,7 +23,7 @@ try {
             namespace
         }, (err, item) => {
 
-            assert.equal(err, null); // DOES NOT WORK!
+            assert.ok(err === null);
             assert.equal(item instanceof Store, true);
 
             done(err);
@@ -36,7 +36,7 @@ try {
         C_COMPONENT.get(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Store, true);
 
                 done(err);
@@ -59,7 +59,7 @@ try {
         }, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Store, true);
                 assert.equal(item.item, uuid);
 
@@ -79,7 +79,7 @@ try {
         C_COMPONENT.remove(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Store, true);
 
                 done(err);

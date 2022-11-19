@@ -26,7 +26,7 @@ try {
         }, (err, item) => {
             try {
 
-                assert.equal(err === null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Device, true);
 
                 done(err);
@@ -44,7 +44,7 @@ try {
         C_COMPONENT.get(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Device, true);
 
                 done(err);
@@ -72,7 +72,7 @@ try {
         }, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Device, true);
                 assert.equal(item.interfaces[0].settings.host, "127.0.0.2");
 
@@ -91,7 +91,7 @@ try {
         C_COMPONENT.remove(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Device, true);
 
                 done(err);
