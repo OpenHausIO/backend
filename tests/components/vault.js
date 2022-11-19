@@ -89,9 +89,14 @@ try {
     });
 
 
-    workflow(C_COMPONENT, "remove", (done) => {
+    workflow(C_COMPONENT, "remove", (done, { post }) => {
         C_COMPONENT.remove(_id, (err, item) => {
             try {
+
+                // check post arguments item instance
+                post.args.forEach((args) => {
+                    assert.equal(args[0] instanceof Vault, true);
+                });
 
                 assert.ok(err === null);
                 assert.equal(item instanceof Vault, true);
