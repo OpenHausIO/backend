@@ -24,24 +24,36 @@ try {
                 }
             }]
         }, (err, item) => {
+            try {
 
-            assert.equal(err, null); // DOES NOT WORK!
-            assert.equal(item instanceof Device, true);
+                assert.equal(err === null); // DOES NOT WORK!
+                assert.equal(item instanceof Device, true);
 
-            done(err);
+                done(err);
 
+            } catch (err) {
+
+                done(err);
+
+            }
         });
     });
 
 
     workflow(C_COMPONENT, "get", (done) => {
         C_COMPONENT.get(_id, (err, item) => {
+            try {
 
-            assert.equal(err, null); // DOES NOT WORK!
-            assert.equal(item instanceof Device, true);
+                assert.equal(err, null); // DOES NOT WORK!
+                assert.equal(item instanceof Device, true);
 
-            done(err);
+                done(err);
 
+            } catch (err) {
+
+                done(err);
+
+            }
         });
     });
 
@@ -58,25 +70,37 @@ try {
                 }
             }]
         }, (err, item) => {
+            try {
 
-            assert.equal(err, null); // DOES NOT WORK!
-            assert.equal(item instanceof Device, true);
-            assert.equal(item.interfaces[0].settings.host, "127.0.0.2");
+                assert.equal(err, null); // DOES NOT WORK!
+                assert.equal(item instanceof Device, true);
+                assert.equal(item.interfaces[0].settings.host, "127.0.0.2");
 
-            done(err);
+                done(err);
 
+            } catch (err) {
+
+                done(err);
+
+            }
         });
     });
 
 
     workflow(C_COMPONENT, "remove", (done) => {
         C_COMPONENT.remove(_id, (err, item) => {
+            try {
 
-            assert.equal(err, null); // DOES NOT WORK!
-            assert.equal(item instanceof Device, true);
+                assert.equal(err, null); // DOES NOT WORK!
+                assert.equal(item instanceof Device, true);
 
-            done(err);
+                done(err);
 
+            } catch (err) {
+
+                done(err);
+
+            }
         });
     });
 
