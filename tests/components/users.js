@@ -11,7 +11,7 @@ try {
     let _id = String(new mongodb.ObjectId());
 
 
-    workflow(C_COMPONENT, "add", (done) => {
+    workflow(C_COMPONENT, "add", (done, { event }) => {
         C_COMPONENT.add({
             _id,
             name: "Marc Stirner",
@@ -19,6 +19,11 @@ try {
             password: "Pa$$w0rd"
         }, (err, item) => {
             try {
+
+                // check event arguments
+                event.args.forEach((args) => {
+                    assert.equal(args[0] instanceof User, true);
+                });
 
                 assert.ok(err === null);
                 assert.equal(item instanceof User, true);

@@ -12,7 +12,7 @@ try {
     let _id = String(new mongodb.ObjectId());
     let namespace = String(new mongodb.ObjectId());
 
-    workflow(C_COMPONENT, "add", (done) => {
+    workflow(C_COMPONENT, "add", (done, { event }) => {
         C_COMPONENT.add({
             _id,
             config: [{
@@ -22,6 +22,11 @@ try {
             }],
             namespace
         }, (err, item) => {
+
+            // check event arguments
+            event.args.forEach((args) => {
+                assert.equal(args[0] instanceof Store, true);
+            });
 
             assert.ok(err === null);
             assert.equal(item instanceof Store, true);

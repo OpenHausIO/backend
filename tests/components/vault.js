@@ -11,7 +11,7 @@ try {
     let _id = String(new mongodb.ObjectId());
 
 
-    workflow(C_COMPONENT, "add", (done) => {
+    workflow(C_COMPONENT, "add", (done, { event }) => {
         C_COMPONENT.add({
             _id,
             name: "Test credentials",
@@ -27,6 +27,11 @@ try {
             }]
         }, (err, item) => {
             try {
+
+                // check event arguments
+                event.args.forEach((args) => {
+                    assert.equal(args[0] instanceof Vault, true);
+                });
 
                 assert.ok(err === null);
                 assert.equal(item instanceof Vault, true);
