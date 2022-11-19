@@ -8,6 +8,7 @@ module.exports = (C_COMPONENT, method, worker) => {
 
     let pre = sinon.spy();
     let post = sinon.spy();
+    let event = sinon.spy();
 
     C_COMPONENT.hooks.pre(method, (...args) => {
         pre(...args);
@@ -19,11 +20,21 @@ module.exports = (C_COMPONENT, method, worker) => {
         args[args.length - 1](null);
     });
 
+    C_COMPONENT.events.once(method, (...args) => {
+        event(...args);
+    });
+
     it(`Should perform method "${method}"`, (done) => {
         worker(done, {
             pre,
-            post
+            post,
+            event
         });
+    });
+
+    it(`Should fired event "${method}"`, (done) => {
+        assert.equal(event.calledOnce, true);
+        done();
     });
 
     it(`Every array in item should have a _id property`, (done) => {
