@@ -37,37 +37,46 @@ module.exports = (C_COMPONENT, method, worker) => {
         done();
     });
 
-    it(`Every array in item should have a _id property`, (done) => {
-        try {
+    if (method === "add") {
 
-            _iterate(C_COMPONENT.items[0], (key, value, type) => {
+        it(`Items array should have 1 item`, (done) => {
+            assert.equal(C_COMPONENT.items.length, 1);
+            done();
+        });
 
-                if (type === "array") {
+        it(`Every array in item should have a _id property`, (done) => {
+            try {
 
-                    let result = value.every((entry) => {
-                        if (entry instanceof Object) {
-                            return Object.hasOwnProperty.call(entry, "_id");
-                        } else {
-                            return true;
-                        }
-                    });
+                _iterate(C_COMPONENT.items[0], (key, value, type) => {
 
-                    assert.ok(result === true);
+                    if (type === "array") {
 
-                }
+                        let result = value.every((entry) => {
+                            if (entry instanceof Object) {
+                                return Object.hasOwnProperty.call(entry, "_id");
+                            } else {
+                                return true;
+                            }
+                        });
 
-                return value;
+                        assert.ok(result === true);
 
-            });
+                    }
 
-            done(null);
+                    return value;
 
-        } catch (err) {
+                });
 
-            done(err);
+                done(null);
 
-        }
-    });
+            } catch (err) {
+
+                done(err);
+
+            }
+        });
+
+    }
 
     it(`Should fire pre hook "${method}"`, (done) => {
         try {
