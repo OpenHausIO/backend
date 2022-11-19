@@ -80,6 +80,26 @@ module.exports = (C_COMPONENT, method, worker) => {
     it(`Should fire post hook "${method}"`, (done) => {
         try {
 
+            if (method === "remove") {
+
+                let objid = new RegExp(/^[0-9a-fA-F]{24}$/);
+
+                post.args.forEach((args) => {
+
+                    // check mongodb result object
+                    assert.equal(Object.hasOwnProperty.call(args[1], "acknowledged"), true);
+                    assert.equal(Object.hasOwnProperty.call(args[1], "deletedCount"), true);
+
+                    // check object id
+                    assert.equal(objid.test(args[2]), true);
+
+                    // check next function
+                    assert.equal(args[3] instanceof Function, true);
+
+                });
+
+            }
+
             // NOTE:
             // middleware hooks can be fired more than once
             // e.g. the vault test triggers 2 iterations
