@@ -162,7 +162,7 @@ module.exports = class COMPONENT extends COMMON {
 
                         // trigger update event
                         // TODO trigger update event, so changes can be detect via websockets /events API?
-                        this.events.emit("update", [target]);
+                        this.events.emit("update", target);
 
                     } else if (event.operationType === "update") {
 
@@ -211,7 +211,7 @@ module.exports = class COMPONENT extends COMMON {
 
                             // trigger update event
                             // TODO trigger update event, so changes can be detect via websockets /events API?
-                            this.events.emit("update", [target]);
+                            this.events.emit("update", target);
 
                         });
 
