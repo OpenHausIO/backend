@@ -27,14 +27,14 @@ process.env = Object.assign({
     LOG_TARGET: "",
     NODE_ENV: "test",
     DEBUG: "",
-    VAULT_MASTER_PASSWORD: "",
+    VAULT_MASTER_PASSWORD: "Pa$$w0rd",
     VAULT_BLOCK_CIPHER: "aes-256-cbc",
     VAULT_AUTH_TAG_BYTE_LEN: "16",
     VAULT_IV_BYTE_LEN: "16",
     VAULT_KEY_BYTE_LEN: "32",
     VAULT_SALT_BYTE_LEN: "16",
     USERS_BCRYPT_SALT_ROUNDS: "12",
-    USERS_JWT_SECRET: "",
+    USERS_JWT_SECRET: "Pa$$w0rd",
     USERS_JWT_ALGORITHM: "HS384"
 }, env.parsed, process.env);
 
