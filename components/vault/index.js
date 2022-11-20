@@ -50,7 +50,10 @@ class C_VAULT extends COMPONENT {
                 if (data?.secrets) {
                     data.secrets = data.secrets.map((secret) => {
 
-                        secret.value = encrypt(secret.value);
+                        if (secret.value) {
+                            secret.value = encrypt(secret.value);
+                        }
+
                         return secret;
 
                     });
