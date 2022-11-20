@@ -1,5 +1,6 @@
 const assert = require("assert");
 const mongodb = require("mongodb");
+//const { it } = require("mocha");
 
 try {
 
@@ -46,6 +47,23 @@ try {
         });
     });
 
+    /*
+    it("Should decrypt secrets", (done) => {
+        try {
+
+            let item = C_COMPONENT.items[0];
+
+            item.secrets.forEach((secret) => {
+                return secret.decrypt();
+            });
+
+            done();
+
+        } catch (err) {
+            done(err);
+        }
+    });
+    */
 
     workflow(C_COMPONENT, "get", (done) => {
         C_COMPONENT.get(_id, (err, item) => {
