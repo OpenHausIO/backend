@@ -1,4 +1,5 @@
 const assert = require("assert");
+const crypto = require("crypto");
 const mongodb = require("mongodb");
 
 try {
@@ -72,6 +73,35 @@ try {
 
             }
         });
+    });
+
+
+    workflow(C_COMPONENT, "update", "Double update result / event arguments check", (done, { event }) => {
+
+        let uuid1 = crypto.randomUUID();
+        let uuid2 = crypto.randomUUID();
+
+        Promise.all([
+
+            // update call 1
+            C_COMPONENT.update(_id, {
+                usn: `uuid:${uuid1}`
+            }),
+
+            // update call 2
+            C_COMPONENT.update(_id, {
+                usn: `uuid:${uuid2}`
+            })
+
+        ]).then(() => {
+
+            event.args.forEach((args) => {
+                assert.equal(args[0] instanceof SSDP, true);
+            });
+
+            done();
+
+        }).catch(done);
     });
 
 
