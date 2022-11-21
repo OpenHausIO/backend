@@ -70,6 +70,28 @@ class C_VAULT extends COMPONENT {
             next(null, new Vault(data, this));
         });
 
+        /*
+        // investigation of #208
+        this.hooks.post("update", (data, next) => {
+
+            console.log("update post:", data);
+
+            let valid = data.secrets.every((secret) => {
+                return secret instanceof Secret;
+            });
+
+            console.log("Secrets instances valid:", valid, data.secrets)
+
+            if (!valid) {
+                //_merge(item, new Vault(data, this));
+                //Object.assign(data, new Vault(data, this));
+            }
+
+            next(null);
+
+        });
+        */
+
     }
 
 }
