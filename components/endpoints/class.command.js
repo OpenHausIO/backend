@@ -24,8 +24,8 @@ const { interfaces } = require("../../system/shared.js");
  * @property {String} params[].key Custom key
  * @property {String} params[].type Type of value: "string", "number" or "boolean"
  * @property {String|Number|Boolean} params[].value Value to set
- * @property {Number} [params[].min] Min value if param type is a number (`type=number`)
- * @property {Number} [params[].max] Max value if param type is a number (`type=number`)
+ * @property {Number} [params[].min=0] Min value if param type is a number (`type=number`)
+ * @property {Number} [params[].max=100] Max value if param type is a number (`type=number`)
  * 
  * @example 
  * ```json
