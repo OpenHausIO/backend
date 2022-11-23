@@ -78,6 +78,33 @@ try {
     });
 
 
+    workflow(C_COMPONENT, "update", "Double update result / event arguments check", (done, { event }) => {
+        Promise.all([
+
+            // update call 1
+            C_COMPONENT.update(_id, {
+                name: "New name",
+                floor: 2
+            }),
+
+            // update call 2
+            C_COMPONENT.update(_id, {
+                floor: 9,
+                number: 42069
+            })
+
+        ]).then(() => {
+
+            event.args.forEach((args) => {
+                assert.equal(args[0] instanceof Room, true);
+            });
+
+            done();
+
+        }).catch(done);
+    });
+
+
     workflow(C_COMPONENT, "remove", (done, { post }) => {
         C_COMPONENT.remove(_id, (err, item) => {
             try {

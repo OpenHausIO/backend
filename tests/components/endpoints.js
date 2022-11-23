@@ -78,6 +78,31 @@ try {
     });
 
 
+    workflow(C_COMPONENT, "update", "Double update result / event arguments check", (done, { event }) => {
+        Promise.all([
+
+            // update call 1
+            C_COMPONENT.update(_id, {
+                name: "Endpoint #42",
+            }),
+
+            // update call 2
+            C_COMPONENT.update(_id, {
+                enabled: false
+            })
+
+        ]).then(() => {
+
+            event.args.forEach((args) => {
+                assert.equal(args[0] instanceof Endpoint, true);
+            });
+
+            done();
+
+        }).catch(done);
+    });
+
+
     workflow(C_COMPONENT, "remove", (done, { post }) => {
         C_COMPONENT.remove(_id, (err, item) => {
             try {

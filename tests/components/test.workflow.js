@@ -4,7 +4,12 @@ const sinon = require("sinon");
 
 const _iterate = require("../../helper/iterate.js");
 
-module.exports = (C_COMPONENT, method, worker) => {
+module.exports = (C_COMPONENT, method, desc, worker) => {
+
+    if (!worker && desc instanceof Function) {
+        worker = desc;
+        desc = null;
+    }
 
     let pre = sinon.spy();
     let post = sinon.spy();
@@ -20,11 +25,12 @@ module.exports = (C_COMPONENT, method, worker) => {
         args[args.length - 1](null);
     });
 
-    C_COMPONENT.events.once(method, (...args) => {
+    C_COMPONENT.events.on(method, (...args) => {
+        //console.log("Event", method, args);
         event(...args);
     });
 
-    it(`Should perform method "${method}"`, (done) => {
+    it(`Should perform method "${method}" ${desc ? "(" + desc + ")" : ""}`, (done) => {
         worker(done, {
             pre,
             post,
@@ -32,19 +38,20 @@ module.exports = (C_COMPONENT, method, worker) => {
         });
     });
 
-    it(`Should fired event "${method}"`, (done) => {
-        assert.equal(event.calledOnce, true);
+    it(`Should fired event "${method}" at least once ${desc ? "(" + desc + ")" : ""}`, (done) => {
+        //assert.equal(event.calledOnce, true);
+        assert.ok(event.callCount >= 1);
         done();
     });
 
     if (method === "add") {
 
-        it(`Items array should have 1 item`, (done) => {
+        it(`Items array should have 1 item ${desc ? "(" + desc + ")" : ""}`, (done) => {
             assert.equal(C_COMPONENT.items.length, 1);
             done();
         });
 
-        it(`Every array in item should have a _id property`, (done) => {
+        it(`Every array in item should have a _id property ${desc ? "(" + desc + ")" : ""}`, (done) => {
             try {
 
                 _iterate(C_COMPONENT.items[0], (key, value, type) => {
@@ -78,7 +85,7 @@ module.exports = (C_COMPONENT, method, worker) => {
 
     }
 
-    it(`Should fire pre hook "${method}"`, (done) => {
+    it(`Should fire pre hook "${method}" ${desc ? "(" + desc + ")" : ""}`, (done) => {
         try {
 
             // NOTE:
@@ -97,7 +104,7 @@ module.exports = (C_COMPONENT, method, worker) => {
         }
     });
 
-    it(`Should fire post hook "${method}"`, (done) => {
+    it(`Should fire post hook "${method}" ${desc ? "(" + desc + ")" : ""}`, (done) => {
         try {
 
             if (method === "remove") {

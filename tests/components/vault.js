@@ -89,10 +89,6 @@ try {
                 name: "Username",
                 key: "USERNAME",
                 value: "marc.stirner@example.com"
-            }, {
-                name: "Password",
-                key: "PASSWORD",
-                value: "12345678"
             }]
         }, (err, item) => {
             try {
@@ -109,6 +105,48 @@ try {
 
             }
         });
+    });
+
+
+    workflow(C_COMPONENT, "update", "Double update result / event arguments check", (done, { event }) => {
+        Promise.all([
+
+            // update call 1
+            C_COMPONENT.update(_id, {
+                secrets: [{
+                    name: "Username",
+                    key: "USERNAME",
+                    value: "marc.stirner@example.com"
+                }, {
+                    name: "Password",
+                    key: "PASSWORD",
+                    value: "12345678"
+                }]
+            }),
+
+            // update call 2
+            C_COMPONENT.update(_id, {
+                secrets: [{
+                    name: "Username",
+                    key: "USERNAME",
+                    value: "john.doe@example.com"
+                }, {
+                    name: "Password",
+                    key: "PASSWORD",
+                    value: "87654321"
+                }]
+            })
+
+        ]).then(() => {
+
+            event.args.forEach((args) => {
+                assert.equal(args[0] instanceof Vault, true);
+                assert.ok(args[0].secrets.length === 2);
+            });
+
+            done();
+
+        }).catch(done);
     });
 
 
