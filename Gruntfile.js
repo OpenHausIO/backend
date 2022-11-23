@@ -44,7 +44,7 @@ module.exports = function (grunt) {
         run: {
             install: {
                 options: {
-                    cwd: "./dist"
+                    cwd: path.join(process.cwd(), "dist")
                 },
                 cmd: "npm",
                 args: [
