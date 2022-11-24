@@ -10,7 +10,8 @@
     "ignorePatterns": [
         "node_modules",
         "logs",
-        "plugins/*"
+        "plugins/*",
+        "dist"
     ],
     "extends": [
         "eslint:recommended"

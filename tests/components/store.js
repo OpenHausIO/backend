@@ -12,7 +12,7 @@ try {
     let _id = String(new mongodb.ObjectId());
     let namespace = String(new mongodb.ObjectId());
 
-    workflow(C_COMPONENT, "add", (done) => {
+    workflow(C_COMPONENT, "add", (done, { event }) => {
         C_COMPONENT.add({
             _id,
             config: [{
@@ -23,7 +23,12 @@ try {
             namespace
         }, (err, item) => {
 
-            assert.equal(err, null); // DOES NOT WORK!
+            // check event arguments
+            event.args.forEach((args) => {
+                assert.equal(args[0] instanceof Store, true);
+            });
+
+            assert.ok(err === null);
             assert.equal(item instanceof Store, true);
 
             done(err);
@@ -36,7 +41,7 @@ try {
         C_COMPONENT.get(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Store, true);
 
                 done(err);
@@ -59,7 +64,7 @@ try {
         }, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Store, true);
                 assert.equal(item.item, uuid);
 
@@ -75,11 +80,41 @@ try {
     });
 
 
-    workflow(C_COMPONENT, "remove", (done) => {
+    workflow(C_COMPONENT, "update", "Double update result / event arguments check", (done, { event }) => {
+        Promise.all([
+
+            // update call 1
+            C_COMPONENT.update(_id, {
+                item: uuidv4()
+            }),
+
+            // update call 2
+            C_COMPONENT.update(_id, {
+                item: uuidv4()
+            })
+
+        ]).then(() => {
+
+            event.args.forEach((args) => {
+                assert.equal(args[0] instanceof Store, true);
+            });
+
+            done();
+
+        }).catch(done);
+    });
+
+
+    workflow(C_COMPONENT, "remove", (done, { post }) => {
         C_COMPONENT.remove(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                // check post arguments item instance
+                post.args.forEach((args) => {
+                    assert.equal(args[0] instanceof Store, true);
+                });
+
+                assert.ok(err === null);
                 assert.equal(item instanceof Store, true);
 
                 done(err);

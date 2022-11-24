@@ -19,13 +19,13 @@ const { interfaces } = require("../../system/shared.js");
  * @property {String} alias Machine friendly name, e.g.: `POWER_ON`
  * @property {String} [identifier=null] Simple/custom identifiert for custom command handler
  * @property {String} payload The payload to send over the device interface
- * @property {String} [description=""] Command description, displayed on the frontend
+ * @property {String} [description=null] Command description, displayed on the frontend
  * @property {Array} params Possible parameter for the command
  * @property {String} params[].key Custom key
- * @property {Any} params[].value Value to set
- * @property {String} params[].default Default thing if nothing is send from client
- * @property {String} params[].min Min value if param type is a number
- * @property {String} params[].max Max value if param type is a number
+ * @property {String} params[].type Type of value: "string", "number" or "boolean"
+ * @property {String|Number|Boolean} params[].value Value to set
+ * @property {Number} [params[].min=0] Min value if param type is a number (`type=number`)
+ * @property {Number} [params[].max=100] Max value if param type is a number (`type=number`)
  * 
  * @example 
  * ```json
@@ -223,13 +223,29 @@ module.exports = class Command {
             identifier: Joi.string().allow(null).default(null),   // NOTE: move to endpoint schema?               // Thing api provides you, like light id or some custom thing for you
             payload: Joi.string().allow(null).default(null),
             description: Joi.string().allow(null).default(null),
-            params: Joi.array().items({
-                key: Joi.string().required(),
-                value: Joi.any(),
-                default: Joi.string(),
-                min: Joi.number(),
-                max: Joi.number()
-            })
+            params: Joi.array().items(Joi.object({
+                type: Joi.string().valid("number", "string", "boolean").required(),
+                key: Joi.string().required()
+            }).when(".type", {
+                switch: [{
+                    is: "number",
+                    then: Joi.object({
+                        value: Joi.number().default(null).allow(null),
+                        min: Joi.number().default(0),
+                        max: Joi.number().default(100)
+                    })
+                }, {
+                    is: "string",
+                    then: Joi.object({
+                        value: Joi.string().default(null).allow(null)
+                    })
+                }, {
+                    is: "boolean",
+                    then: Joi.object({
+                        value: Joi.boolean().default(null).allow(null)
+                    })
+                }]
+            }))
         });
     }
 

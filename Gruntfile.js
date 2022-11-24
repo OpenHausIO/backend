@@ -44,7 +44,7 @@ module.exports = function (grunt) {
         run: {
             install: {
                 options: {
-                    cwd: "./dist"
+                    cwd: path.join(process.cwd(), "dist")
                 },
                 cmd: "npm",
                 args: [
@@ -64,6 +64,12 @@ module.exports = function (grunt) {
             },
             folder: {
                 exec: "mkdir ./dist/logs && mkdir ./dist/plugins"
+            },
+            "scripts-mock": {
+                exec: "mkdir ./dist/scripts && echo 'exit 0' > ./dist/scripts/post-install.sh && chmod +x ./dist/scripts/post-install.sh"
+            },
+            "scripts-cleanup": {
+                exec: "rm ./dist/scripts/post-install.sh && rmdir ./dist/scripts"
             }
         },
         compress: {
@@ -99,7 +105,9 @@ module.exports = function (grunt) {
     // install npm dependencies
     grunt.registerTask("install", [
         "env:prod",
+        "run:scripts-mock",
         "run:install",
+        "run:scripts-cleanup"
     ]);
 
     grunt.registerTask("bundle", [

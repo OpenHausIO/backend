@@ -11,7 +11,7 @@ try {
     let _id = String(new mongodb.ObjectId());
 
 
-    workflow(C_COMPONENT, "add", (done) => {
+    workflow(C_COMPONENT, "add", (done, { event }) => {
         C_COMPONENT.add({
             _id,
             name: "Device #1",
@@ -24,24 +24,41 @@ try {
                 }
             }]
         }, (err, item) => {
+            try {
 
-            assert.equal(err, null); // DOES NOT WORK!
-            assert.equal(item instanceof Device, true);
+                // check event arguments
+                event.args.forEach((args) => {
+                    assert.equal(args[0] instanceof Device, true);
+                });
 
-            done(err);
+                assert.ok(err === null);
+                assert.equal(item instanceof Device, true);
 
+                done(err);
+
+            } catch (err) {
+
+                done(err);
+
+            }
         });
     });
 
 
     workflow(C_COMPONENT, "get", (done) => {
         C_COMPONENT.get(_id, (err, item) => {
+            try {
 
-            assert.equal(err, null); // DOES NOT WORK!
-            assert.equal(item instanceof Device, true);
+                assert.ok(err === null);
+                assert.equal(item instanceof Device, true);
 
-            done(err);
+                done(err);
 
+            } catch (err) {
+
+                done(err);
+
+            }
         });
     });
 
@@ -58,25 +75,67 @@ try {
                 }
             }]
         }, (err, item) => {
+            try {
 
-            assert.equal(err, null); // DOES NOT WORK!
-            assert.equal(item instanceof Device, true);
-            assert.equal(item.interfaces[0].settings.host, "127.0.0.2");
+                assert.ok(err === null);
+                assert.equal(item instanceof Device, true);
+                assert.equal(item.interfaces[0].settings.host, "127.0.0.2");
 
-            done(err);
+                done(err);
 
+            } catch (err) {
+
+                done(err);
+
+            }
         });
     });
 
 
-    workflow(C_COMPONENT, "remove", (done) => {
+    workflow(C_COMPONENT, "update", "Double update result / event arguments check", (done, { event }) => {
+        Promise.all([
+
+            // update call 1
+            C_COMPONENT.update(_id, {
+                name: "Device #2",
+            }),
+
+            // update call 2
+            C_COMPONENT.update(_id, {
+                enabled: true
+            })
+
+        ]).then(() => {
+
+            event.args.forEach((args) => {
+                assert.equal(args[0] instanceof Device, true);
+            });
+
+            done();
+
+        }).catch(done);
+    });
+
+
+    workflow(C_COMPONENT, "remove", (done, { post }) => {
         C_COMPONENT.remove(_id, (err, item) => {
+            try {
 
-            assert.equal(err, null); // DOES NOT WORK!
-            assert.equal(item instanceof Device, true);
+                // check post arguments item instance
+                post.args.forEach((args) => {
+                    assert.equal(args[0] instanceof Device, true);
+                });
 
-            done(err);
+                assert.ok(err === null);
+                assert.equal(item instanceof Device, true);
 
+                done(err);
+
+            } catch (err) {
+
+                done(err);
+
+            }
         });
     });
 

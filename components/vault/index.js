@@ -8,6 +8,8 @@ const COMPONENT = require("../../system/component/class.component.js");
 const Vault = require("./class.vault.js");
 const Secret = require("./class.secret.js");
 
+const encrypt = require("./encrypt.js");
+
 /**
  * @description
  * Vault component to handle secrets, credentials & tokens.<br />
@@ -42,9 +44,53 @@ class C_VAULT extends COMPONENT {
             secrets: Joi.array().items(Secret.schema()).default([])
         }, module);
 
+        this.hooks.pre("add", (data, next) => {
+            try {
+
+                if (data?.secrets) {
+                    data.secrets = data.secrets.map((secret) => {
+
+                        if (secret.value) {
+                            secret.value = encrypt(secret.value);
+                        }
+
+                        return secret;
+
+                    });
+                }
+
+                next(null);
+
+            } catch (err) {
+                next(err);
+            }
+        });
+
         this.hooks.post("add", (data, next) => {
             next(null, new Vault(data, this));
         });
+
+        /*
+        // investigation of #208
+        this.hooks.post("update", (data, next) => {
+
+            console.log("update post:", data);
+
+            let valid = data.secrets.every((secret) => {
+                return secret instanceof Secret;
+            });
+
+            console.log("Secrets instances valid:", valid, data.secrets)
+
+            if (!valid) {
+                //_merge(item, new Vault(data, this));
+                //Object.assign(data, new Vault(data, this));
+            }
+
+            next(null);
+
+        });
+        */
 
     }
 

@@ -12,7 +12,7 @@ try {
     let _device = String(new mongodb.ObjectId());
 
 
-    workflow(C_COMPONENT, "add", (done) => {
+    workflow(C_COMPONENT, "add", (done, { event }) => {
         C_COMPONENT.add({
             _id,
             name: "Endpoint #1",
@@ -20,7 +20,12 @@ try {
         }, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                // check event arguments
+                event.args.forEach((args) => {
+                    assert.equal(args[0] instanceof Endpoint, true);
+                });
+
+                assert.ok(err === null);
                 assert.equal(item instanceof Endpoint, true);
 
                 done(err);
@@ -38,7 +43,7 @@ try {
         C_COMPONENT.get(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Endpoint, true);
 
                 done(err);
@@ -58,7 +63,7 @@ try {
         }, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                assert.ok(err === null);
                 assert.equal(item instanceof Endpoint, true);
                 assert.equal(item.name, "Endpoint #2 - updated");
 
@@ -73,11 +78,41 @@ try {
     });
 
 
-    workflow(C_COMPONENT, "remove", (done) => {
+    workflow(C_COMPONENT, "update", "Double update result / event arguments check", (done, { event }) => {
+        Promise.all([
+
+            // update call 1
+            C_COMPONENT.update(_id, {
+                name: "Endpoint #42",
+            }),
+
+            // update call 2
+            C_COMPONENT.update(_id, {
+                enabled: false
+            })
+
+        ]).then(() => {
+
+            event.args.forEach((args) => {
+                assert.equal(args[0] instanceof Endpoint, true);
+            });
+
+            done();
+
+        }).catch(done);
+    });
+
+
+    workflow(C_COMPONENT, "remove", (done, { post }) => {
         C_COMPONENT.remove(_id, (err, item) => {
             try {
 
-                assert.equal(err, null); // DOES NOT WORK!
+                // check post arguments item instance
+                post.args.forEach((args) => {
+                    assert.equal(args[0] instanceof Endpoint, true);
+                });
+
+                assert.ok(err === null);
                 assert.equal(item instanceof Endpoint, true);
 
                 done(err);
