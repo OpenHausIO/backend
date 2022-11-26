@@ -79,27 +79,30 @@ module.exports = class State {
             name: Joi.string().required(),
             description: Joi.string().allow(null).default(null),
             alias: Joi.string().required(),
-            value: Joi.when("type", {
-                is: "number",
-                then: Joi.number()
-            }).when("type", {
-                is: "string",
-                then: Joi.string()
-            }).when("type", {
-                is: "boolean",
-                then: Joi.boolean()
-            }).allow(null).default(null),
             type: Joi.string().valid("number", "string", "boolean").required(),
-            identifier: Joi.string().allow(null).default(null),
             timestamps: Joi.object({
                 created: Joi.number().allow(null),
                 updated: Joi.number().allow(null)
-            }).default(() => {
-                return {
-                    created: Date.now(),
-                    updated: null
-                };
             })
+        }).when(".type", {
+            switch: [{
+                is: "number",
+                then: Joi.object({
+                    value: Joi.number().default(null).allow(null),
+                    min: Joi.number().default(0),
+                    max: Joi.number().default(100)
+                })
+            }, {
+                is: "string",
+                then: Joi.object({
+                    value: Joi.string().default(null).allow(null)
+                })
+            }, {
+                is: "boolean",
+                then: Joi.object({
+                    value: Joi.boolean().default(null).allow(null)
+                })
+            }]
         });
     }
 
