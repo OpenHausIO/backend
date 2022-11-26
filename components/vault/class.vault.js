@@ -3,6 +3,8 @@ const { EventEmitter } = require("events");
 const mongodb = require("mongodb");
 const Joi = require("joi");
 
+const _debounce = require("../../helper/debounce.js");
+
 const Secret = require("./class.secret.js");
 
 /**
@@ -30,31 +32,33 @@ class Vault {
         let events = new EventEmitter();
         this.#privates.set("events", events);
 
+        let changed = _debounce(async (secret) => {
+            try {
+
+                // feedback
+                scope.logger.debug(`Secret "${secret.key}" changed`);
+
+                // update item in database
+                await scope.update(this._id, this);
+
+            } catch (err) {
+
+                scope.logger.warn(err, `Could not update secret value. (${obj._id}) ${secret.key}=${secret.value}`);
+
+            } finally {
+
+                // notify for changes
+                events.emit("changed", this);
+
+            }
+        }, Number(process.env.DATABASE_UPDATE_DEBOUNCE_TIMER));
+
         Object.assign(this, obj);
         this._id = String(obj._id);
 
-        this.secrets = obj.secrets.map((data) => {
-            return new Secret(data, async () => {
-                try {
-
-                    // feedback
-                    scope.logger.debug(`Secret "${data.name}" value changed`);
-
-                    // update item in database
-                    await scope.update(this._id, this);
-
-                    events.emit("changed", this);
-
-                } catch (err) {
-
-                    scope.logger.warn(err, `Could not update secret value. (${obj._id}) ${data.key}=${data.value}`);
-
-                } finally {
-
-                    // notify for changes
-                    events.emit("changed", data.key, data.value);
-
-                }
+        this.secrets = obj.secrets.map((secret) => {
+            return new Secret(secret, () => {
+                changed(secret);
             });
         });
 

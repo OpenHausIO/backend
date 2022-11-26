@@ -30,6 +30,7 @@ process.env = Object.assign({
     //DATABASE_TIMEOUT: "5", // #8
     DATABASE_URL: "",
     DATABASE_WATCH_CHANGES: "false",
+    DATABASE_UPDATE_DEBOUNCE_TIMER: "15",
     HTTP_PORT: "8080",
     HTTP_ADDRESS: "0.0.0.0",
     HTTP_SOCKET: "",
