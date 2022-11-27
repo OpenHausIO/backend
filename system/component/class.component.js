@@ -6,7 +6,7 @@ const _merge = require("../../helper/merge");
 
 const COMMON = require("./class.common.js");
 
-//const PENDING_CHANGE_EVENTS = new Set();
+const PENDING_CHANGE_EVENTS = new Set();
 
 /**
  * @description
@@ -130,6 +130,10 @@ module.exports = class COMPONENT extends COMMON {
                 });
 
                 changeStream.on("change", (event) => {
+
+                    // feedback
+                    this.logger.trace("Change event triggerd", event);
+
                     // replace is used when updated via mongodb compass
                     // updated is used when called via api/`.update` method
                     if (event.operationType === "replace") {
@@ -143,6 +147,19 @@ module.exports = class COMPONENT extends COMMON {
                         // skip if nothing found
                         if (!target) {
                             return;
+                        }
+
+                        // when a change was initialized local, ignore changes from mongodb
+                        if (PENDING_CHANGE_EVENTS.has(target._id)) {
+
+                            // feedback
+                            this.logger.trace("Local change detected, ignore event from change stream");
+
+                            // cleanup
+                            PENDING_CHANGE_EVENTS.delete(target._id);
+
+                            return;
+
                         }
 
                         // get original property descriptor
@@ -186,18 +203,17 @@ module.exports = class COMPONENT extends COMMON {
                         }
 
                         // when a change was initialized local, ignore changes from mongodb
-                        /*
                         if (PENDING_CHANGE_EVENTS.has(target._id)) {
 
                             // feedback
-                            this.logger.verbose("Local change detected, ignore event from change stream");
+                            this.logger.trace("Local change detected, ignore event from change stream");
 
                             // cleanup
                             PENDING_CHANGE_EVENTS.delete(target._id);
 
                             return;
+
                         }
-                        */
 
                         // event now contain dot notation partial update
                         // to make things simpler, just fetch the doc and merge it
@@ -226,6 +242,7 @@ module.exports = class COMPONENT extends COMMON {
                         this.logger.verbose(`$watch operation (${event.operationType}) not implemented!`);
 
                     }
+
                 });
 
             } catch (err) {
@@ -274,6 +291,9 @@ module.exports = class COMPONENT extends COMMON {
                     // override string with ObjectId, see #175
                     result.value._id = new mongodb.ObjectId(result.value._id);
 
+                    // add id to pending change events
+                    PENDING_CHANGE_EVENTS.add(result.value._id);
+
                     this.collection.insertOne(result.value, (err, result) => {
                         if (err) {
                             if (err.code === 11000 && options.returnDuplicate) {
@@ -296,8 +316,8 @@ module.exports = class COMPONENT extends COMMON {
                                     */
                                 });
 
-                                // add id to pending change events
-                                //PENDING_CHANGE_EVENTS.add(item._id);
+                                // remove id when error occurs
+                                PENDING_CHANGE_EVENTS.delete(result.value._id);
 
                                 if (item) {
                                     resolve([item]);
@@ -398,10 +418,16 @@ module.exports = class COMPONENT extends COMMON {
                         return obj._id === _id;
                     });
 
+                    // add id to pending change events
+                    PENDING_CHANGE_EVENTS.add(target._id);
+
                     this.collection.deleteOne({
                         _id: new mongodb.ObjectId(_id)
                     }, (err, result) => {
                         if (err) {
+
+                            // remove id when error occurs
+                            PENDING_CHANGE_EVENTS.delete(result.value._id);
 
                             reject(err);
 
@@ -409,9 +435,6 @@ module.exports = class COMPONENT extends COMMON {
 
                             //if (result.n === 1 && result.ok === 1 && target) {
                             if (result.acknowledged && result.deletedCount > 0) {
-
-                                // add id to pending change events
-                                //PENDING_CHANGE_EVENTS.add(target._id);
 
                                 resolve([target, result, _id]);
 
@@ -472,6 +495,9 @@ module.exports = class COMPONENT extends COMMON {
                     // _id is immutable. remove it
                     delete validation.value._id;
 
+                    // add id to pending change events
+                    PENDING_CHANGE_EVENTS.add(target._id);
+
                     this.collection.findOneAndUpdate({
                         // casting problem, see #175
                         _id: new mongodb.ObjectId(_id)
@@ -484,6 +510,9 @@ module.exports = class COMPONENT extends COMMON {
                         //upsert: true
                     }, (err) => {
                         if (err) {
+
+                            // remove id when error occurs
+                            PENDING_CHANGE_EVENTS.delete(target._id);
 
                             //console.log("4tpoiwrejtkwienrut", err)
                             reject(err);
@@ -501,9 +530,6 @@ module.exports = class COMPONENT extends COMMON {
                             // Wir arbeiten auf generischier eben hier!
                             // Umwandlung von object/string zu/von object/string
                             // muss in middlware erflogen!!!!!!!!!!!!!!
-
-                            // add id to pending change events
-                            //PENDING_CHANGE_EVENTS.add(target._id);
 
                             // TODO CHECK RESUTL!
                             // extend exisiting object in items array
