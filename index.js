@@ -85,6 +85,12 @@ if (process.env.NODE_ENV === "development") {
 }
 
 
+// implement #195
+if (process.env.NODE_ENV === "production") {
+    console.log = () => { };
+}
+
+
 // init feedback
 //process.stdout.write("\033c"); // use console.clear()?!
 // https://stackoverflow.com/a/41407246/5781499
