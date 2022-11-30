@@ -44,7 +44,7 @@ module.exports = (app, router) => {
                 component,
                 event,
                 args,
-                data: args[0]
+                //data: args[0]
             });
 
             wss.clients.forEach((client) => {
