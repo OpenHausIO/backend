@@ -144,7 +144,7 @@ module.exports = class COMMON extends BASE {
                         // execute worker code itself
                         return worker(...args).catch((err) => {
 
-                            this.logger.verbose(`${name}(); "Reject" in worker code called`, err);
+                            this.logger.verbose(err, `${name}(); "Reject" in worker code called`);
 
                             // if worker code reject call promisify
                             // with error as first argument
