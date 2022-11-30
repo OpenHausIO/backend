@@ -35,7 +35,7 @@ process.env = Object.assign({
     HTTP_ADDRESS: "0.0.0.0",
     HTTP_SOCKET: "",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
-    LOG_LEVEL: "verbose",
+    LOG_LEVEL: "info",
     LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
     LOG_SUPPRESS: "false",
     LOG_TARGET: "",
