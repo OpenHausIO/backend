@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 const Joi = require("joi");
 const mongodb = require("mongodb");
 const uuid = require("uuid");
@@ -48,11 +51,23 @@ class C_PLUGINS extends COMPONENT {
         }, module);
 
         this.hooks.post("add", (data, next) => {
-            next(null, new Plugin(data));
+            fs.mkdir(path.resolve(process.cwd(), "plugins", data.uuid), (err) => {
+                next(err || null, new Plugin(data));
+            });
         });
 
         this.collection.createIndex("uuid", {
             unique: true
+        });
+
+        this.hooks.post("remove", (item, result, _id, next) => {
+            fs.rm(path.resolve(process.cwd(), "plugins", item.uuid), {
+                recursive: true
+            }, (err) => {
+
+                next(err || null, item, result, _id);
+
+            });
         });
 
     }
