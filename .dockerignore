@@ -18,3 +18,4 @@ demo-database.gz
 .env
 .eslintrc.json
 postman.json
+plugins/*
