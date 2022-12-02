@@ -7,6 +7,11 @@ FROM node:16-alpine as builder
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
+# fix #233
+RUN mkdir scripts
+RUN echo "exit 0" > scripts/post-install.sh
+RUN chmod +x scripts/post-install.sh
+
 RUN apk --no-cache add python3 make g++
 
 COPY ./package*.json ./
