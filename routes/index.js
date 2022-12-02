@@ -122,6 +122,7 @@ module.exports = (server) => {
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
         require("./rest-handler.js")(C_PLUGINS, pluginsRouter);
+        require("./router.api.plugins.js")(app, pluginsRouter);
 
         // http://127.0.0.1/api/rooms
         api.use("/rooms", roomsRouter);

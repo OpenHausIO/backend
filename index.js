@@ -35,7 +35,7 @@ process.env = Object.assign({
     HTTP_ADDRESS: "0.0.0.0",
     HTTP_SOCKET: "",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
-    LOG_LEVEL: "verbose",
+    LOG_LEVEL: "info",
     LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
     LOG_SUPPRESS: "false",
     LOG_TARGET: "",
@@ -85,17 +85,16 @@ if (process.env.NODE_ENV === "development") {
 }
 
 
-// implement #195
-if (process.env.NODE_ENV === "production") {
-    console.log = () => { };
-}
-
-
 // init feedback
 //process.stdout.write("\033c"); // use console.clear()?!
 // https://stackoverflow.com/a/41407246/5781499
 console.log(`Starting OpenHaus ${(process.env.NODE_ENV !== "production" ? `in "\x1b[4m${process.env.NODE_ENV}\x1b[0m" mode ` : "")}v${pkg.version}...`);
 
+
+// implement #195
+if (process.env.NODE_ENV === "production") {
+    console.log = () => { };
+}
 
 
 require("./system/shared.js");
@@ -434,6 +433,20 @@ const starter = new Promise((resolve) => {
 
     });
 }, starter).then(() => {
+
+    // implement #245
+    // keep the app running but log important stuff!
+    if (process.env.NODE_ENV === "production") {
+
+        process.on("unhandledRejection", (err) => {
+            logger.error("Uncaught rejection catched!", err);
+        });
+
+        process.on("uncaughtException", (err) => {
+            logger.error("Uncaught execption catched!", err);
+        });
+
+    }
 
     logger.debug("Starting plugins...");
 

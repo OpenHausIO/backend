@@ -108,7 +108,7 @@ module.exports = class COMMON extends BASE {
                 };
 
 
-                return promisify((done) => {
+                return promisify(async (done) => {
 
                     let final = () => {
                         return Promise.resolve();
@@ -117,6 +117,59 @@ module.exports = class COMMON extends BASE {
                     let worker = executor((cb) => {
                         final = cb;
                     });
+
+                    try {
+
+                        // trigger pre hooks & catch rejection
+                        args = await preHooks(args.slice(0, end)).catch((err) => {
+
+                            // feedback
+                            this.logger.verbose(`${name}(); Pre hooks rejected`, err);
+
+                            throw err;
+
+                        });
+
+                        // trigger worker function & catch rejection
+                        args = await worker(...args).catch((err) => {
+
+                            this.logger.verbose(err, `${name}(); worker code rejected`, err);
+
+                            // re throw
+                            throw err;
+
+                        });
+
+                        // trigger post hooks & catch rejection
+                        args = await postHooks(args).catch((err) => {
+
+                            // feedback
+                            this.logger.verbose(`${name}(); Post hooks rejected`, err);
+
+                            throw err;
+
+                        });
+
+                        // finalize function
+                        await final(...args).catch((err) => {
+
+                            // feedback
+                            this.logger.verbose(`${name}(); Something happend on "final"`, err);
+
+                            throw err;
+
+                        });
+
+                        // "resolve" promisify 
+                        done(null, ...args);
+
+                        // emit event
+                        this.events.emit(name, ...args);
+
+                    } catch (err) {
+                        done(err);
+                    }
+
 
                     // defineMethod stack:
                     // 1) trigger pre hooks with args from function call
@@ -133,6 +186,7 @@ module.exports = class COMMON extends BASE {
 
                     // NOTE: Call on every error, "done" with error argument?! Should be...
 
+                    /*
                     Promise.resolve().then(() => {
 
                         // execute pre hooks middleware
@@ -140,21 +194,33 @@ module.exports = class COMMON extends BASE {
                         return preHooks(args.slice(0, end));
 
                     }).then((args) => {
+                        try {
 
-                        // execute worker code itself
-                        return worker(...args).catch((err) => {
+                            // NOTE:
+                            // Switch this mess to async/await?!
+                            // should be a lot easyier to handler #239
+                            // this then/catch callbacks are a mess!
 
-                            this.logger.verbose(err, `${name}(); "Reject" in worker code called`);
+                            // execute worker code itself
+                            return worker(...args).catch((err) => {
 
-                            // if worker code reject call promisify
-                            // with error as first argument
-                            done(err);
+                                this.logger.verbose(`${name}(); "Reject" in worker code called:`, err);
 
-                            // reject/abort post hooks
-                            return Promise.reject();
+                                // if worker code reject call promisify
+                                // with error as first argument
+                                done(err);
 
-                        });
+                                // reject/abort post hooks
+                                return Promise.reject();
 
+                            });
+
+
+                        } catch (err) {
+
+                            this.logger.error(err);
+
+                        }
                     }).then((args) => {
 
                         // execute post hooks middleware
@@ -194,6 +260,7 @@ module.exports = class COMMON extends BASE {
                         done(err);
 
                     });
+                    */
 
                 }, cb);
 
