@@ -65,7 +65,7 @@ process.env = Object.assign({
 process.env = Object.freeze({ ...process.env });
 
 
-if (!process.env.UUID || !uuid.validate(process.env.UUID)) {
+if (!process.env.UUID || !uuid.validate(process.env.UUID) || process.env.UUID === "00000000-0000-0000-0000-000000000000") {
     throw new Error(`You need to set a valid "UUID" (v4) environment variable!`);
 }
 
