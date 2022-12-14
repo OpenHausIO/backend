@@ -84,6 +84,7 @@ function iterate(data, cb) {
 
             // single property reached
             // call callback with property type
+            // (key, value, type, parent) => {};
             data[key] = cb(key, data[key], typeof data[key], data);
 
         }
