@@ -44,7 +44,13 @@ module.exports = class State {
             },
             set: (value) => {
 
-                if ((typeof value) !== this.type) {
+                // check for value type, but allow null value
+                if (((typeof value) !== this.type) && (value !== null)) {
+                    return;
+                }
+
+                // fix #251
+                if (this.type === "number" && !(value >= this.min && value <= this.max)) {
                     return;
                 }
 
