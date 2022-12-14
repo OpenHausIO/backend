@@ -166,11 +166,15 @@ module.exports = (server) => {
         require("./rest-handler.js")(C_USERS, usersRouter);
         //require("./router.api.users.js")(app, vaultRouter);
 
+        // NOTE: Drop this?!
         api.use((req, res) => {
+            res.status(404).end();
+            /*
             res.status(404).json({
                 error: "Hmm... :/ This looks not right.",
                 message: `Url/endpoint "${req.url}" not found"`
             });
+            */
         });
 
 
