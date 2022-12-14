@@ -1,6 +1,7 @@
 const Command = require("./class.command.js");
+const State = require("./class.state.js");
 //const Commands = require("./class.commands.js");
-const States = require("./class.states.js");
+//const States = require("./!class.states.js");
 
 /**
  * @description
@@ -31,7 +32,12 @@ module.exports = class Endpoint {
         this._id = String(obj._id);
 
         //this.commands = new Commands(obj.commands);
-        this.states = new States(obj.states);
+        //this.states = new States(obj.states);
+
+        this.states = obj.states.map((item) => {
+            return new State(item);
+        });
+
         this.commands = obj.commands.map((item) => {
             return new Command(item);
         });
