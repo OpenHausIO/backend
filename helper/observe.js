@@ -9,6 +9,9 @@
  * @param {Function} setter 
  * @param {Function} getter 
  * 
+ * @deprecated
+ * Use "reactive" instead.
+ * 
  * @returns {Proxy} Observed object
  */
 function observe(target, options, getter, setter) {
