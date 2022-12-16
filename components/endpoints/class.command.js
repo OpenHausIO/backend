@@ -222,7 +222,7 @@ module.exports = class Command {
             alias: Joi.string().required(),                                             // Alias that you can rely in your plugins, machine to machine/hardcoded stuff
             identifier: Joi.string().allow(null).default(null),   // NOTE: move to endpoint schema?               // Thing api provides you, like light id or some custom thing for you
             //payload: Joi.string().allow(null).default(null),
-            payload: Joi.alternatives().try(Joi.binary(), Joi.string()).allow(null).default(null),
+            payload: Joi.alternatives().try(Joi.string(), Joi.binary()).allow(null).default(null),
             description: Joi.string().allow(null).default(null),
             params: Joi.array().items(Joi.object({
                 type: Joi.string().valid("number", "string", "boolean").required(),
