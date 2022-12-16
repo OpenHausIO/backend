@@ -1,3 +1,5 @@
+const { Binary } = require("mongodb");
+
 const _iterate = require("../helper/iterate.js");
 
 module.exports = (C_COMPONENT, router) => {
@@ -16,11 +18,23 @@ module.exports = (C_COMPONENT, router) => {
         res.json = function (obj) {
 
             _iterate(obj, (key, value) => {
+
+                // remove password key if present
+                // this must be first
                 if (key === "password") {
                     return null;
-                } else {
-                    return value;
                 }
+
+                // return underlaying buffer instance 
+                // instead of mongodb Binary wrapper
+                // NOTE: This is ape shit, because its only for http calls, and not for componetn instance
+                // FIXME: Apply this converting on component/items scope. If done, remove this.
+                if (key === "payload" && value instanceof Binary) {
+                    return value.read(0);
+                }
+
+                return value;
+
             });
 
             json.call(this, obj);
@@ -29,6 +43,34 @@ module.exports = (C_COMPONENT, router) => {
 
         next();
 
+    });
+
+    router.use((req, res, next) => {
+        if (req.body) {
+
+            req.body = _iterate(req.body, (key, value, type) => {
+                if (type === "object") {
+
+                    if (value?.type === "Buffer" && value?.data) {
+                        return Buffer.from(value.data);
+                    }
+
+                    return value;
+
+                } else {
+
+                    return value;
+
+                }
+            });
+
+            next();
+
+        } else {
+
+            next();
+
+        }
     });
 
     router.param("_id", (req, res, next, _id) => {
