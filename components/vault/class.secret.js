@@ -25,11 +25,18 @@ const decrypt = require("./decrypt.js");
  */
 class Secret {
 
+    #privates = new Map();
+
     constructor(obj, changed = () => { }) {
 
         Object.assign(this, obj);
         this._id = String(obj._id);
 
+        // store changed callback
+        this.#privates.set("changed", changed);
+
+        /*
+        // NOTE: This is stupid, Register custom setter and call intern this.decrypt?
         Object.defineProperty(this, "value", {
             set(value) {
 
@@ -55,6 +62,7 @@ class Secret {
             // NOTE: Make value field not enumarble?
             configurable: false
         });
+        */
 
     }
 
@@ -89,6 +97,7 @@ class Secret {
      */
     encrypt(text) {
         this.value = encrypt(text);
+        process.nextTick(this.#privates.get("changed"));
     }
 
 
