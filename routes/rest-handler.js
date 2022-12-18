@@ -16,11 +16,15 @@ module.exports = (C_COMPONENT, router) => {
         res.json = function (obj) {
 
             _iterate(obj, (key, value) => {
+
+                // remove password key if present
+                // this must be first
                 if (key === "password") {
                     return null;
-                } else {
-                    return value;
                 }
+
+                return value;
+
             });
 
             json.call(this, obj);
@@ -29,6 +33,34 @@ module.exports = (C_COMPONENT, router) => {
 
         next();
 
+    });
+
+    router.use((req, res, next) => {
+        if (req.body) {
+
+            req.body = _iterate(req.body, (key, value, type) => {
+                if (type === "object") {
+
+                    if (value?.type === "Buffer" && value?.data) {
+                        return Buffer.from(value.data);
+                    }
+
+                    return value;
+
+                } else {
+
+                    return value;
+
+                }
+            });
+
+            next();
+
+        } else {
+
+            next();
+
+        }
     });
 
     router.param("_id", (req, res, next, _id) => {

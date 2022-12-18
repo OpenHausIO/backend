@@ -18,7 +18,7 @@ const { interfaces } = require("../../system/shared.js");
  * @property {String} name Human friendly name
  * @property {String} alias Machine friendly name, e.g.: `POWER_ON`
  * @property {String} [identifier=null] Simple/custom identifiert for custom command handler
- * @property {String} payload The payload to send over the device interface
+ * @property {String|Buffer} payload The payload to send over the device interface
  * @property {String} [description=null] Command description, displayed on the frontend
  * @property {Array} params Possible parameter for the command
  * @property {String} params[].key Custom key
@@ -76,6 +76,13 @@ module.exports = class Command {
 
         Object.assign(this, obj);
         this._id = String(obj._id);
+
+        // "convert" mongodb Binary to Buffer
+        // see #249 & #200
+        // move from rest-handler here
+        if (obj.payload instanceof mongodb.Binary) {
+            this.payload = obj.payload.read(0);
+        }
 
         // command duration timeout
         this.#privates.set("timeout", Number(process.env.COMMAND_RESPONSE_TIMEOUT));
@@ -221,7 +228,8 @@ module.exports = class Command {
             name: Joi.string().required(),                                              // Command name, something easy to identify
             alias: Joi.string().required(),                                             // Alias that you can rely in your plugins, machine to machine/hardcoded stuff
             identifier: Joi.string().allow(null).default(null),   // NOTE: move to endpoint schema?               // Thing api provides you, like light id or some custom thing for you
-            payload: Joi.string().allow(null).default(null),
+            //payload: Joi.string().allow(null).default(null),
+            payload: Joi.alternatives().try(Joi.string(), Joi.binary()).allow(null).default(null),
             description: Joi.string().allow(null).default(null),
             params: Joi.array().items(Joi.object({
                 type: Joi.string().valid("number", "string", "boolean").required(),

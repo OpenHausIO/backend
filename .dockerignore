@@ -19,3 +19,7 @@ demo-database.gz
 .eslintrc.json
 postman.json
 plugins/*
+*.gz
+*.tgz
+scripts/*
+dist

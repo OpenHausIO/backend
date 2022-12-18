@@ -160,17 +160,22 @@ module.exports = (server) => {
         // http://127.0.0.1/api/store
         api.use("/store", storeRouter);
         require("./rest-handler.js")(C_STORE, storeRouter);
+        require("./router.api.store.js")(app, storeRouter);
 
         // http://127.0.0.1/api/users
         api.use("/users", usersRouter);
         require("./rest-handler.js")(C_USERS, usersRouter);
         //require("./router.api.users.js")(app, vaultRouter);
 
+        // NOTE: Drop this?!
         api.use((req, res) => {
+            res.status(404).end();
+            /*
             res.status(404).json({
                 error: "Hmm... :/ This looks not right.",
                 message: `Url/endpoint "${req.url}" not found"`
             });
+            */
         });
 
 
