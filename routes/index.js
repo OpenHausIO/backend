@@ -160,6 +160,7 @@ module.exports = (server) => {
         // http://127.0.0.1/api/store
         api.use("/store", storeRouter);
         require("./rest-handler.js")(C_STORE, storeRouter);
+        require("./router.api.store.js")(app, storeRouter);
 
         // http://127.0.0.1/api/users
         api.use("/users", usersRouter);
