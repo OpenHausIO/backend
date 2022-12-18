@@ -77,6 +77,13 @@ module.exports = class Command {
         Object.assign(this, obj);
         this._id = String(obj._id);
 
+        // "convert" mongodb Binary to Buffer
+        // see #249 & #200
+        // move from rest-handler here
+        if (obj.payload instanceof mongodb.Binary) {
+            this.payload = obj.payload.read(0);
+        }
+
         // command duration timeout
         this.#privates.set("timeout", Number(process.env.COMMAND_RESPONSE_TIMEOUT));
 
