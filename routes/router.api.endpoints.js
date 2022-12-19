@@ -11,7 +11,7 @@ module.exports = (app, router) => {
     router.param("_cid", (req, res, next) => {
 
         req.cmd = req.item.commands.find((cmd) => {
-            return cmd._id === req.params._iid;
+            return cmd._id === req.params._cid;
         });
 
         next();
@@ -32,7 +32,7 @@ module.exports = (app, router) => {
         if (req.cmd) {
             res.json(req.cmd);
         } else {
-            res.status(404);
+            res.status(404).end();
         }
     });
 
@@ -48,7 +48,7 @@ module.exports = (app, router) => {
             });
 
         } else {
-            res.status(404);
+            res.status(404).end();
         }
     });
 
@@ -56,7 +56,7 @@ module.exports = (app, router) => {
         if (req.state) {
             res.json(req.state);
         } else {
-            res.status(404);
+            res.status(404).end();
         }
     });
 
@@ -80,7 +80,7 @@ module.exports = (app, router) => {
 
             }
         } else {
-            res.status(404);
+            res.status(404).end();
         }
     });
 
