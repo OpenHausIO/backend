@@ -38,7 +38,7 @@ module.exports = (app, router) => {
 
 
     function reemit(event, component) {
-        return (args) => {
+        return (...args) => {
 
             let obj = JSON.stringify({
                 component,
