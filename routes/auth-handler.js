@@ -41,7 +41,13 @@ module.exports = (C_USERS, router) => {
     router.use((req, res, next) => {
         if (process.env.API_AUTH_ENABLED === "true" && !req.authenticated) {
 
-            if (!req.headers["x-auth-token"]) {
+            // override header header token with query token
+            // see #266, if we do this not, it breaks the frontend api events
+            if (!req.headers["x-auth-token"] && req.query["x-auth-token"]) {
+                req.headers["x-auth-token"] = req.query["x-auth-token"];
+            }
+
+            if (!req.headers["x-auth-token"] && !req.query["x-auth-token"]) {
                 res.status(401).end();
                 return;
             }
