@@ -9,8 +9,31 @@ module.exports = (app, router) => {
 
         if (process.env.API_AUTH_ENABLED === "true") {
 
-            // tell the client it needs to authenticate
-            res.status(401).end();
+            // override header header token with query token
+            // see #266, if we do this not, it breaks the frontend api events
+            if (!req.headers["x-auth-token"] && req.query["x-auth-token"]) {
+                req.headers["x-auth-token"] = req.query["x-auth-token"];
+            }
+
+            if (!req.headers["x-auth-token"] && !req.query["x-auth-token"]) {
+                res.status(401).end();
+                return;
+            }
+
+            jwt.verify(req.headers["x-auth-token"], process.env.USERS_JWT_SECRET, {
+                algorithms: [process.env.USERS_JWT_ALGORITHM]
+            }, (err) => {
+                if (err) {
+
+                    res.status(401).end();
+
+                } else {
+
+                    // TODO check uuid instance?!
+                    res.status(200).end();
+
+                }
+            });
 
         } else {
 
