@@ -108,7 +108,7 @@ module.exports = (C_USERS, router) => {
             return;
         }
 
-        console.log("User request:", req.user, req.authenticated, process.env.API_AUTH_ENABLED, req.socket.remoteAddress, req.method, req.url);
+        console.log("User request:", req.user, req.authenticated, process.env.API_AUTH_ENABLED, req.ip, req.socket.remoteAddress, req.method, req.url, req.headers);
 
         next();
 
