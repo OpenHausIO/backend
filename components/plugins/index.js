@@ -55,7 +55,7 @@ class C_PLUGINS extends COMPONENT {
 
                 // ignore when folder exists
                 // fix 263
-                if (err.code === "EEXIST") {
+                if (err?.code === "EEXIST") {
                     this.logger.warn("Plugin folder exists, continue anway.", err);
                     err = null;
                 }
