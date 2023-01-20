@@ -135,7 +135,7 @@ class C_USERS extends COMPONENT {
                 } else if (valid) {
 
                     this.update(user._id, {
-                        tokens: [],
+                        //tokens: [],
                         timestamps: {
                             login: Date.now()
                         }
