@@ -294,7 +294,7 @@ module.exports = class COMPONENT extends COMMON {
                     // add id to pending change events
                     PENDING_CHANGE_EVENTS.add(result.value._id);
 
-                    this.collection.insertOne(result.value, (err, result) => {
+                    this.collection.insertOne(result.value, (err, ops) => {
                         if (err) {
                             if (err.code === 11000 && options.returnDuplicate) {
 
@@ -332,9 +332,9 @@ module.exports = class COMPONENT extends COMMON {
                             }
                         } else {
 
-                            if (result.acknowledged) {
+                            if (ops.acknowledged) {
                                 this.collection.find({
-                                    _id: result.insertedId
+                                    _id: ops.insertedId
                                 }).toArray((err, [doc]) => {
                                     if (err) {
 
@@ -355,7 +355,7 @@ module.exports = class COMPONENT extends COMMON {
                             } else {
 
                                 reject("Could not fetch added doc");
-                                this.logger.warn("Could not fetch added doc", result);
+                                this.logger.warn("Could not fetch added doc", ops);
 
                             }
 
