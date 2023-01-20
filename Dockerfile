@@ -28,7 +28,7 @@ WORKDIR /opt/OpenHaus/backend
 COPY --from=builder node_modules node_modules
 RUN apk --no-cache add openssl
 
-COPY . ./
+COPY ./build/ ./
 #COPY ./package.json ./
 
 #ENV HTTP_PORT=8080

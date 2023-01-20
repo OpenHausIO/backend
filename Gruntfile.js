@@ -1,28 +1,31 @@
 const path = require("path");
 const pkg = require("./package.json");
 const cp = require("child_process");
+const crypto = require("crypto");
+const fs = require("fs");
+const os = require("os");
+
+const PATH_DIST = path.resolve(process.cwd(), "dist");
+const PATH_BUILD = path.resolve(process.cwd(), "build");
+
+process.env = Object.assign({
+    NODE_ENV: "production"
+}, process.env);
 
 module.exports = function (grunt) {
 
     // Project configuration.
     grunt.initConfig({
         pkg,
-        env: {
-            options: {
-                //Shared Options Hash
-            },
-            prod: {
-                NODE_ENV: "production",
-            }
-        },
         uglify: {
-            /*
             // NOTE: if true, this truncate variables&class names
             // Are original names neede for production?!
             // i dont thinks so, its only usefull in development
             options: {
-                mangle: false
-            },*/
+                mangle: {
+                    toplevel: true
+                }
+            },
             build: {
                 files: [{
                     expand: true,
@@ -37,102 +40,27 @@ module.exports = function (grunt) {
                         "!scripts/**",
                         "!tests/**"
                     ],
-                    dest: path.join(process.cwd(), "dist"),
+                    dest: PATH_BUILD,
                     //cwd: process.cwd()
-                }]
-            }
-        },
-        run: {
-            install: {
-                options: {
-                    cwd: path.join(process.cwd(), "dist")
-                },
-                cmd: "npm",
-                args: [
-                    "install",
-                    "--prod-only"
-                ]
-            },
-            clean: {
-                cmd: "rm",
-                args: [
-                    "-rf",
-                    "./dist"
-                ]
-            },
-            copy: {
-                exec: "cp ./package*.json ./dist"
-            },
-            folder: {
-                exec: "mkdir ./dist/logs && mkdir ./dist/plugins"
-            },
-            "scripts-mock": {
-                exec: "mkdir ./dist/scripts && echo 'exit 0' > ./dist/scripts/post-install.sh && chmod +x ./dist/scripts/post-install.sh"
-            },
-            "scripts-cleanup": {
-                exec: "rm ./dist/scripts/post-install.sh && rmdir ./dist/scripts"
-            }
-        },
-        compress: {
-            main: {
-                options: {
-                    archive: `backend-v${pkg.version}.tgz`
-                },
-                files: [{
-                    expand: true,
-                    src: "**/*",
-                    cwd: "dist/"
                 }]
             }
         }
     });
 
-    // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks("grunt-contrib-uglify");
-    grunt.loadNpmTasks("grunt-run");
-    grunt.loadNpmTasks("grunt-contrib-compress");
-    grunt.loadNpmTasks("grunt-env");
 
-    grunt.registerTask("clean", ["run:clean"]);
 
-    grunt.registerTask("build", [
-        "run:clean",
-        "env:prod",
-        "uglify",
-        "run:folder",
-        "run:copy",
-    ]);
-
-    // install npm dependencies
-    grunt.registerTask("install", [
-        "env:prod",
-        "run:scripts-mock",
-        "run:install",
-        "run:scripts-cleanup"
-    ]);
-
-    grunt.registerTask("bundle", [
-        "build",
-        "install",
-        "compress"
-    ]);
-
-    grunt.registerTask("build:docker", () => {
-        cp.execSync(`docker build . -t openhaus/${pkg.name}:latest --build-arg version=${pkg.version}`, {
-            env: process.env,
-            stdio: "inherit"
-        });
-    });
-
-    grunt.registerTask("release", () => {
+    grunt.registerTask("build", () => {
         [
-            "rm -rf ./dist/*",
-            "npm run build",
-            "npm run build:docker",
-            `docker save openhaus/frontend:latest | gzip > ./${pkg.name}-v${pkg.version}-docker.tgz`,
-            "grunt compress",
-            `cd dist && NODE_ENV=production npm install --prod-only --ignore-scripts`,
-            `cd dist && tar -czvf ../${pkg.name}-v${pkg.version}-bundle.tgz *`
+            `rm -rf ${path.join(PATH_BUILD, "/*")}`,
+            `rm -rf ${path.join(PATH_DIST, "/*")}`,
+            `mkdir ${path.join(PATH_BUILD, "logs")}`,
+            `mkdir ${path.join(PATH_BUILD, "plugins")}`,
+            `mkdir ${path.join(PATH_BUILD, "scripts")}`,
+            `echo "exit 0" > ${path.join(PATH_BUILD, "scripts/post-install.sh")}`,
+            `chmod +x ${path.join(PATH_BUILD, "scripts/post-install.sh")}`,
+            `cp ./package*.json ${PATH_BUILD}`,
+            "grunt uglify",
         ].forEach((cmd) => {
             cp.execSync(cmd, {
                 env: process.env,
@@ -141,9 +69,70 @@ module.exports = function (grunt) {
         });
     });
 
-    // Default task(s).
-    //grunt.registerTask("default", ["uglify"]);
-    //grunt.registerTask("install", ["install"]);
-    //grunt.registerTask("compress", ["compress"]);
+
+    grunt.registerTask("install", () => {
+        cp.execSync(`cd ${PATH_BUILD} && npm install --prod-only`, {
+            env: process.env,
+            stdio: "inherit"
+        });
+    });
+
+
+    grunt.registerTask("compress", () => {
+        cp.execSync(`cd ${PATH_BUILD} && tar -czvf ${path.join(PATH_DIST, `${pkg.name}-v${pkg.version}.tgz`)} *`, {
+            env: process.env,
+            stdio: "inherit"
+        });
+    });
+
+
+    grunt.registerTask("build:docker", () => {
+        cp.execSync(`docker build . -t openhaus/${pkg.name}:latest --build-arg version=${pkg.version}`, {
+            env: process.env,
+            stdio: "inherit"
+        });
+    });
+
+
+    grunt.registerTask("checksum", () => {
+
+        let m5f = path.join(PATH_DIST, "./checksums.md5");
+
+        fs.rmSync(m5f, { force: true });
+        let files = fs.readdirSync(PATH_DIST);
+        let fd = fs.openSync(m5f, "w");
+
+        files.forEach((name) => {
+
+            let file = path.join(PATH_DIST, name);
+            let content = fs.readFileSync(file);
+            let hasher = crypto.createHash("md5");
+            let hash = hasher.update(content).digest("hex");
+            fs.writeSync(fd, `${hash}\t${name}${os.EOL}`);
+
+        });
+
+        fs.closeSync(fd);
+
+    });
+
+
+    grunt.registerTask("release", () => {
+        [
+            "grunt build",
+            "grunt compress",
+            "grunt build:docker",
+            `docker save openhaus/${pkg.name}:latest | gzip > ${path.join(PATH_DIST, `${pkg.name}-v${pkg.version}-docker.tgz`)}`,
+            "grunt install",
+            `cd ${PATH_BUILD} && tar -czvf ${path.join(PATH_DIST, `${pkg.name}-v${pkg.version}-bundle.tgz`)} *`,
+            "grunt checksum"
+        ].forEach((cmd) => {
+            cp.execSync(cmd, {
+                env: process.env,
+                stdio: "inherit"
+            });
+        });
+    });
+
 
 };
