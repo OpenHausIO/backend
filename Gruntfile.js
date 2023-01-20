@@ -54,6 +54,7 @@ module.exports = function (grunt) {
         [
             `rm -rf ${path.join(PATH_BUILD, "/*")}`,
             `rm -rf ${path.join(PATH_DIST, "/*")}`,
+            `mkdir -p ${PATH_BUILD}`,
             `mkdir ${path.join(PATH_BUILD, "logs")}`,
             `mkdir ${path.join(PATH_BUILD, "plugins")}`,
             `mkdir ${path.join(PATH_BUILD, "scripts")}`,
@@ -119,6 +120,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask("release", () => {
         [
+            `mkdir -p ${PATH_DIST}`,
             "grunt build",
             "grunt compress",
             "grunt build:docker",
