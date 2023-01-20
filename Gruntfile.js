@@ -130,7 +130,9 @@ module.exports = function (grunt) {
             "npm run build",
             "npm run build:docker",
             `docker save openhaus/frontend:latest | gzip > ./${pkg.name}-v${pkg.version}-docker.tgz`,
-            "grunt compress"
+            "grunt compress",
+            `cd dist && NODE_ENV=production npm install --prod-only --ignore-scripts`,
+            `cd dist && tar -czvf ../${pkg.name}-v${pkg.version}-bundle.tgz *`
         ].forEach((cmd) => {
             cp.execSync(cmd, {
                 env: process.env,
