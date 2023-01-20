@@ -1,5 +1,6 @@
 const path = require("path");
 const pkg = require("./package.json");
+const cp = require("child_process");
 
 module.exports = function (grunt) {
 
@@ -116,7 +117,29 @@ module.exports = function (grunt) {
         "compress"
     ]);
 
+    grunt.registerTask("build:docker", () => {
+        cp.execSync(`docker build . -t openhaus/${pkg.name}:latest --build-arg version=${pkg.version}`, {
+            env: process.env,
+            stdio: "inherit"
+        });
+    });
 
+    grunt.registerTask("release", () => {
+        [
+            "rm -rf ./dist/*",
+            "npm run build",
+            "npm run build:docker",
+            `docker save openhaus/frontend:latest | gzip > ./${pkg.name}-v${pkg.version}-docker.tgz`,
+            "grunt compress",
+            `cd dist && NODE_ENV=production npm install --prod-only --ignore-scripts`,
+            `cd dist && tar -czvf ../${pkg.name}-v${pkg.version}-bundle.tgz *`
+        ].forEach((cmd) => {
+            cp.execSync(cmd, {
+                env: process.env,
+                stdio: "inherit"
+            });
+        });
+    });
 
     // Default task(s).
     //grunt.registerTask("default", ["uglify"]);

@@ -92,23 +92,43 @@ class Secret {
      * @function encrypt
      * Sets & encrypt the value for this secret
      * 
+     * @throws {RangeError} When input is not given
+     * 
      * @param {String} text Input value to be encrypted
      * @returns {String} Ecnrypted string
      */
     encrypt(text) {
+
+        if (!text) {
+            let err = new RangeError(`Value need to be set before encrypting, got: ${text}!`);
+            err.field = this.key;
+            throw err;
+        }
+
         this.value = encrypt(text);
         process.nextTick(this.#privates.get("changed"));
+
     }
 
 
     /**
      * @function decrypt
      * Returns & decrypt the setted value
+     * 
+     * @throws {RangeError} When setted value is not given, e.g.: `null`
      *  
      * @returns {String} Decrypted string
      */
     decrypt() {
+
+        if (!this.value) {
+            let err = new RangeError(`Value need to be set before decrypting, got: ${this.value}!`);
+            err.field = this.key;
+            throw err;
+        }
+
         return decrypt(this.value);
+
     }
 
 }

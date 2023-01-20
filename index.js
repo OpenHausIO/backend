@@ -42,7 +42,7 @@ process.env = Object.assign({
     NODE_ENV: "production",
     STARTUP_DELAY: "0",
     COMMAND_RESPONSE_TIMEOUT: "2000",
-    API_SANITIZE_INPUT: "true",
+    API_SANITIZE_INPUT: "false", // breaks items payload, see #273
     API_LIMIT_SIZE: "25", // rename to "..._SIZE_LIMIT"?!
     API_AUTH_ENABLED: "false",
     API_WEBSOCKET_TIMEOUT: "5000",

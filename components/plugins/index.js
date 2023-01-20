@@ -52,7 +52,16 @@ class C_PLUGINS extends COMPONENT {
 
         this.hooks.post("add", (data, next) => {
             fs.mkdir(path.resolve(process.cwd(), "plugins", data.uuid), (err) => {
+
+                // ignore when folder exists
+                // fix 263
+                if (err?.code === "EEXIST") {
+                    this.logger.warn("Plugin folder exists, continue anway.", err);
+                    err = null;
+                }
+
                 next(err || null, new Plugin(data));
+
             });
         });
 

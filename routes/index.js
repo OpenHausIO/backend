@@ -11,8 +11,9 @@ const C_SSDP = require("../components/ssdp");
 const C_STORE = require("../components/store");
 const C_USERS = require("../components/users");
 
-const { encode } = require("../helper/sanitize");
-const iterate = require("../helper/iterate");
+// Remove due to issue #273
+//const { encode } = require("../helper/sanitize");
+//const iterate = require("../helper/iterate");
 
 // copied from https://github.com/vkarpov15/mongo-sanitize
 function sanitize(v) {
@@ -79,12 +80,22 @@ module.exports = (server) => {
             }
             */
 
+            // strip out any keys that start with "$"
+            req.body = sanitize(req.body);
+
             // sanitze api input fields?
+            /*
+            // removed, breaks endpoints command payload
+            // see #273
             if (!(process.env.API_SANITIZE_INPUT === "true" && req.body)) {
                 return next();
             }
+            */
 
             // patch/override sanitized object
+            /*
+            // removed, breaks endpoints command payload
+            // see #273
             req.body = iterate(req.body, (key, value, type) => {
                 // ignore device key in settings
                 // see #127, currently i have no petter idea
@@ -95,9 +106,7 @@ module.exports = (server) => {
                     return value;
                 }
             });
-
-            // strip out any keys that start with "$"
-            req.body = sanitize(req.body);
+            */
 
             next();
 
