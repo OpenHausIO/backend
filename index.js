@@ -473,9 +473,9 @@ const starter = new Promise((resolve) => {
     });
 
     if (bootable.length > started) {
-        logger.debug(`${started}/${bootable.length} Plugins started (Someones are ignored! Check the logfiles.)`);
+        logger.warn(`${started}/${bootable.length} Plugins started (Check the previously logs)`);
     } else {
-        logger.debug(`${started}/${bootable.length} Plugins started`);
+        logger.info(`${started}/${bootable.length} Plugins started`);
     }
 
     logger.info("Startup complete");
