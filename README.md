@@ -18,18 +18,24 @@ The [docs](docs) folder is soon be removed.
 For the HTTP API we provide a [postman collection](postman.json).
 
 
+## Demo
+There exsits a public demo: http://demo.open-haus.io<br />
+It is deployed with docker and runs the frontend & backend container.<br />
+The instance is rested to its default values every 10 Minutes.<br />
+No authentication required, full API support.
+
+
+## HTTP API
+We provide a [postmann collection](./postman.json) that you can import.<br />
+It containes documentation about every URL endpoint and its meaning.<br />
+Get postman on https://www.postman.com/ its great tool for HTTP testing & documentation.
+
 ## Contribution
 If you have questions, want to contribute or just wanna have a talk, open a new issue.
 
 Fork this repository, apply the changes you want to make, and create a pull request.
 
 __*Note*__: If you want to contribute, please take a look on the "documentation" repository, section "[How to document the source code](https://github.com/OpenHausIO/documentation#how-to-document-the-source-code)".
-
-## Demo
-There exsits a public demo: http://demo.open-haus.io<br />
-It is deployed with docker and runs the frontend & backend container.<br />
-The instance is rested to its default values every 10 Minutes.<br />
-No authentication required, full API support.
 
 
 ## License
