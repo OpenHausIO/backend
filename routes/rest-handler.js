@@ -15,7 +15,12 @@ module.exports = (C_COMPONENT, router) => {
         // no password should ever be sent to the client
         res.json = function (obj) {
 
-            _iterate(obj, (key, value) => {
+            // use this when node >= 17
+            //obj = structuredClone(obj);
+            // fix #279
+            obj = JSON.parse(JSON.stringify(obj));
+
+            obj = _iterate(obj, (key, value) => {
 
                 // remove password key if present
                 // this must be first

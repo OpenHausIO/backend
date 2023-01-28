@@ -125,3 +125,6 @@ tmp
 
 demo-database*
 .vscode/archive-browser
+
+build
+dist

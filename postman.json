@@ -238,7 +238,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"New room name ;)\"\n}",
+									"raw": "{\n    \"name\": \"Garage\",\n    \"icon\": \"fa-solid fa-warehouse\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -246,7 +246,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/{{_id}}",
+									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/63bf017582fa29f44cf8dfd6",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -255,7 +255,7 @@
 									"path": [
 										"api",
 										"rooms",
-										"{{_id}}"
+										"63bf017582fa29f44cf8dfd6"
 									]
 								}
 							},
@@ -291,7 +291,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/{{_id}}",
+									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/63bf017582fa29f44cf8dfd6",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -300,7 +300,294 @@
 									"path": [
 										"api",
 										"rooms",
-										"{{_id}}"
+										"63bf017582fa29f44cf8dfd6"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "SSDP",
+					"item": [
+						{
+							"name": "Create new ssdp item",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check room name: input = output\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"    let req = JSON.parse(pm.request.body);",
+											"",
+											"    pm.expect(res.name).to.eql(req.name);",
+											"",
+											"});",
+											"",
+											"pm.test(\"Check properties\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"",
+											"    let props = [",
+											"        \"name\", \"timestamps\", \"_id\",",
+											"        \"number\", \"floor\", \"icon\"",
+											"    ];",
+											"",
+											"    Object.keys(res).forEach((key) => {",
+											"        pm.expect(props.includes(key)).to.be.true;",
+											"    });",
+											"",
+											"    props.forEach((item) => {",
+											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
+											"    });",
+											"",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n        \"nt\": \"urn:schemas-upnp-org:device:sensor:1\",\n        \"description\": null,\n        \"usn\": null\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/ssdp",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"ssdp"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all ssdp items",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The response has all properties\", () => {",
+											"    let json = pm.response.json();",
+											"    pm.expect(json).to.have.lengthOf(json.length);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"",
+											"console.log(\"Fooo\")"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhbnMuaHViZXJ0QGV4YW1wbGUuY29tIiwidXVpZCI6ImM3N2E3NjJkLWM4ODYtNGQ2My1iNGM1LWU0MDJhZGNmYTdiZSIsImlhdCI6MTY1NDI2ODI4NX0.w4mkvTuJ-OXzTcmvWhwIT84oOmo2399hSEfWGbA-9SUWndMWUiHvly1A7-kSV93e",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/ssdp",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"ssdp"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get sinlge ssdp item",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/ssdp/63cbcdb1f2c46434242de489",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"ssdp",
+										"63cbcdb1f2c46434242de489"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update existing ssdp item",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"description\": \"Search for sensor via SSDP\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/ssdp/63cbcdb1f2c46434242de489",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"ssdp",
+										"63cbcdb1f2c46434242de489"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete exisiting ssdp item",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
+											"",
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/ssdp/63cbcdb1f2c46434242de489",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"ssdp",
+										"63cbcdb1f2c46434242de489"
 									]
 								}
 							},
@@ -896,7 +1183,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"enabled\": false,\n    \"name\": \"SaMsUnG FrIdGe\"\n}",
+									"raw": "{\n    \"enabled\": true,\n    \"name\": \"SaMsUnG FrIdGe\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -904,7 +1191,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/devices/611038f1f897a74ae9ca89c9",
+									"raw": "http://{{HOST}}:{{PORT}}/api/devices/63bf020e82fa29f44cf8dfd8",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -913,7 +1200,7 @@
 									"path": [
 										"api",
 										"devices",
-										"611038f1f897a74ae9ca89c9"
+										"63bf020e82fa29f44cf8dfd8"
 									]
 								}
 							},

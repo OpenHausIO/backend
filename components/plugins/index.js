@@ -74,6 +74,12 @@ class C_PLUGINS extends COMPONENT {
                 recursive: true
             }, (err) => {
 
+                // ignore when folder not exists
+                if (err?.code === "ENOENT") {
+                    this.logger.warn("Plugin folder does not exists, continue anway.", err);
+                    err = null;
+                }
+
                 next(err || null, item, result, _id);
 
             });

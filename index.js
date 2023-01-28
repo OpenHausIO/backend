@@ -33,7 +33,7 @@ process.env = Object.assign({
     DATABASE_UPDATE_DEBOUNCE_TIMER: "15",
     HTTP_PORT: "8080",
     HTTP_ADDRESS: "0.0.0.0",
-    HTTP_SOCKET: "",
+    HTTP_SOCKET: "/tmp/open-haus.sock",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
     LOG_LEVEL: "info",
     LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
@@ -473,9 +473,9 @@ const starter = new Promise((resolve) => {
     });
 
     if (bootable.length > started) {
-        logger.debug(`${started}/${bootable.length} Plugins started (Someones are ignored! Check the logfiles.)`);
+        logger.warn(`${started}/${bootable.length} Plugins started (Check the previously logs)`);
     } else {
-        logger.debug(`${started}/${bootable.length} Plugins started`);
+        logger.info(`${started}/${bootable.length} Plugins started`);
     }
 
     logger.info("Startup complete");
