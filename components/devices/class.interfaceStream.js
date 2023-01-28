@@ -1,7 +1,7 @@
 const path = require("path");
-const { Duplex } = require("stream");
+const { Duplex, finished } = require("stream");
 
-
+const { interfaceStreams } = require("../../system/shared.js");
 
 const timeout = require("../../helper/timeout");
 const Adapter = require("./class.adapter.js");
@@ -10,7 +10,18 @@ const kSource = Symbol("source");
 // https://www.programmersought.com/article/42661306247/
 // https://www.freecodecamp.org/news/node-js-streams-everything-you-need-to-know-c9141306be93/
 // https://livebook.manning.com/book/node-js-in-practice/chapter-5/37
+// https://pastebin.com/H0CQdQdZ
 
+/**
+ * @description
+ * Handle the Stream implementation for Interfaces
+ * 
+ * @class InterfaceStream
+ * @extends Duplex https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#class-streamduplex
+ *  
+ * @property {Object} [options={}] Duplex stream options
+ * @property {Array} [adapter=["raw"]] Adapter to use for encoding/decoding data
+ */
 module.exports = class InterfaceStream extends Duplex {
 
     // not called, because mixins/prroxy?
@@ -64,7 +75,28 @@ module.exports = class InterfaceStream extends Duplex {
 
         } else {
 
-            console.log("write to upstream not possible");
+            /*
+            console.log("write to upstream not possible", chunk, this.writableLength, "destroey:", this.destroyed,
+                "writableEnded", this.writableEnded, "corked:", this.writableCorked, "needdrain:", this.writableNeedDrain);
+
+            this._readableState.buffer.clear();
+            this._readableState.length = 0;
+
+            this._writableState.length = 0;
+            this._writableState.writelen = 0;
+
+
+            console.log(this._writableState, this._readableState)
+            */
+
+            // NOTE: Faking does not work so well.
+            // if the write was "successful" why is this function not triggerded more then once
+            // when the connector/upstream disconnect?!1!
+
+            // fake successful write
+            process.nextTick(() => {
+                cb(null);
+            });
 
         }
     }
@@ -72,45 +104,45 @@ module.exports = class InterfaceStream extends Duplex {
     _read() {
         if (this.upstream /*&& !this.upstream.readableEnded*/) {
 
-            // WORKFLOW:
-            // - in this.push() schieben
-            // - bis this.push false zurück gibt
-
-            /*
-                        // https://nodejs.org/dist/latest-v14.x/docs/api/stream.html#stream_readable_read_size
-                        let chunk = null;
-            
-                        while (null !== (chunk = this.upstream.read(size))) {
-                            console.log(`Read ${chunk.length} bytes of data...`);
-                            this.push(chunk)
-                        }
-            */
-
+            // NOTE: Check if listener is allready assigned?
+            // To prevent memeory leak
             this.upstream.once("readable", () => {
 
-                // start reading
-                let more = true;
+                let chunk = null;
 
-
-                while (more) {
-
-                    // read from upstream
-                    let chunk = this.upstream.read();
-
-                    if (chunk) {
-
-                        // push in qeueue
-                        more = this.push(chunk);
-
-                    } else {
-
-                        // stop reading
-                        more = false;
-
-                    }
+                while (null !== (chunk = this.upstream.read())) {
+                    this.push(chunk);
                 }
 
             });
+
+            /*
+this.upstream.once("readable", () => {
+
+    // start reading
+    let more = true;
+
+
+    while (more) {
+
+        // read from upstream
+        let chunk = this.upstream.read();
+
+        if (chunk) {
+
+            // push in qeueue
+            more = this.push(chunk);
+
+        } else {
+
+            // stop reading
+            more = false;
+
+        }
+    }
+
+});
+*/
 
         } else {
 
@@ -143,7 +175,7 @@ module.exports = class InterfaceStream extends Duplex {
 
 
 
-    attach(stream, cb) {
+    attach(stream, cb = () => { }) {
 
         let stack = this.adapter.map((name) => {
             try {
@@ -157,73 +189,78 @@ module.exports = class InterfaceStream extends Duplex {
             }
         });
 
+        let cleanup = finished(stream, () => {
+
+            cleanup();
+            this.detach();
+
+        });
+
         let upstream = new Adapter(stack, stream, {
             // duplex stream options
             emitClose: false,
             end: false
         });
 
+        let clup = finished(upstream, () => {
+            clup();
+        });
+
         this.upstream = upstream;
         this[kSource] = upstream;
 
 
+
+
         // ignore or re-throw?!
-        upstream.on("end", () => {
-            console.log("End on upstream called");
-            this.emit("end");
+        stream.on("end", () => {
+            this.detach();
         });
 
 
+        // Why is this commented?! and not active
         // readable events we want to re-emit
+        // Debugging #202, seems like it breaks http parsing
         //this._reEmit(["data", "readable"]);
 
         // writabel events we waant to re-emit
         this._reEmit(["drain", "finish", "pipe", "unpipe"]);
 
-        if (cb) {
-            cb(null);
-        }
+        // continue to read from upstream
+        // seems like a fix for #202
+        this._read();
 
-        this.emit("attached", upstream);
+        process.nextTick(() => {
+
+            interfaceStreams.set(this._id, stream);
+
+            cb(null);
+            this.emit("attached", upstream);
+
+        });
 
     }
 
 
-    detach(cb) {
+    detach(cb = () => { }) {
 
-        /*
-        // USE THIS?!
-        Promise.all([
-            new Promise((resolve) => {
+        if (!this.upstream) {
 
-                // terminate wrtiable on upstream
-                this.upstream.once("close", resolve)
-                this.upstream.end();
+            process.nextTick(() => {
+                cb(false);
+            });
 
-            }),
-            new Promise(() => {
+            return;
 
+        }
 
-                // terminate readable on upstream
-                this.upstream.once("end", resolve);
-                this.upstream.destroy();
-
-            })
-        ]).then(() => {
-
-            // callback & emit detacehd
-
-        });
-        */
-
+        // force cleanup after 2s
         let trigger = timeout(2000, () => {
-
-            if (cb) {
-                cb(null);
-            }
 
             this.upstream = null;
             this[kSource] = null;
+
+            cb(true);
 
             this.emit("detached");
 
@@ -237,6 +274,9 @@ module.exports = class InterfaceStream extends Duplex {
 
         // destroy readable stream
         this.upstream.destroy();
+
+        // delete upstream from map
+        interfaceStreams.delete(this._id);
 
     }
 

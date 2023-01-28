@@ -123,5 +123,8 @@ plugins/*
 # exclude tmp folder
 tmp
 
-demo-database.gz
+demo-database*
 .vscode/archive-browser
+
+build
+dist

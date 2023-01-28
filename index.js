@@ -30,20 +30,22 @@ process.env = Object.assign({
     //DATABASE_TIMEOUT: "5", // #8
     DATABASE_URL: "",
     DATABASE_WATCH_CHANGES: "false",
+    DATABASE_UPDATE_DEBOUNCE_TIMER: "15",
     HTTP_PORT: "8080",
     HTTP_ADDRESS: "0.0.0.0",
-    HTTP_SOCKET: "",
+    HTTP_SOCKET: "/tmp/open-haus.sock",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
-    LOG_LEVEL: "verbose",
+    LOG_LEVEL: "info",
     LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
     LOG_SUPPRESS: "false",
     LOG_TARGET: "",
     NODE_ENV: "production",
     STARTUP_DELAY: "0",
     COMMAND_RESPONSE_TIMEOUT: "2000",
-    API_SANITIZE_INPUT: "true",
+    API_SANITIZE_INPUT: "false", // breaks items payload, see #273
     API_LIMIT_SIZE: "25", // rename to "..._SIZE_LIMIT"?!
-    API_AUTH_ENABLED: "true",
+    API_AUTH_ENABLED: "false",
+    API_WEBSOCKET_TIMEOUT: "5000",
     DEBUG: "",
     GC_INTERVAL: "",
     VAULT_MASTER_PASSWORD: "",
@@ -51,7 +53,10 @@ process.env = Object.assign({
     VAULT_AUTH_TAG_BYTE_LEN: "16",
     VAULT_IV_BYTE_LEN: "16",
     VAULT_KEY_BYTE_LEN: "32",
-    VAULT_SALT_BYTE_LEN: "16"
+    VAULT_SALT_BYTE_LEN: "16",
+    USERS_BCRYPT_SALT_ROUNDS: "12",
+    USERS_JWT_SECRET: "",
+    USERS_JWT_ALGORITHM: "HS384"
 }, env.parsed, process.env);
 
 
@@ -60,7 +65,7 @@ process.env = Object.assign({
 process.env = Object.freeze({ ...process.env });
 
 
-if (!process.env.UUID || !uuid.validate(process.env.UUID)) {
+if (!process.env.UUID || !uuid.validate(process.env.UUID) || process.env.UUID === "00000000-0000-0000-0000-000000000000") {
     throw new Error(`You need to set a valid "UUID" (v4) environment variable!`);
 }
 
@@ -86,16 +91,22 @@ if (process.env.NODE_ENV === "development") {
 console.log(`Starting OpenHaus ${(process.env.NODE_ENV !== "production" ? `in "\x1b[4m${process.env.NODE_ENV}\x1b[0m" mode ` : "")}v${pkg.version}...`);
 
 
+// implement #195
+if (process.env.NODE_ENV === "production") {
+    console.log = () => { };
+}
 
-//require("./system/shared_objects.js");
+
+require("./system/shared.js");
 // #9, see #86
 // hits is uglay and hard to maintain
+/*
 global.sharedObjects = {
     interfaceStreams: new Map(),
     interfaceServer: new Map(),
     interfaces: new Map()
 };
-
+*/
 
 
 // require logger as on of the first things
@@ -183,10 +194,13 @@ const init_components = () => {
         logger.debug("Init components...");
 
         const componentNames = [
-            "rooms",
             "devices",
             "endpoints",
             "plugins",
+            "rooms",
+            "ssdp",
+            "store",
+            "users",
             "vault"
         ].sort(() => {
 
@@ -254,28 +268,32 @@ const init_http = () => {
 
             // http server for ip/port
             new Promise((resolve, reject) => {
+                if (process.env.HTTP_ADDRESS !== "") {
 
-                let server = http.createServer();
+                    let server = http.createServer();
 
-                server.on("error", (err) => {
-                    logger.error(err, `Could not start http server: ${err.message}`);
-                    reject(err);
-                });
+                    server.on("error", (err) => {
+                        logger.error(err, `Could not start http server: ${err.message}`);
+                        reject(err);
+                    });
 
-                server.on("listening", () => {
+                    server.on("listening", () => {
 
-                    let addr = server.address();
-                    logger.info(`HTTP Server listening on http://${addr.address}:${addr.port}`);
+                        let addr = server.address();
+                        logger.info(`HTTP Server listening on http://${addr.address}:${addr.port}`);
 
-                    resolve(server);
+                        resolve(server);
 
-                });
+                    });
 
-                require("./routes")(server);
+                    require("./routes")(server);
 
-                // bind/start http server
-                server.listen(Number(process.env.HTTP_PORT), process.env.HTTP_ADDRESS);
+                    // bind/start http server
+                    server.listen(Number(process.env.HTTP_PORT), process.env.HTTP_ADDRESS);
 
+                } else {
+                    resolve();
+                }
             }),
 
             // http server fo unix socket
@@ -397,24 +415,38 @@ const starter = new Promise((resolve) => {
 
 
 [
-    init_db,
-    init_components,
-    init_http,
+    init_db,            // phase 1
+    init_components,    // phase 2
+    init_http,          // phase 3
     kickstart
-].reduce((cur, prev) => {
+].reduce((cur, prev, i) => {
     return cur.then(prev).catch((err) => {
 
         // this does not get triggerd
         // needed? see issue #53
 
         // feedback
-        logger.error(err, `Initzalisilni failed: ${err.message}`);
+        logger.error(err, `Could not start. Error in startup phase ${i}; ${err.message}`);
 
         // exit process
         process.exit(1000);
 
     });
 }, starter).then(() => {
+
+    // implement #245
+    // keep the app running but log important stuff!
+    if (process.env.NODE_ENV === "production") {
+
+        process.on("unhandledRejection", (err) => {
+            logger.error("Uncaught rejection catched!", err);
+        });
+
+        process.on("uncaughtException", (err) => {
+            logger.error("Uncaught execption catched!", err);
+        });
+
+    }
 
     logger.debug("Starting plugins...");
 
@@ -441,9 +473,9 @@ const starter = new Promise((resolve) => {
     });
 
     if (bootable.length > started) {
-        logger.debug(`${started}/${bootable.length} Plugins started (Someones are ignored! Check the logfiles.)`);
+        logger.warn(`${started}/${bootable.length} Plugins started (Check the previously logs)`);
     } else {
-        logger.debug(`${started}/${bootable.length} Plugins started`);
+        logger.info(`${started}/${bootable.length} Plugins started`);
     }
 
     logger.info("Startup complete");

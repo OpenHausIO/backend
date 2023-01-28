@@ -1,33 +1,48 @@
-const C_VAULT = require("../components/vault");
-
 module.exports = (app, router) => {
 
-    router.post("/:_id/encrypt", (req, res) => {
-        C_VAULT.encrypt(req.item._id, req.body, (err) => {
-            if (err) {
-
-                res.status(400).end(err);
-
-            } else {
-
-                res.json(req.item);
-
-            }
-        });
+    router.get("/:_id/secrets", (req, res) => {
+        // NOTE: return lean?
+        res.json(req.item.secrets);
     });
 
-    router.post("/:_id/decrypt", (req, res) => {
-        req.item.decrypt((err, values) => {
-            if (err) {
+    router.param("_sid", (req, res, next) => {
 
-                res.status(400).end(err);
-
-            } else {
-
-                res.json(values);
-
-            }
+        req.secret = req.item.secrets.find((secret) => {
+            return secret._id === req.params._sid;
         });
+
+        if (!req.secret) {
+            return res.status(404);
+        }
+
+        next();
+
+    });
+
+    router.post("/:_id/secrets/:_sid/encrypt", (req, res) => {
+        try {
+
+            if (Object.hasOwnProperty.call(req.body, "value")) {
+                req.secret.encrypt(req.body.value);
+            }
+
+            res.json(req.secret);
+
+        } catch (err) {
+
+            res.status(422).json({
+                error: err.message
+            });
+
+        }
+    });
+
+    router.post("/:_id/secrets/:_sid/decrypt", (req, res) => {
+
+        res.json({
+            value: req.secret.decrypt()
+        });
+
     });
 
 };

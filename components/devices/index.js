@@ -20,22 +20,146 @@ const COMPONENT = require("../../system/component/class.component.js");
 const Interface = require("./class.interface.js");
 const Device = require("./class.device.js");
 
-
+/**
+ * @description
+ * Device component class<br />
+ * Represents a device instance in the component `.items` Array.
+ * 
+ * @class C_DEVICES
+ * @extends COMPONENT system/component/class.component.js
+ * 
+ * @example
+ * ```js
+ * const C_DEVICES = require(".../component/devices/");
+ * 
+ * C_DEVICES.find({
+ *   enabled: true
+ * }).then((devices) => {
+ *   console.log(devices);
+ * }).catch((err) => {
+ *   console.log(err);
+ * });
+ * ```
+ * 
+ * @example
+ * ```json
+[
+    {
+        "_id": "625c307b26cdd30f007989ca",
+        "name": "Samsung Fridge",
+        "interfaces": [
+            {
+                "type": "ETHERNET",
+                "settings": {
+                    "host": "172.16.5.23",
+                    "port": 8080,
+                    "socket": "tcp",
+                    "mac": null
+                },
+                "_id": "625c307b26cdd30f007989cb",
+                "adapter": [
+                    "raw"
+                ]
+            }
+        ],
+        "timestamps": {
+            "created": 1650208891581,
+            "updated": null
+        },
+        "room": null,
+        "enabled": true
+    },
+    {
+        "name": "ZigBee Gateway",
+        "interfaces": [
+            {
+                "type": "ETHERNET",
+                "description": "RESTful API",
+                "settings": {
+                    "host": "172.16.4.12",
+                    "port": 80,
+                    "socket": "tcp",
+                    "mac": null
+                },
+                "_id": "625c311123ed9311d25efbec",
+                "adapter": [
+                    "raw"
+                ]
+            },
+            {
+                "type": "ETHERNET",
+                "description": "WebSocket API",
+                "settings": {
+                    "host": "172.16.4.12",
+                    "port": 443,
+                    "socket": "tcp",
+                    "mac": null
+                },
+                "_id": "625c311123ed9311d25efbed",
+                "adapter": [
+                    "raw"
+                ]
+            }
+        ],
+        "timestamps": {
+            "created": 1650209041327,
+            "updated": null
+        },
+        "_id": "625c311123ed9311d25efbeb",
+        "room": null,
+        "enabled": true
+    },
+    {
+        "name": "AV Receiver",
+        "interfaces": [
+            {
+                "type": "ETHERNET",
+                "description": "eISCP Interface",
+                "settings": {
+                    "host": "192.168.2.10",
+                    "port": 60128,
+                    "socket": "tcp",
+                    "mac": null
+                },
+                "adapter": [
+                    "eiscp"
+                ],
+                "_id": "625c330e23ed9311d25efbef"
+            }
+        ],
+        "timestamps": {
+            "created": 1650209550659,
+            "updated": null
+        },
+        "_id": "625c330e23ed9311d25efbee",
+        "room": null,
+        "enabled": true
+    }
+]
+```
+ * 
+ */
 class C_DEVICES extends COMPONENT {
-
     constructor() {
 
         // inject logger, collection and schema object
         // https://stackoverflow.com/a/37746388/5781499
         super("devices", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectID());
+                return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
             room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
             enabled: Joi.boolean().default(true),
             //interfaces: Joi.array().items(Interface.schema()).min(1).required()
-            interfaces: Joi.array().min(1).items(Interface.schema()).required()
+            interfaces: Joi.array().min(1).items(Interface.schema()).required(),
+            meta: {
+                manufacturer: Joi.string().allow(null).default(null),
+                model: Joi.string().allow(null).default(null),
+                revision: Joi.number().allow(null).default(null),
+                serial: Joi.string().allow(null).default(null)
+            },
+            icon: Joi.string().allow(null).default(null)
         }, module);
 
 
@@ -49,7 +173,7 @@ class C_DEVICES extends COMPONENT {
 
             // NOTE Needed if defined in schema?!
             data.interfaces.forEach((iface) => {
-                iface._id = String(new mongodb.ObjectID());
+                iface._id = String(new mongodb.ObjectId());
             });
 
             next();
@@ -60,47 +184,39 @@ class C_DEVICES extends COMPONENT {
         // create after db manipulation a new device instace
         // use ["add", "update"]?!
         this.hooks.post("add", (data, next) => {
-            next(null, new Device(data));
+            next(null, new Device(data, this));
         });
 
-
-        this.hooks.pre("update", (_id, data, next) => {
-
-            // before we update a device item
-            // we need to convert "interface"/"adapter" instance, back to schema allowd types
-
-            let target = this.items.find((item) => {
-                return String(item._id) === String(_id);
-            });
-
-            // We should not operate on the original device object
-            // so create a shallow copy of the object and 
-            // override the shallow copy with data to update            
-            let shallow = Object.assign({}, target, data);
-
-            shallow.interfaces = target.interfaces.map((iface) => {
-                iface.adapter = iface.adapter.map((adapter) => {
-                    return adapter.name;
+        /*
+        // cause a update bug
+        // see #171
+                this.hooks.pre("update", (_id, data, next) => {
+        
+                    // before we update a device item
+                    // we need to convert "interface"/"adapter" instance, back to schema allowd types
+        
+                    let target = this.items.find((item) => {
+                        return String(item._id) === String(_id);
+                    });
+        
+                    // We should not operate on the original device object
+                    // so create a shallow copy of the object and 
+                    // override the shallow copy with data to update            
+                    let shallow = Object.assign({}, target, data);
+        
+                    shallow.interfaces = target.interfaces.map((iface) => {
+                        iface.adapter = iface.adapter.map((adapter) => {
+                            return adapter.name;
+                        });
+                        return iface;
+                    });
+        
+                    next(null, _id, shallow);
+        
                 });
-                return iface;
-            });
-
-            next(null, _id, shallow);
-
-        });
+                */
 
     }
-
-    match() {
-
-        let matches = this.items.filter((device) => {
-            return device.name === "ZigBee Gateway";
-        });
-
-        return matches;
-
-    }
-
 }
 
 
@@ -121,7 +237,7 @@ instance.init((scope, ready) => {
 
 
             data = data.map((item) => {
-                return new Device(item);
+                return new Device(item, scope);
             });
 
 

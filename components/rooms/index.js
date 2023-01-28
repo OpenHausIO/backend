@@ -7,13 +7,53 @@ const COMPONENT = require("../../system/component/class.component.js");
 
 const Room = require("./class.room.js");
 
+/**
+ * @description
+ * The room component handles the managing of rooms (What a suprise... 😜)
+ * 
+ * @class C_ROOMS
+ * @extends COMPONENT system/component/class.component.js
+ * 
+ * @example
+ * ```js
+ * const C_ROOMS = require(".../components/rooms");
+ * 
+ * C_ROOMS.find({name: "Living Room"}, (err, item) => {
+ *   console.log(err || item);
+ * });
+ * ```
+ * 
+ * @example
+ * ```js
+ * const C_ROOMS = require(".../components/rooms");
+ * 
+ * // "convert" room name to uppercase
+ * C_ROOMS.hooks.pre("add", (data, next) => {
+ *   data.name = String(data.name).toUpperCase();
+ *   next();
+ * });
+ * ```
+ *
+ * @example
+ * ```js
+ * const C_ROOMS = require(".../components/rooms");
+ * 
+ * C_ROOMS.add({
+ *   name: "Garage",
+ *   floor: 0
+ * }, (err, item) => {
+ *   // item = instance of Room class
+ *   console.log(err || item);
+ * });
+ * ```
+ */
 class C_ROOMS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
         super("rooms", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return new mongodb.ObjectID();
+                return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
             number: Joi.number().allow(null).default(null),

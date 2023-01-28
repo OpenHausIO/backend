@@ -8,7 +8,7 @@ module.exports = {
         "error": 50
     },
     colors: {
-        "trace": "italic,cyan,dim",
+        "trace": "green,dim",
         "verbose": "cyan",
         "debug": "gray",
         "info": "blue",

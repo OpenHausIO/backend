@@ -1,4 +1,72 @@
+const _iterate = require("../helper/iterate.js");
+
 module.exports = (C_COMPONENT, router) => {
+
+    router.use((req, res, next) => {
+
+        let json = res.json;
+
+        // convert string true to real boolean
+        req.options = _iterate(req.query?.options || {}, (key, value) => {
+            return value == "true";
+        });
+
+        // censor password key
+        // no password should ever be sent to the client
+        res.json = function (obj) {
+
+            // use this when node >= 17
+            //obj = structuredClone(obj);
+            // fix #279
+            obj = JSON.parse(JSON.stringify(obj));
+
+            obj = _iterate(obj, (key, value) => {
+
+                // remove password key if present
+                // this must be first
+                if (key === "password") {
+                    return null;
+                }
+
+                return value;
+
+            });
+
+            json.call(this, obj);
+
+        };
+
+        next();
+
+    });
+
+    router.use((req, res, next) => {
+        if (req.body) {
+
+            req.body = _iterate(req.body, (key, value, type) => {
+                if (type === "object") {
+
+                    if (value?.type === "Buffer" && value?.data) {
+                        return Buffer.from(value.data);
+                    }
+
+                    return value;
+
+                } else {
+
+                    return value;
+
+                }
+            });
+
+            next();
+
+        } else {
+
+            next();
+
+        }
+    });
 
     router.param("_id", (req, res, next, _id) => {
         C_COMPONENT.get(_id, (err, obj) => {
@@ -48,7 +116,7 @@ module.exports = (C_COMPONENT, router) => {
         //console.log("Upate", req.item)
 
         if (!req.params["_id"]) {
-            return res.status(400).end();
+            return res.status(404).end();
         }
 
         C_COMPONENT.update(req.params["_id"], req.body, (err, result) => {
@@ -70,11 +138,13 @@ module.exports = (C_COMPONENT, router) => {
     });
 
     router.put("/", (req, res) => {
+        // NOTE: `req.options` breaks pre hooks
+        // redacted for quick fix, issue reopend #169
         C_COMPONENT.add(req.body, (err, result) => {
             if (err) {
 
                 res.status(400).json({
-                    error: err
+                    error: err.message
                 });
 
             } else {

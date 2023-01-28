@@ -1,5 +1,14 @@
 const path = require("path");
 
+/**
+ * @description
+ * Gets passed to the plugin
+* 
+ * @class Bootstrap
+ * 
+ * @param {Array} dependencies Array of comopnents direclty inject into the plugin as parameter. E.g.: `["rooms", "devices"]`
+ * @param {Function} cb Callback function that receives the `this` scope as first parameter and a array of component instances as second
+ */
 class Bootstrap {
 
     constructor(dependencies, cb) {

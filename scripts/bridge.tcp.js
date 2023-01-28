@@ -2,7 +2,7 @@
 
 const child_process = require("child_process");
 const WebSocket = require("ws");
-const request = require("../system/request");
+const request = require("../helper/request");
 const minimist = require("minimist");
 
 const args = minimist(process.argv.slice(2), {
@@ -47,6 +47,10 @@ function bridge(ws, host, port) {
 
         nc.on("spawn", () => {
             console.log("netcat spawend");
+        });
+
+        nc.on("exit", (code) => {
+            console.log("netcat exited", code);
         });
 
         nc.stderr.pipe(process.stderr);

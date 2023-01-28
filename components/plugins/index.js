@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 const Joi = require("joi");
 const mongodb = require("mongodb");
 const uuid = require("uuid");
@@ -12,7 +15,20 @@ const COMPONENT = require("../../system/component/class.component.js");
 
 const Plugin = require("./class.plugin.js");
 
+/**
+ * @description
+ * The Plugin component handles everything that has to do with plugins
+ * 
+ * @class C_PLUGINS
+ * @extends COMPONENT system/component/class.component.js
 
+ * @example 
+ * ```js
+ * const C_PLUGINS = require(".../components/plugins");
+ * 
+ * console.log(C_PLUGINS.items);
+ * ```
+ */
 class C_PLUGINS extends COMPONENT {
 
     constructor() {
@@ -21,20 +37,52 @@ class C_PLUGINS extends COMPONENT {
         // super(logger, mongodb.client.collection("plugins"), {
         super("plugins", {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return new mongodb.ObjectID();
+                return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
             uuid: Joi.string().default(() => {
                 return uuid.v4();
             }),
             version: Joi.number().required(),
-            runlevel: Joi.number().min(0).max(2).default(0),
+            //runlevel: Joi.number().min(0).max(2).default(0),
             autostart: Joi.boolean().default(true),
-            enabled: Joi.boolean().default(true)
+            enabled: Joi.boolean().default(true),
+            intents: Joi.array().items("devices", "endpoints", "plugins", "rooms", "ssdp", "store", "users", "vault").required()
         }, module);
 
         this.hooks.post("add", (data, next) => {
-            next(null, new Plugin(data));
+            fs.mkdir(path.resolve(process.cwd(), "plugins", data.uuid), (err) => {
+
+                // ignore when folder exists
+                // fix 263
+                if (err?.code === "EEXIST") {
+                    this.logger.warn("Plugin folder exists, continue anway.", err);
+                    err = null;
+                }
+
+                next(err || null, new Plugin(data));
+
+            });
+        });
+
+        this.collection.createIndex("uuid", {
+            unique: true
+        });
+
+        this.hooks.post("remove", (item, result, _id, next) => {
+            fs.rm(path.resolve(process.cwd(), "plugins", item.uuid), {
+                recursive: true
+            }, (err) => {
+
+                // ignore when folder not exists
+                if (err?.code === "ENOENT") {
+                    this.logger.warn("Plugin folder does not exists, continue anway.", err);
+                    err = null;
+                }
+
+                next(err || null, item, result, _id);
+
+            });
         });
 
     }

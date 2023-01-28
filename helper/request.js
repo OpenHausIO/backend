@@ -1,6 +1,15 @@
 const url = require("url");
 
-
+/**
+ * Does a http request
+ * @param {*} uri 
+ * @param {*} options 
+ * @param {*} cb 
+ * 
+ * @ignore
+ * 
+ * @returns {http.ClientRequest} https://nodejs.org/dist/latest-v16.x/docs/api/http.html#class-httpclientrequest
+ */
 function perform(uri, options, cb) {
 
     let { protocol } = new url.URL(uri);
@@ -9,6 +18,17 @@ function perform(uri, options, cb) {
         throw new Error(`Unspported protocol "${protocol.slice(0, -1)}`);
     }
 
+    // NOTE: Automaticly set keep alive header when agent is passed?
+    if (options?.agent && !options?.setKeepAliveHeader) {
+        options.setKeepAliveHeader = true;
+    }
+
+    if (options?.setKeepAliveHeader) {
+        options.headers = {
+            ...options?.headers,
+            "Connection": "Keep-Alive"
+        };
+    }
 
     let request = require(protocol.slice(0, -1)).request(uri, options, (res) => {
 
@@ -55,11 +75,14 @@ function perform(uri, options, cb) {
 
 
 /**
- * 
- * @param {string} uri 
- * @param {options} options 
- * @param {function} cb 
- * @returns 
+ *  @function request
+ * Does a http/https request
+ *
+ * @param {String} uri 
+ * @param {Object} options 
+ * @param {Function} cb Callback
+
+ * @returns {http.ClientRequest} https://nodejs.org/dist/latest-v16.x/docs/api/http.html#class-httpclientrequest
  */
 module.exports = function request(uri, options, cb) {
 
@@ -77,6 +100,7 @@ module.exports = function request(uri, options, cb) {
         body: "",
         followRedirects: true,
         callEnd: true,
+        setKeepAliveHeader: true
     }, options);
 
 

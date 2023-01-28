@@ -1,7 +1,23 @@
+const _expose = require("../../helper/expose.js");
+
 const BASE = require("./class.base.js");
 
 const promisify = require("../../helper/promisify");
 
+/**
+ * @description
+ * Class description
+ * 
+ * @class COMMON
+ * 
+ * @extends BASE system/component/class.base.js
+ * 
+ * @param {Object} logger Logger instance
+ * 
+ * @property {Logger} logger Logger instance
+ * 
+ * @see Logger system/logger/
+ */
 module.exports = class COMMON extends BASE {
 
     constructor(logger) {
@@ -12,6 +28,13 @@ module.exports = class COMMON extends BASE {
 
     }
 
+    /**
+     * @function _defineMethod
+     * Defines a hookable/event emitting method on component scope
+     * 
+     * @param {String} name Name of the method that gets patche into the scope
+     * @param {Function} executor Wokrer function that does the actual implementation
+     */
     _defineMethod(name, executor) {
         Object.defineProperty(this, name, {
             value: (...args) => {
@@ -26,23 +49,29 @@ module.exports = class COMMON extends BASE {
 
                 let { pre, post } = this.hooks._namespace(name);
 
+                let log = this.logger.tracer(`${name}()`, 5, () => {
+                    return `${name}(); Execution done.`;
+                });
+
                 const preHooks = (args) => {
                     return new Promise((resolve, reject) => {
 
-                        this.logger.verbose(`${name}(); 1/5; before "pre hooks": %j`, args);
+                        //this.logger.verbose(`${name}(); 1/5; before "pre hooks": %j`, args);
+                        log(`before "pre hooks": %j`, args);
 
                         pre.catch((err) => {
 
                             this.logger.verbose(err, `${name}(); Pre hooks aborted`);
                             //logger.debug("Pre hooks aborted?");
 
-                            reject();
+                            reject(err);
 
                         });
 
                         pre.start.apply(pre, [...args, (...preArgsModified) => {
 
-                            this.logger.verbose(`${name}(); 2/5; after "pre hooks": %j`, preArgsModified);
+                            //this.logger.verbose(`${name}(); 2/5; after "pre hooks": %j`, preArgsModified);
+                            log(`after "pre hooks": %j`, preArgsModified);
 
                             resolve(preArgsModified);
 
@@ -55,19 +84,21 @@ module.exports = class COMMON extends BASE {
                 const postHooks = (args) => {
                     return new Promise((resolve, reject) => {
 
-                        this.logger.verbose(`${name}(); 3/5; before "post hooks": %j`, args);
+                        //this.logger.verbose(`${name}(); 3/5; before "post hooks": %j`, args);
+                        log(`before "post hooks": %j`, args);
 
                         post.catch((err) => {
 
                             this.logger.verbose(err, `${name}(); Post hooks aborted`);
 
-                            reject();
+                            reject(err);
 
                         });
 
                         post.start.apply(post, [...args, (...postArgsModified) => {
 
-                            this.logger.verbose(`${name}(); 4/5; after "post hooks": %j`, postArgsModified);
+                            //this.logger.verbose(`${name}(); 4/5; after "post hooks": %j`, postArgsModified);
+                            log(`after "post hooks": %j`, postArgsModified);
 
                             resolve(postArgsModified);
 
@@ -77,7 +108,7 @@ module.exports = class COMMON extends BASE {
                 };
 
 
-                return promisify((done) => {
+                return promisify(async (done) => {
 
                     let final = () => {
                         return Promise.resolve();
@@ -86,6 +117,59 @@ module.exports = class COMMON extends BASE {
                     let worker = executor((cb) => {
                         final = cb;
                     });
+
+                    try {
+
+                        // trigger pre hooks & catch rejection
+                        args = await preHooks(args.slice(0, end)).catch((err) => {
+
+                            // feedback
+                            this.logger.verbose(`${name}(); Pre hooks rejected`, err);
+
+                            throw err;
+
+                        });
+
+                        // trigger worker function & catch rejection
+                        args = await worker(...args).catch((err) => {
+
+                            this.logger.verbose(err, `${name}(); worker code rejected`, err);
+
+                            // re throw
+                            throw err;
+
+                        });
+
+                        // trigger post hooks & catch rejection
+                        args = await postHooks(args).catch((err) => {
+
+                            // feedback
+                            this.logger.verbose(`${name}(); Post hooks rejected`, err);
+
+                            throw err;
+
+                        });
+
+                        // finalize function
+                        await final(...args).catch((err) => {
+
+                            // feedback
+                            this.logger.verbose(`${name}(); Something happend on "final"`, err);
+
+                            throw err;
+
+                        });
+
+                        // "resolve" promisify 
+                        done(null, ...args);
+
+                        // emit event
+                        this.events.emit(name, ...args);
+
+                    } catch (err) {
+                        done(err);
+                    }
+
 
                     // defineMethod stack:
                     // 1) trigger pre hooks with args from function call
@@ -102,6 +186,7 @@ module.exports = class COMMON extends BASE {
 
                     // NOTE: Call on every error, "done" with error argument?! Should be...
 
+                    /*
                     Promise.resolve().then(() => {
 
                         // execute pre hooks middleware
@@ -109,21 +194,33 @@ module.exports = class COMMON extends BASE {
                         return preHooks(args.slice(0, end));
 
                     }).then((args) => {
+                        try {
 
-                        // execute worker code itself
-                        return worker(...args).catch((err) => {
+                            // NOTE:
+                            // Switch this mess to async/await?!
+                            // should be a lot easyier to handler #239
+                            // this then/catch callbacks are a mess!
 
-                            this.logger.verbose(err, `${name}(); "Reject" in worker code called`);
+                            // execute worker code itself
+                            return worker(...args).catch((err) => {
 
-                            // if worker code reject call promisify
-                            // with error as first argument
-                            done(err);
+                                this.logger.verbose(`${name}(); "Reject" in worker code called:`, err);
 
-                            // reject/abort post hooks
-                            return Promise.reject();
+                                // if worker code reject call promisify
+                                // with error as first argument
+                                done(err);
 
-                        });
+                                // reject/abort post hooks
+                                return Promise.reject();
 
+                            });
+
+
+                        } catch (err) {
+
+                            this.logger.error(err);
+
+                        }
                     }).then((args) => {
 
                         // execute post hooks middleware
@@ -132,7 +229,8 @@ module.exports = class COMMON extends BASE {
 
                     }).then((args) => {
 
-                        this.logger.verbose(`${name}(); 5/5; Resolve callback (successful). Arguments to pass: %j`, args);
+                        //this.logger.verbose(`${name}(); 5/5; Resolve callback (successful). Arguments to pass: %j`, args);
+                        log(`Resolve callback (successful).Arguments to pass: %j`, args);
 
                         // before we call "callback" (resolve _promsify)
                         // execute in worker code "final" function to pefrom operations
@@ -145,7 +243,7 @@ module.exports = class COMMON extends BASE {
                             // "resolve" promisify 
                             done(null, ...args);
 
-                            this.events.emit(name, args);
+                            this.events.emit(name, ...args);
 
                         }).catch((err) => {
                             this.logger.warn(err, `${name}(); Something happend on "final"`);
@@ -159,7 +257,10 @@ module.exports = class COMMON extends BASE {
                             this.logger.warn(err, `${name}(); Error catched in function stack execution`);
                         }
 
+                        done(err);
+
                     });
+                    */
 
                 }, cb);
 
@@ -167,6 +268,69 @@ module.exports = class COMMON extends BASE {
             writable: false,
             enumerable: false,
             configurable: false
+        });
+    }
+
+    /**
+     * @function _mapMethod
+     * Maps a item method to the component scope
+     * The mapped method is full hookable & emit evenits
+     * Just like the build in component methods
+     * 
+     * @param {String} name Name to set on the component object
+     * @param {String} method Method name on item
+     * @param {Array} arr Array too look for the target item object
+     */
+    _mapMethod(name, method, arr) {
+
+        let target = _expose(arr, method);
+
+        this._defineMethod(name, () => {
+            return (_id, ...args) => {
+                return new Promise((resolve, reject) => {
+
+                    args.push((err, ...args) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(args);
+                        }
+                    });
+
+                    target(_id, ...args);
+
+                });
+            };
+        });
+
+    }
+
+    /**
+     * @function _ready
+     * Calls the provided callback as soon as the component is ready to be used.<br />
+     * If this function is called while the component is ready, the callback is immediately called.
+     * 
+     * @param {Function} cb Callback to register
+     */
+    _ready(cb) {
+        Promise.race([
+            new Promise((resolve) => {
+                if (this.ready) {
+
+                    // keep asynchron things asynchron
+                    process.nextTick(resolve);
+
+                }
+            }),
+            new Promise((resolve) => {
+                this.events.once("ready", () => {
+
+                    resolve();
+
+                });
+            })
+        ]).then(() => {
+            cb(this);
         });
     }
 

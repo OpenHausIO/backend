@@ -4,38 +4,84 @@ module.exports = (app, router) => {
         res.json(req.item.commands);
     });
 
-    router.get("/:_id/commands/:_iid", (req, res) => {
+    router.get("/:_id/states", (req, res) => {
+        res.json(req.item.states);
+    });
 
-        let cmd = req.item.commands.find((cmd) => {
-            return cmd._id === req.params._iid;
+    router.param("_cid", (req, res, next) => {
+
+        req.cmd = req.item.commands.find((cmd) => {
+            return cmd._id === req.params._cid;
         });
 
-        if (cmd) {
-            res.json(cmd);
-        } else {
-            res.status(404);
-        }
-
+        next();
 
     });
 
-    router.post("/:_id/commands/:_iid", (req, res) => {
-        req.item.commands.execute(req.params["_iid"], req.body, (err, success) => {
-            if (err) {
+    router.param("_sid", (req, res, next) => {
 
-                res.status(900).json({
-                    success: success || false,
-                    error: err.toString()
-                });
+        req.state = req.item.states.find((cmd) => {
+            return cmd._id === req.params._sid;
+        });
 
-            } else {
+        next();
+
+    });
+
+    router.get("/:_id/commands/:_cid", (req, res) => {
+        if (req.cmd) {
+            res.json(req.cmd);
+        } else {
+            res.status(404).end();
+        }
+    });
+
+    router.post("/:_id/commands/:_cid", (req, res) => {
+        if (req.cmd) {
+
+            req.cmd.trigger(req.body, (success) => {
 
                 res.json({
                     success
                 });
 
+            });
+
+        } else {
+            res.status(404).end();
+        }
+    });
+
+    router.get("/:_id/states/:_sid", (req, res) => {
+        if (req.state) {
+            res.json(req.state);
+        } else {
+            res.status(404).end();
+        }
+    });
+
+    router.post("/:_id/states/:_sid", (req, res) => {
+        if (req.state) {
+            try {
+
+                if (Object.hasOwnProperty.call(req.body, "value")) {
+                    req.state.value = req.body.value;
+                } else {
+                    req.state.value = null;
+                }
+
+                res.json(req.state);
+
+            } catch (err) {
+
+                res.status(422).json({
+                    error: err.message
+                });
+
             }
-        });
+        } else {
+            res.status(404).end();
+        }
     });
 
 };

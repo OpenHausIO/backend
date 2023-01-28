@@ -5,12 +5,14 @@
         "es2021": true
     },
     "parserOptions": {
-        "ecmaVersion": 12
+        "ecmaVersion": 13
     },
     "ignorePatterns": [
         "node_modules",
         "logs",
-        "plugins/*"
+        "plugins/*",
+        "dist",
+        "build"
     ],
     "extends": [
         "eslint:recommended"

@@ -1,9 +1,11 @@
 const WebSocket = require("ws");
+const { finished } = require("stream");
 
 //const iface_locked = new Map();
 
 // move that to "event bus"
-const { interfaceServer, interfaceStreams } = global.sharedObjects;
+//const { interfaceServer, interfaceStreams } = global.sharedObjects;
+const { interfaceServer } = require("../system/shared.js");
 
 
 
@@ -20,7 +22,11 @@ module.exports = (app, router) => {
         });
 
         if (!iface) {
-            return res.status(404).end("NOT FOUND");
+            return res.status(404).end();
+        }
+
+        if (iface.upstream) {
+            return res.status(423).end();
         }
 
         if ((!req.headers["upgrade"] || !req.headers["connection"])) {
@@ -44,34 +50,62 @@ module.exports = (app, router) => {
                 // gets fired every time websocket client hit this url/route
                 wss.on("connection", (ws) => {
 
-                    let upstream = WebSocket.createWebSocketStream(ws, {
-                        // duplex stream options
-                        //emitClose: false,
-                        //objectMode: true,
-                        //decodeStrings: false
-                        allowHalfOpen: true
+                    // set connection to "alive"
+                    // see #148
+                    ws.isAlive = true;
+
+                    let upstream = WebSocket.createWebSocketStream(ws);
+
+                    // Cleanup: https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#streamfinishedstream-options-callback
+                    let cleanup = finished(upstream, () => {
+                        iface.detach(() => {
+                            cleanup();
+                        });
                     });
 
 
                     iface.attach(upstream);
 
-                    interfaceStreams.set(req.params._iid, iface.stream);
 
                     //https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
                     ["close", "error"].forEach((event) => {
                         upstream.once(event, () => {
 
                             upstream.destroy();
-
-                            iface.detach(() => {
-                                interfaceStreams.delete(req.params._iid);
-                            });
+                            iface.detach();
 
                         });
                     });
 
+                    // detect broken connection
+                    ws.on("pong", () => {
+                        //console.log("pong", Date.now(), "\r\n\r\n")
+                        ws.isAlive = true;
+                    });
 
                 });
+
+
+                let interval = setInterval(() => {
+                    wss.clients.forEach((ws) => {
+
+                        if (!ws.isAlive) {
+                            console.log("Stream died, terminate it!");
+                            ws.terminate();
+                            return;
+                        }
+
+                        ws.isAlive = false;
+                        ws.ping();
+
+                    });
+                }, Number(process.env.API_WEBSOCKET_TIMEOUT));
+
+
+                wss.on("close", () => {
+                    clearInterval(interval);
+                });
+
 
             }
 

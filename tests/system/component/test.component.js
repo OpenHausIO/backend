@@ -45,7 +45,7 @@ describe("component", function () {
 
     describe("- should have following methods", () => {
 
-        ["get", "add", "update", "remove", "find"].forEach((name) => {
+        ["get", "add", "update", "remove", "find", "found"].forEach((name) => {
             it(`should have method "${name}"`, () => {
                 assert(instance[name] instanceof Function);
             });
@@ -64,9 +64,10 @@ describe("component", function () {
             "events", "hooks", "ready",                 // base properties
             "init",                                     // base methods
             "logger",                                   // common properties
-            "_defineMethod",                            // common methods
+            "_defineMethod", "_mapMethod", "_ready",    // common methods
             "items", "collection", "schema",            // common properties
-            "get", "add", "update", "remove", "find"    // component methods
+            "get", "add", "update", "remove", "find",   // component methods
+            "found"
         ];
 
         for (let item of getItmes(instance)) {

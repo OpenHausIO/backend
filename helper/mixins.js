@@ -1,13 +1,14 @@
 /**
+ * @function mixins
  * Mix/merge a bunch of objects
- * @param {array} objs Array of objects to "merge"
- * @param {object} options Options object
- * @param {boolean} options.transparent Hide "overlay" objects, merge everything into a single object.
- * If false: Merge return single object, with "root" obj set as protoype
- * true: Use a proxy for requests, "hide" everything, only visible object is "root", like the opposite as "false"
- * @param {boolean} options.setPrototype Set prototype of newly created object to `obs[1]`, all other properties a merged/overriden
- * @param {function} lookup Lookup callback for transparent mode
- * @returns 
+ 
+ * @param {Array} objs Array of objects to "merge"
+ * @param {Object} options Options object
+ * @param {Boolean} options.transparent Hide "overlay" objects, merge everything into a single object. If false: Merge return single object, with "root" obj set as protoype true: Use a proxy for requests, "hide" everything, only visible object is "root", like the opposite as "false"
+ * @param {Boolean} options.setPrototype Set prototype of newly created object to `obs[1]`, all other properties a merged/overriden
+ * @param {Function} lookup Lookup callback for transparent mode
+ * 
+ * @returns {Object,Proxy} Returns a proxy or wrapper object where items are merged
  */
 function mixins(objs, options, lookup = () => { }) {
 
