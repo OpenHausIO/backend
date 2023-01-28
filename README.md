@@ -25,16 +25,12 @@ Fork this repository, apply the changes you want to make, and create a pull requ
 
 __*Note*__: If you want to contribute, please take a look on the "documentation" repository, section "[How to document the source code](https://github.com/OpenHausIO/documentation#how-to-document-the-source-code)".
 
-## Docker quick start:
-Build the docker image: 
-```sh
-npm run build:docker-image
-```
+## Demo
+There exsits a public demo: http://demo.open-haus.io<br />
+It is deployed with docker and runs the frontend & backend container.<br />
+The instance is rested to its default values every 10 Minutes.<br />
+No authentication required, full API support.
 
-Start a container:
-```sh
-docker run --rm -it --net host --name backend --env=UUID=c04a9aa6-7261-11ed-8578-cb6ee612422e --env=VAULT_MASTER_PASSWORD=Pa$$w0rd --env=USERS_JWT_SECRET=Pa$$w0rd --env=DATABASE_HOST=172.17.0.1 --env=API_AUTH_ENABLED=false openhaus/backend
-```
 
 ## License
 Im currently not sure, under what license i publish this work.<br />
