@@ -7,7 +7,7 @@ describe("Components", () => {
         [
             "devices", "endpoints", "plugins",
             "rooms", "ssdp", "store", "users",
-            "vault"
+            "vault", "mdns"
         ].forEach((name) => {
             describe(name, () => {
 
