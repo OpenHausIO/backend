@@ -10,6 +10,7 @@ const C_VAULT = require("../components/vault");
 const C_SSDP = require("../components/ssdp");
 const C_STORE = require("../components/store");
 const C_USERS = require("../components/users");
+const C_MQTT = require("../components/mqtt");
 
 // Remove due to issue #273
 //const { encode } = require("../helper/sanitize");
@@ -127,6 +128,7 @@ module.exports = (server) => {
         const ssdpRouter = express.Router();
         const storeRouter = express.Router();
         const usersRouter = express.Router();
+        const mqttRouter = express.Router();
 
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
@@ -175,6 +177,13 @@ module.exports = (server) => {
         api.use("/users", usersRouter);
         require("./rest-handler.js")(C_USERS, usersRouter);
         //require("./router.api.users.js")(app, vaultRouter);
+
+        // http://127.0.0.1/api/ssdp
+        api.use("/mqtt", mqttRouter);
+        require("./router.api.mqtt.js")(app, mqttRouter);
+        require("./rest-handler.js")(C_MQTT, mqttRouter);
+
+
 
         // NOTE: Drop this?!
         api.use((req, res) => {
