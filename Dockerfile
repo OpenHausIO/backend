@@ -28,6 +28,12 @@ WORKDIR /opt/OpenHaus/backend
 COPY --from=builder node_modules node_modules
 RUN apk --no-cache add openssl
 
+ARG version=unknown
+LABEL version=$version
+
+ARG buildDate=unknown
+LABEL buildDate=$buildDate
+
 COPY ./build/ ./
 #COPY ./package.json ./
 

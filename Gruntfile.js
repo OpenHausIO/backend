@@ -88,10 +88,17 @@ module.exports = function (grunt) {
 
 
     grunt.registerTask("build:docker", () => {
-        cp.execSync(`docker build . -t openhaus/${pkg.name}:latest --build-arg version=${pkg.version}`, {
+
+        let buildArgs = [
+            `--build-arg version=${pkg.version}`,
+            `--build-arg buildDate=${Date.now()}`,
+        ].join(" ");
+
+        cp.execSync(`docker build . -t openhaus/${pkg.name}:latest ${buildArgs}`, {
             env: process.env,
             stdio: "inherit"
         });
+
     });
 
 

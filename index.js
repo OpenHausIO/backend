@@ -205,7 +205,8 @@ const init_components = () => {
             "store",
             "users",
             "vault",
-            "mqtt"
+            "mqtt",
+            "mdns"
         ].sort(() => {
 
             // pseudo randomize start/init of components
