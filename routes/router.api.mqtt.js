@@ -42,6 +42,7 @@ module.exports = (app, router) => {
         if ((!req.headers["upgrade"] || !req.headers["connection"])) {
             //return res.status(403).end();
             next(); // let the rest-handler.js do its job
+            return;
         }
 
         // listen for websockt clients
