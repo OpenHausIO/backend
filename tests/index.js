@@ -35,7 +35,8 @@ process.env = Object.assign({
     VAULT_SALT_BYTE_LEN: "16",
     USERS_BCRYPT_SALT_ROUNDS: "12",
     USERS_JWT_SECRET: "Pa$$w0rd",
-    USERS_JWT_ALGORITHM: "HS384"
+    USERS_JWT_ALGORITHM: "HS384",
+    MQTT_BROKER_VERSION: "3"
 }, env.parsed, process.env);
 
 

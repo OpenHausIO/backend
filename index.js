@@ -56,7 +56,10 @@ process.env = Object.assign({
     VAULT_SALT_BYTE_LEN: "16",
     USERS_BCRYPT_SALT_ROUNDS: "12",
     USERS_JWT_SECRET: "",
-    USERS_JWT_ALGORITHM: "HS384"
+    USERS_JWT_ALGORITHM: "HS384",
+    MQTT_BROKER_VERSION: "3",
+    MQTT_CLIENT_ID: "OpenHaus",
+    MQTT_PING_INTERVAL: "5000"
 }, env.parsed, process.env);
 
 
@@ -202,6 +205,7 @@ const init_components = () => {
             "store",
             "users",
             "vault",
+            "mqtt",
             "mdns"
         ].sort(() => {
 
