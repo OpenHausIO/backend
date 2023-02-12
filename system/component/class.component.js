@@ -270,10 +270,17 @@ module.exports = class COMPONENT extends COMMON {
          */
         this._defineMethod("add", (final) => {
 
+            let duplicate = false;
+
             final((item) => {
-                //this.items.push(item);
-                items.push(item);
+
+                // Fix #294
+                if (!duplicate) {
+                    items.push(item);
+                }
+
                 return Promise.resolve();
+
             });
 
             return (data) => {
@@ -323,6 +330,8 @@ module.exports = class COMPONENT extends COMMON {
                                     }
                                     */
                                 });
+
+                                duplicate = !!item;
 
                                 // remove id when error occurs
                                 PENDING_CHANGE_EVENTS.delete(result.value._id);
