@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7c990139-b42a-4603-9c76-841a6cda01aa",
+		"_postman_id": "87196fff-8d06-44e2-a0ce-626fa3a54a1b",
 		"name": "OpenHaus",
 		"description": "SmartHome/IoT application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -301,6 +301,360 @@
 										"api",
 										"rooms",
 										"63bf017582fa29f44cf8dfd6"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Webhooks",
+					"item": [
+						{
+							"name": "Create new webhook",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check room name: input = output\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"    let req = JSON.parse(pm.request.body);",
+											"",
+											"    pm.expect(res.name).to.eql(req.name);",
+											"",
+											"});",
+											"",
+											"pm.test(\"Check properties\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"",
+											"    let props = [",
+											"        \"name\", \"timestamps\", \"_id\",",
+											"        \"number\", \"floor\", \"icon\"",
+											"    ];",
+											"",
+											"    Object.keys(res).forEach((key) => {",
+											"        pm.expect(props.includes(key)).to.be.true;",
+											"    });",
+											"",
+											"    props.forEach((item) => {",
+											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
+											"    });",
+											"",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Triggerd from Shelly i3\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all webhooks",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The response has all properties\", () => {",
+											"    let json = pm.response.json();",
+											"    pm.expect(json).to.have.lengthOf(json.length);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"",
+											"console.log(\"Fooo\")"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhbnMuaHViZXJ0QGV4YW1wbGUuY29tIiwidXVpZCI6ImM3N2E3NjJkLWM4ODYtNGQ2My1iNGM1LWU0MDJhZGNmYTdiZSIsImlhdCI6MTY1NDI2ODI4NX0.w4mkvTuJ-OXzTcmvWhwIT84oOmo2399hSEfWGbA-9SUWndMWUiHvly1A7-kSV93e",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get sinlge webhook",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks",
+										"63e9fe420d172b3b39313175"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update existing webhook",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const HOST = pm.collectionVariables.get(\"HOST\");",
+											"const PORT = pm.collectionVariables.get(\"PORT\");",
+											"",
+											"//console.log(pm.request.url.toString())",
+											"",
+											"pm.sendRequest({",
+											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
+											"    method: 'GET',",
+											"}, function (err, res) {",
+											"    if(err){",
+											"",
+											"        consle.error(err);",
+											"",
+											"    }else {",
+											"",
+											"        let data = res.json();",
+											"        let key = Math.floor(Math.random()*data.length);",
+											"        let item = data[key];",
+											"",
+											"        pm.variables.set(\"_id\", item._id);",
+											"",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Garage\",\n    \"icon\": \"fa-solid fa-warehouse\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks",
+										"63e9fe420d172b3b39313175"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete exisiting room",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
+											"",
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks",
+										"63e9fe420d172b3b39313175"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Trigger webhook",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"and\": \"also\",\n    \"json\": \"data\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175/trigger?optional=query&parameter=can&be=given",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks",
+										"63e9fe420d172b3b39313175",
+										"trigger"
+									],
+									"query": [
+										{
+											"key": "optional",
+											"value": "query"
+										},
+										{
+											"key": "parameter",
+											"value": "can"
+										},
+										{
+											"key": "be",
+											"value": "given"
+										}
 									]
 								}
 							},
@@ -2619,7 +2973,9 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": null
+						"url": {
+							"raw": ""
+						}
 					},
 					"response": []
 				}

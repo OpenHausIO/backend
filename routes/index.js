@@ -10,6 +10,7 @@ const C_VAULT = require("../components/vault");
 const C_SSDP = require("../components/ssdp");
 const C_STORE = require("../components/store");
 const C_USERS = require("../components/users");
+const C_WEBHOOKS = require("../components/webhooks");
 const C_MQTT = require("../components/mqtt");
 const C_MDNS = require("../components/mdns");
 
@@ -129,6 +130,7 @@ module.exports = (server) => {
         const ssdpRouter = express.Router();
         const storeRouter = express.Router();
         const usersRouter = express.Router();
+        const webhooksRouter = express.Router();
         const mqttRouter = express.Router();
         const mdnsRouter = express.Router();
 
@@ -180,6 +182,11 @@ module.exports = (server) => {
         require("./rest-handler.js")(C_USERS, usersRouter);
         //require("./router.api.users.js")(app, vaultRouter);
 
+        // http://127.0.0.1/api/webhooks
+        api.use("/webhooks", webhooksRouter);
+        require("./router.api.webhooks.js")(app, webhooksRouter);
+        require("./rest-handler.js")(C_WEBHOOKS, webhooksRouter);
+        
         // http://127.0.0.1/api/mqtt
         api.use("/mqtt", mqttRouter);
         require("./router.api.mqtt.js")(app, mqttRouter);
