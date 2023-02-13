@@ -201,7 +201,8 @@ const init_components = () => {
             "ssdp",
             "store",
             "users",
-            "vault"
+            "vault",
+            "webhooks"
         ].sort(() => {
 
             // pseudo randomize start/init of components
