@@ -17,6 +17,10 @@ const PENDING_CHANGE_EVENTS = new Set();
  * - remove
  * - find
  * 
+ * Methods that are not hookable:
+ * - found
+ * - labels
+ * 
  * @class COMPONENT
  * 
  * @extends COMMON system/component/class.common.js
@@ -24,6 +28,7 @@ const PENDING_CHANGE_EVENTS = new Set();
  * @property {Array} items Store where instance of items are keept
  * @property {Object} collection MongoDB collection instance 
  * @property {Object} schema Joi Object schema which is extend by a timestamp object:
+ * @property {Array} schema.labels Array that allow custom labels for identification
  * @property {Object} schema.timestamps Timestamps
  * @property {Number} schema.timestamps.created Set to `Date.now()` when a item is created/added
  * @property {Number} schema.timestamps.updated Set to `Date.now()` when a item is updated
@@ -92,6 +97,9 @@ module.exports = class COMPONENT extends COMMON {
 
         this.schema = Joi.object({
             ...schema,
+            //labels: Joi.array().items(Joi.string().regex(/^[a-zA-Z0-9]+=[a-zA-Z0-9]+$/)).default([])
+            //labels: Joi.array().items(Joi.string().regex(/^[a-z0-9\.]+=[a-z0-9]+$/)).default([]),
+            labels: Joi.array().items(Joi.string().regex(/^[a-z0-9]+=[a-z0-9]+$/)).default([]),
             timestamps: Joi.object({
                 ...schema?.timestamps,
                 created: Joi.number().allow(null).default(null),
@@ -262,10 +270,17 @@ module.exports = class COMPONENT extends COMMON {
          */
         this._defineMethod("add", (final) => {
 
+            let duplicate = false;
+
             final((item) => {
-                //this.items.push(item);
-                items.push(item);
+
+                // Fix #294
+                if (!duplicate) {
+                    items.push(item);
+                }
+
                 return Promise.resolve();
+
             });
 
             return (data) => {
@@ -315,6 +330,8 @@ module.exports = class COMPONENT extends COMMON {
                                     }
                                     */
                                 });
+
+                                duplicate = !!item;
 
                                 // remove id when error occurs
                                 PENDING_CHANGE_EVENTS.delete(result.value._id);
@@ -600,6 +617,8 @@ module.exports = class COMPONENT extends COMMON {
     * @param {Object} filter Object that matches the component schema
     * @param {Function} cb Callback function
     * @param {Function} [nothing] Function that is called when not matching item in <items> array is found. Usefull to add then something, when its not found.
+    * 
+    * @returns {Function} Cleanup. If you dont to get pdates/called again, call the "cleanup" function
     */
     found(filter, cb, nothing) {
 
@@ -653,7 +672,6 @@ module.exports = class COMPONENT extends COMMON {
             });
         }
 
-        // NOTE: Why is a array from the add eventlistener returned?!
         let ev = (item) => {
             handler(filter, item);
         };
@@ -675,6 +693,60 @@ module.exports = class COMPONENT extends COMMON {
 
     }
 
+
+    /**
+    * @function _labels
+    * Checks if filter array contains matching labels
+    * 
+    * @param {Array} arr Array with item labels to check with filter
+    * @param {Array} filter Filter array
+    * 
+    * @returns {Boolean} true/false if filter matches label array
+    */
+    _labels(arr, filter) {
+        return filter.every((filter) => {
+            if (arr.includes(filter)) {
+
+                return true;
+
+            } else {
+
+                let [key, value] = filter.split("=");
+
+                return arr.some((label) => {
+
+                    let [k, v] = label.split("=");
+
+                    if (value === "*") {
+                        return key === k;
+                    }
+
+                    if (key === "*") {
+                        return value === v;
+                    }
+
+                    return false;
+
+                });
+
+            }
+        });
+    }
+
+
+    /**
+     * @function labels
+     * Retun all items that matches the givel label filter
+     * 
+     * @param {Array} filter Filter for labels array
+     * 
+     * @returns {Array} With all items that have matching labels
+     */
+    labels(filter) {
+        return this.items.filter(({ labels }) => {
+            return this._labels(labels || [], filter);
+        });
+    }
 
     // 
     /*

@@ -18,9 +18,16 @@ function merge(dst, src) {
             let sourceArray = dst[key] || [];
 
             res[key] = cur.map((valObj, index) => {
+
+                // fix #295
+                if (!(typeof valObj === "object")) {
+                    return valObj;
+                }
+
                 // this is simply merging on index, but if you wanted a "smarter" merge, you could look up
                 // the dst by a specific key with sourceArray.find(...)
                 return merge(sourceArray[index] || {}, valObj);
+
             });
 
         } else if (typeof cur === "object" && cur !== null) {

@@ -11,6 +11,8 @@ const C_SSDP = require("../components/ssdp");
 const C_STORE = require("../components/store");
 const C_USERS = require("../components/users");
 const C_WEBHOOKS = require("../components/webhooks");
+const C_MQTT = require("../components/mqtt");
+const C_MDNS = require("../components/mdns");
 
 // Remove due to issue #273
 //const { encode } = require("../helper/sanitize");
@@ -129,6 +131,8 @@ module.exports = (server) => {
         const storeRouter = express.Router();
         const usersRouter = express.Router();
         const webhooksRouter = express.Router();
+        const mqttRouter = express.Router();
+        const mdnsRouter = express.Router();
 
         // http://127.0.0.1/api/plugins
         api.use("/plugins", pluginsRouter);
@@ -182,6 +186,16 @@ module.exports = (server) => {
         api.use("/webhooks", webhooksRouter);
         require("./router.api.webhooks.js")(app, webhooksRouter);
         require("./rest-handler.js")(C_WEBHOOKS, webhooksRouter);
+        
+        // http://127.0.0.1/api/mqtt
+        api.use("/mqtt", mqttRouter);
+        require("./router.api.mqtt.js")(app, mqttRouter);
+        require("./rest-handler.js")(C_MQTT, mqttRouter);
+
+        // http://127.0.0.1/api/mdns
+        api.use("/mdns", mdnsRouter);
+        require("./router.api.mdns.js")(app, mdnsRouter);
+        require("./rest-handler.js")(C_MDNS, mdnsRouter);
 
         // NOTE: Drop this?!
         api.use((req, res) => {
