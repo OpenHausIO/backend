@@ -205,7 +205,7 @@ const init_components = () => {
             "store",
             "users",
             "vault",
-            "webhooks"
+            "webhooks",
             "mqtt",
             "mdns"
         ].sort(() => {
