@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,8 @@
     "release": "grunt release",
     "db:export": "mongodump --db OpenHaus --archive=./demo-database.gz",
     "db:import": "mongorestore --db OpenHaus --archive=./demo-database.gz",
-    "postinstall": "scripts/post-install.sh"
+    "postinstall": "scripts/post-install.sh",
+    "publish": "grunt publish"
   },
   "engines": {
     "node": ">=0.16.0"
