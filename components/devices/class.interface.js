@@ -108,7 +108,7 @@ module.exports = class Interface {
 
         options = Object.assign({
             keepAlive: true,
-            maxSockets: 1,
+            //maxSockets: 1,
             keepAliveMsecs: 3000,        // use this as websocket ping/pong value to detect broken connections?
         }, options);
 
