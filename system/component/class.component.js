@@ -685,6 +685,32 @@ module.exports = class COMPONENT extends COMMON {
 
         };
 
+
+        /*
+        // potential fix for #307
+        // the problem is not the method, but the wildcard in labels
+        let handler = (filter, item) => {
+
+            let loop = (target, filter) => {
+                return Object.keys(filter).every((key) => {
+
+                    if (target[key] instanceof Object) {
+                        return loop(target[key], filter[key]);
+                    } else {
+                        return target[key] === filter[key];
+                    }
+
+                });
+            };
+
+            if (loop(item, filter)) {
+                matched = true;
+                cb(item);
+            }
+
+        };
+        */
+
         this.items.forEach((item) => {
             handler(filter, item);
         });
