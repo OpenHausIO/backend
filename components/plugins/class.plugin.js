@@ -29,10 +29,10 @@ class Plugin {
     }
 
     /**
-     * @function boot
-     * Start/boot installed plugin
+     * @function start
+     * Start installed plugin
      */
-    boot() {
+    start() {
         if (this.enabled) {
 
             let plugin = path.resolve(process.cwd(), "plugins", this.uuid);
@@ -115,6 +115,13 @@ class Plugin {
 
         }
     }
+
+    /*
+    stop(){
+        // TODO: Implement
+        // When plugins run in seperate worker process
+    }
+    */
 
 }
 

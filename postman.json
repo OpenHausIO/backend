@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7c990139-b42a-4603-9c76-841a6cda01aa",
+		"_postman_id": "87196fff-8d06-44e2-a0ce-626fa3a54a1b",
 		"name": "OpenHaus",
 		"description": "SmartHome/IoT application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -301,6 +301,978 @@
 										"api",
 										"rooms",
 										"63bf017582fa29f44cf8dfd6"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Webhooks",
+					"item": [
+						{
+							"name": "Create new webhook",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check room name: input = output\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"    let req = JSON.parse(pm.request.body);",
+											"",
+											"    pm.expect(res.name).to.eql(req.name);",
+											"",
+											"});",
+											"",
+											"pm.test(\"Check properties\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"",
+											"    let props = [",
+											"        \"name\", \"timestamps\", \"_id\",",
+											"        \"number\", \"floor\", \"icon\"",
+											"    ];",
+											"",
+											"    Object.keys(res).forEach((key) => {",
+											"        pm.expect(props.includes(key)).to.be.true;",
+											"    });",
+											"",
+											"    props.forEach((item) => {",
+											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
+											"    });",
+											"",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Triggerd from Shelly i3\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all webhooks",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The response has all properties\", () => {",
+											"    let json = pm.response.json();",
+											"    pm.expect(json).to.have.lengthOf(json.length);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"",
+											"console.log(\"Fooo\")"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhbnMuaHViZXJ0QGV4YW1wbGUuY29tIiwidXVpZCI6ImM3N2E3NjJkLWM4ODYtNGQ2My1iNGM1LWU0MDJhZGNmYTdiZSIsImlhdCI6MTY1NDI2ODI4NX0.w4mkvTuJ-OXzTcmvWhwIT84oOmo2399hSEfWGbA-9SUWndMWUiHvly1A7-kSV93e",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get sinlge webhook",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks",
+										"63e9fe420d172b3b39313175"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update existing webhook",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const HOST = pm.collectionVariables.get(\"HOST\");",
+											"const PORT = pm.collectionVariables.get(\"PORT\");",
+											"",
+											"//console.log(pm.request.url.toString())",
+											"",
+											"pm.sendRequest({",
+											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
+											"    method: 'GET',",
+											"}, function (err, res) {",
+											"    if(err){",
+											"",
+											"        consle.error(err);",
+											"",
+											"    }else {",
+											"",
+											"        let data = res.json();",
+											"        let key = Math.floor(Math.random()*data.length);",
+											"        let item = data[key];",
+											"",
+											"        pm.variables.set(\"_id\", item._id);",
+											"",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Garage\",\n    \"icon\": \"fa-solid fa-warehouse\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks",
+										"63e9fe420d172b3b39313175"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete exisiting room",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
+											"",
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks",
+										"63e9fe420d172b3b39313175"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Trigger webhook",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"and\": \"also\",\n    \"json\": \"data\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175/trigger?optional=query&parameter=can&be=given",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"webhooks",
+										"63e9fe420d172b3b39313175",
+										"trigger"
+									],
+									"query": [
+										{
+											"key": "optional",
+											"value": "query"
+										},
+										{
+											"key": "parameter",
+											"value": "can"
+										},
+										{
+											"key": "be",
+											"value": "given"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "MDNS",
+					"item": [
+						{
+							"name": "Create mdns entry",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check room name: input = output\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"    let req = JSON.parse(pm.request.body);",
+											"",
+											"    pm.expect(res.name).to.eql(req.name);",
+											"",
+											"});",
+											"",
+											"pm.test(\"Check properties\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"",
+											"    let props = [",
+											"        \"name\", \"timestamps\", \"_id\",",
+											"        \"number\", \"floor\", \"icon\"",
+											"    ];",
+											"",
+											"    Object.keys(res).forEach((key) => {",
+											"        pm.expect(props.includes(key)).to.be.true;",
+											"    });",
+											"",
+											"    props.forEach((item) => {",
+											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
+											"    });",
+											"",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"shelly*.local\",\n    \"type\": \"A\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/mdns",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"mdns"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all mdns targets",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The response has all properties\", () => {",
+											"    let json = pm.response.json();",
+											"    pm.expect(json).to.have.lengthOf(json.length);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"",
+											"console.log(\"Fooo\")"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhbnMuaHViZXJ0QGV4YW1wbGUuY29tIiwidXVpZCI6ImM3N2E3NjJkLWM4ODYtNGQ2My1iNGM1LWU0MDJhZGNmYTdiZSIsImlhdCI6MTY1NDI2ODI4NX0.w4mkvTuJ-OXzTcmvWhwIT84oOmo2399hSEfWGbA-9SUWndMWUiHvly1A7-kSV93e",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/mdns",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"mdns"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get sinlge mdns target",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/mdns/63e7f7ba26b161df7f3af1d6",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"mdns",
+										"63e7f7ba26b161df7f3af1d6"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update mdns target",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const HOST = pm.collectionVariables.get(\"HOST\");",
+											"const PORT = pm.collectionVariables.get(\"PORT\");",
+											"",
+											"//console.log(pm.request.url.toString())",
+											"",
+											"pm.sendRequest({",
+											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
+											"    method: 'GET',",
+											"}, function (err, res) {",
+											"    if(err){",
+											"",
+											"        consle.error(err);",
+											"",
+											"    }else {",
+											"",
+											"        let data = res.json();",
+											"        let key = Math.floor(Math.random()*data.length);",
+											"        let item = data[key];",
+											"",
+											"        pm.variables.set(\"_id\", item._id);",
+											"",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"labels\": [\n        \"manufacturer=shelly\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/mdns/63e7f7ba26b161df7f3af1d6",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"mdns",
+										"63e7f7ba26b161df7f3af1d6"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete mdns target",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
+											"",
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/mdns/63e7f7ba26b161df7f3af1d6",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"mdns",
+										"63e7f7ba26b161df7f3af1d6"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "MQTT",
+					"item": [
+						{
+							"name": "Create mqtt topic",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check room name: input = output\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"    let req = JSON.parse(pm.request.body);",
+											"",
+											"    pm.expect(res.name).to.eql(req.name);",
+											"",
+											"});",
+											"",
+											"pm.test(\"Check properties\", () => {",
+											"",
+											"    let res = pm.response.json();",
+											"",
+											"    let props = [",
+											"        \"name\", \"timestamps\", \"_id\",",
+											"        \"number\", \"floor\", \"icon\"",
+											"    ];",
+											"",
+											"    Object.keys(res).forEach((key) => {",
+											"        pm.expect(props.includes(key)).to.be.true;",
+											"    });",
+											"",
+											"    props.forEach((item) => {",
+											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
+											"    });",
+											"",
+											"})"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"topic\": \"air-sensor/sensor/particulate_matter_25m_concentration\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/mqtt",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"mqtt"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all mqtt topics",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"The response has all properties\", () => {",
+											"    let json = pm.response.json();",
+											"    pm.expect(json).to.have.lengthOf(json.length);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", () => {",
+											"  pm.response.to.have.status(200);",
+											"});",
+											"",
+											"console.log(\"Fooo\")"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhbnMuaHViZXJ0QGV4YW1wbGUuY29tIiwidXVpZCI6ImM3N2E3NjJkLWM4ODYtNGQ2My1iNGM1LWU0MDJhZGNmYTdiZSIsImlhdCI6MTY1NDI2ODI4NX0.w4mkvTuJ-OXzTcmvWhwIT84oOmo2399hSEfWGbA-9SUWndMWUiHvly1A7-kSV93e",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/mqtt",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"mqtt"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get sinlge mqtt topic",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/mqtt/63e8f7d2ab413a9760e9b08c",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"mqtt",
+										"63e8f7d2ab413a9760e9b08c"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update mqtt topic",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const HOST = pm.collectionVariables.get(\"HOST\");",
+											"const PORT = pm.collectionVariables.get(\"PORT\");",
+											"",
+											"//console.log(pm.request.url.toString())",
+											"",
+											"pm.sendRequest({",
+											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
+											"    method: 'GET',",
+											"}, function (err, res) {",
+											"    if(err){",
+											"",
+											"        consle.error(err);",
+											"",
+											"    }else {",
+											"",
+											"        let data = res.json();",
+											"        let key = Math.floor(Math.random()*data.length);",
+											"        let item = data[key];",
+											"",
+											"        pm.variables.set(\"_id\", item._id);",
+											"",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"description\": \"Ikea VINDRIKTNING MQTT modd\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/mqtt/63e8f7d2ab413a9760e9b08c",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"mqtt",
+										"63e8f7d2ab413a9760e9b08c"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete mqtt topic",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
+											"",
+											"pm.test(\"status code: 200\", () => {",
+											"    pm.response.to.have.status(200);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/mqtt/63e8f7d2ab413a9760e9b08c",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"mqtt",
+										"63e8f7d2ab413a9760e9b08c"
 									]
 								}
 							},
@@ -1309,7 +2281,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"AV - Receiver\"\n}",
+									"raw": "   {\n        \"_id\": \"63a5a4c2bd5fe7cb165960d0\",\n        \"name\": \"Fernseher\",\n        \"device\": \"63a5a4c2bd5fe7cb165960cd\",\n        \"commands\": [\n            {\n                \"payload\": \"KEY_0\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_0\",\n                \"name\": \"KEY_0\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d1\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_1\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_1\",\n                \"name\": \"KEY_1\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d2\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_2\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_2\",\n                \"name\": \"KEY_2\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d3\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_3\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_3\",\n                \"name\": \"KEY_3\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d4\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_4\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_4\",\n                \"name\": \"KEY_4\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d5\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_5\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_5\",\n                \"name\": \"KEY_5\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d6\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_6\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_6\",\n                \"name\": \"KEY_6\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d7\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_7\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_7\",\n                \"name\": \"KEY_7\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d8\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_8\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_8\",\n                \"name\": \"KEY_8\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d9\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_9\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_9\",\n                \"name\": \"KEY_9\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960da\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_10\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_10\",\n                \"name\": \"KEY_10\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960db\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_11\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_11\",\n                \"name\": \"KEY_11\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960dc\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_12\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_12\",\n                \"name\": \"KEY_12\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960dd\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_CHDOWN\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_CHDOWN\",\n                \"name\": \"KEY_CHDOWN\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960de\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_CHUP\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_CHUP\",\n                \"name\": \"KEY_CHUP\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960df\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_VOLDOWN\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_VOLDOWN\",\n                \"name\": \"KEY_VOLDOWN\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e0\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_VOLUP\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_VOLUP\",\n                \"name\": \"KEY_VOLUP\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e1\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_MUTE\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_MUTE\",\n                \"name\": \"KEY_MUTE\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e2\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_SOURCE\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_SOURCE\",\n                \"name\": \"KEY_SOURCE\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e3\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_LEFT\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_LEFT\",\n                \"name\": \"KEY_LEFT\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e4\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_RIGHT\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_RIGHT\",\n                \"name\": \"KEY_RIGHT\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e5\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_UP\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_UP\",\n                \"name\": \"KEY_UP\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e6\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_DOWN\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_DOWN\",\n                \"name\": \"KEY_DOWN\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e7\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_ENTER\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_ENTER\",\n                \"name\": \"KEY_ENTER\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e8\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_MENU\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_MENU\",\n                \"name\": \"KEY_MENU\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e9\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_EXIT\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_EXIT\",\n                \"name\": \"KEY_EXIT\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960ea\",\n                \"identifier\": null,\n                \"description\": null\n            }\n        ],\n        \"timestamps\": {\n            \"created\": 1671800002321,\n            \"updated\": null\n        },\n        \"enabled\": true,\n        \"room\": \"62a4bbf0d9256b5e8d69889c\",\n        \"states\": [],\n        \"identifier\": null,\n        \"icon\": \"fa-solid fa-tv\"\n    }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1317,7 +2289,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/6266c441e207ba2a3e3c9222",
+									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/63a5a4c2bd5fe7cb165960d0",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1326,7 +2298,7 @@
 									"path": [
 										"api",
 										"endpoints",
-										"6266c441e207ba2a3e3c9222"
+										"63a5a4c2bd5fe7cb165960d0"
 									]
 								}
 							},
@@ -2001,7 +2973,9 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": null
+						"url": {
+							"raw": ""
+						}
 					},
 					"response": []
 				}

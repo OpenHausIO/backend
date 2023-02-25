@@ -88,10 +88,22 @@ module.exports = function (grunt) {
 
 
     grunt.registerTask("build:docker", () => {
-        cp.execSync(`docker build . -t openhaus/${pkg.name}:latest --build-arg version=${pkg.version}`, {
+
+        let buildArgs = [
+            `--build-arg version=${pkg.version}`,
+            `--build-arg buildDate=${Date.now()}`,
+        ].join(" ");
+
+        cp.execSync(`docker build . -t openhaus/${pkg.name}:${pkg.version} ${buildArgs}`, {
             env: process.env,
             stdio: "inherit"
         });
+
+        cp.execSync(`docker build . -t openhaus/${pkg.name}:latest ${buildArgs}`, {
+            env: process.env,
+            stdio: "inherit"
+        });
+
     });
 
 
@@ -134,6 +146,20 @@ module.exports = function (grunt) {
                 stdio: "inherit"
             });
         });
+    });
+
+
+    grunt.registerTask("publish", () => {
+        [
+            `docker push openhaus/${pkg.name}:${pkg.version}`,
+            `docker push openhaus/${pkg.name}:latest`
+        ].forEach((cmd) => {
+            cp.execSync(cmd, {
+                env: process.env,
+                stdio: "inherit"
+            });
+        });
+
     });
 
 

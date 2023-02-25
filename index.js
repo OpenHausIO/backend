@@ -56,7 +56,10 @@ process.env = Object.assign({
     VAULT_SALT_BYTE_LEN: "16",
     USERS_BCRYPT_SALT_ROUNDS: "12",
     USERS_JWT_SECRET: "",
-    USERS_JWT_ALGORITHM: "HS384"
+    USERS_JWT_ALGORITHM: "HS384",
+    MQTT_BROKER_VERSION: "3",
+    MQTT_CLIENT_ID: "OpenHaus",
+    MQTT_PING_INTERVAL: "5000"
 }, env.parsed, process.env);
 
 
@@ -201,7 +204,10 @@ const init_components = () => {
             "ssdp",
             "store",
             "users",
-            "vault"
+            "vault",
+            "webhooks",
+            "mqtt",
+            "mdns"
         ].sort(() => {
 
             // pseudo randomize start/init of components
@@ -461,7 +467,7 @@ const starter = new Promise((resolve) => {
 
             logger.verbose(`Start plugin "${plugin.name}" (${plugin.uuid})`);
 
-            plugin.boot();
+            plugin.start();
 
             started += 1;
 
