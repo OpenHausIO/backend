@@ -59,4 +59,32 @@ module.exports = (app, router) => {
         }
     });
 
+    router.post("/:_id/start", (req, res) => {
+        try {
+
+            req.item.start();
+            res.json(req.item);
+
+        } catch (err) {
+
+            res.status(500).end(err);
+
+        }
+    });
+
+    /*
+    router.post("/:_id/stop", (req, res) => {
+        try {
+
+            req.item.stop();
+            res.json(req.item);
+
+        } catch (err) {
+
+            res.status(500).end(err);
+
+        }
+    });
+    */
+
 };
