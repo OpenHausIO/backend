@@ -87,7 +87,7 @@ module.exports = class Interface {
                 is: "SERIAL",
                 then: SERIAL
             }),
-            adapter: Joi.array().items("base64", "eiscp", "json", "raw").default(["raw"]),
+            adapter: Joi.array().items("eiscp", "raw").default(["raw"]),
             description: Joi.string().allow(null).default(null)
         });
 
@@ -108,7 +108,7 @@ module.exports = class Interface {
 
         options = Object.assign({
             keepAlive: true,
-            maxSockets: 1,
+            //maxSockets: 1,
             keepAliveMsecs: 3000,        // use this as websocket ping/pong value to detect broken connections?
         }, options);
 

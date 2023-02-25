@@ -15,6 +15,19 @@ module.exports = (scope) => {
         // ping timer
         let interval = null;
 
+        events.on("publish", (packet) => {
+            scope.items.forEach(({ topic, _subscriber }) => {
+
+                if (String(packet.topic).startsWith(topic) || packet.topic === topic) {
+                    _subscriber.forEach((cb) => {
+                        cb(packet.payload, packet);
+                    });
+                }
+
+            });
+        });
+
+
         events.on("connected", (ws) => {
 
             logger.debug("TCP socket connected to broker");
@@ -36,26 +49,12 @@ module.exports = (scope) => {
                 will: {
                     topic: "mydevice/test",
                     payload: Buffer.from("2134f"), // Payloads are buffers
-
+    
                 }
                 */
             });
 
             ws.send(data);
-
-
-            events.on("publish", (packet) => {
-                scope.items.forEach(({ topic, _subscriber }) => {
-
-                    if (String(packet.topic).startsWith(topic) || packet.topic === topic) {
-                        _subscriber.forEach((cb) => {
-                            cb(packet.payload, packet);
-                        });
-                    }
-
-                });
-            });
-
 
             events.once("connack", (packet) => {
                 if (packet.returnCode === 0) {

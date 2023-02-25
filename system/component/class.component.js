@@ -572,12 +572,13 @@ module.exports = class COMPONENT extends COMMON {
          */
         this._defineMethod("find", () => {
             return (query) => {
-                return new Promise((resolve, reject) => {
+                return new Promise((resolve) => {
 
                     // https://javascript.plainenglish.io/4-ways-to-compare-objects-in-javascript-97fe9b2a949c
                     // https://stackoverflow.com/a/1068883/5781499
                     // https://dmitripavlutin.com/how-to-compare-objects-in-javascript/
 
+                    /*
                     let item = this.items.find((item) => {
                         // for (let key of query) { ?!
                         for (let key in Object.keys(query)) {
@@ -596,6 +597,28 @@ module.exports = class COMPONENT extends COMMON {
                     }
 
                     resolve([item]);
+                    */
+
+                    // fix #306
+                    let item = this.items.find((item) => {
+
+                        let loop = (target, filter) => {
+                            return Object.keys(filter).every((key) => {
+
+                                if (target[key] instanceof Object) {
+                                    return loop(target[key], filter[key]);
+                                } else {
+                                    return target[key] === filter[key];
+                                }
+
+                            });
+                        };
+
+                        return loop(item, query);
+
+                    });
+
+                    resolve([item || null]);
 
                 });
             };
@@ -661,6 +684,32 @@ module.exports = class COMPONENT extends COMMON {
             }
 
         };
+
+
+        /*
+        // potential fix for #307
+        // the problem is not the method, but the wildcard in labels
+        let handler = (filter, item) => {
+
+            let loop = (target, filter) => {
+                return Object.keys(filter).every((key) => {
+
+                    if (target[key] instanceof Object) {
+                        return loop(target[key], filter[key]);
+                    } else {
+                        return target[key] === filter[key];
+                    }
+
+                });
+            };
+
+            if (loop(item, filter)) {
+                matched = true;
+                cb(item);
+            }
+
+        };
+        */
 
         this.items.forEach((item) => {
             handler(filter, item);

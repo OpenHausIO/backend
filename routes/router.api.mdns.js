@@ -53,6 +53,8 @@ module.exports = (app, router) => {
 
             console.log("Clien connected to mdns");
 
+            C_MDNS.events.emit("connected", ws);
+
             ws.on("message", (msg) => {
                 C_MDNS.events.emit("message", decode(msg), msg);
             });

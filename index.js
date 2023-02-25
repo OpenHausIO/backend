@@ -467,7 +467,7 @@ const starter = new Promise((resolve) => {
 
             logger.verbose(`Start plugin "${plugin.name}" (${plugin.uuid})`);
 
-            plugin.boot();
+            plugin.start();
 
             started += 1;
 

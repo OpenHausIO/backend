@@ -1,0 +1,17 @@
+[Unit]
+Description=OpenHaus Backend
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/node /opt/OpenHaus/backend/index.js
+WorkingDirectory=/opt/OpenHaus/backend
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+Environment=VAULT_MASTER_PASSWORD=Pa$$w0rd
+Environment=USERS_JWT_SECRET=Pa$$w0rd
+Environment=UUID=00000000-0000-0000-0000-000000000000
+
+[Install]
+WantedBy=multi-user.target

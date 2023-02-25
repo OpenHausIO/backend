@@ -18,7 +18,9 @@ Object.defineProperty(logger, "create", {
     value: function create(name) {
 
         let file = path.resolve(process.env.LOG_PATH, `${name}.log`);
-        let stream = createWriteStream(file);
+        let stream = createWriteStream(file, {
+            flags: "a"
+        });
 
         stream.on("error", (err) => {
             console.error(err);
@@ -51,8 +53,12 @@ Object.defineProperty(logger, "create", {
  * ```
  */
 
-const system = createWriteStream(path.resolve(process.env.LOG_PATH, "system.log"));
-const combined = createWriteStream(path.resolve(process.env.LOG_PATH, "combined.log"));
+const system = createWriteStream(path.resolve(process.env.LOG_PATH, "system.log"), {
+    flags: "a"
+});
+const combined = createWriteStream(path.resolve(process.env.LOG_PATH, "combined.log"), {
+    flags: "a"
+});
 
 [system, combined].forEach((stream) => {
     stream.on("error", (err) => {
@@ -106,7 +112,9 @@ Object.defineProperty(logger, "create", {
             });
         }
 
-        let stream = createWriteStream(file);
+        let stream = createWriteStream(file, {
+            flags: "a"
+        });
 
         stream.on("error", (err) => {
             console.error(err);

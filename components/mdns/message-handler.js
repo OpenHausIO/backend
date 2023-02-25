@@ -1,3 +1,5 @@
+const { encode, RECURSION_DESIRED } = require("dns-packet");
+
 module.exports = (scope) => {
     scope._ready(({ logger }) => {
 
@@ -19,6 +21,29 @@ module.exports = (scope) => {
                 type,
                 _matches
             });
+        });
+
+
+        scope.events.on("connected", (ws) => {
+
+            let questions = scope.items.map(({ type, name }) => {
+                return {
+                    type,
+                    name
+                };
+            });
+
+            let query = encode({
+                type: "query",
+                id: 1,
+                flags: RECURSION_DESIRED,
+                questions
+            });
+
+            logger.debug("Connected, send query", query, questions);
+
+            ws.send(query);
+
         });
 
 
