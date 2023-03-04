@@ -101,6 +101,7 @@ if (process.env.NODE_ENV === "production") {
 
 
 require("./system/shared.js");
+require("./system/dispatcher.js");
 // #9, see #86
 // hits is uglay and hard to maintain
 /*
@@ -207,7 +208,8 @@ const init_components = () => {
             "vault",
             "webhooks",
             "mqtt",
-            "mdns"
+            "mdns",
+            "scenes"
         ].sort(() => {
 
             // pseudo randomize start/init of components
