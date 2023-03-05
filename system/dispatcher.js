@@ -5,10 +5,10 @@
  * This prevents the dependency from another component.
  * 
  * @param {Object} object Object
- * @param {String} component Component name: "rooms", "endpoints"
- * @param {String} item Item ObjectID id
- * @param {String} method Method/function to be called on component instance
- * @param {Array} args Arguments array passed to the function/method
+ * @param {String} object.component Component name: "rooms", "endpoints"
+ * @param {String} object.item Item ObjectID id
+ * @param {String} object.method Method/function to be called on component instance
+ * @param {Array} object.args Arguments array passed to the function/method
  * 
  * @example
  * ```js
@@ -27,7 +27,7 @@ module.exports = function dispatch({ component, item, method, args }) {
 
         let C_COMPONENT = require(`../components/${component}`);
 
-        return C_COMPONENT.find(item).then((item) => {
+        return C_COMPONENT.get(item).then((item) => {
             return Reflect.apply(item[method], item, args);
         }).catch((err) => {
             return Promise.reject(err);

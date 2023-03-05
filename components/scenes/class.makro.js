@@ -2,6 +2,7 @@ const Joi = require("joi");
 const mongodb = require("mongodb");
 
 const dispatcher = require("../../system/dispatcher");
+//const C_ENDPOINTS = require("../endpoints");
 
 /**
  * @description
@@ -33,32 +34,37 @@ module.exports = class Makro {
     }
 
 
-    execute(result) {
+    execute(result, signal) {
         return new Promise((resolve, reject) => {
             try {
+                if (this.type === "timer") {
 
-                console.log("PReview makro result", result);
-                console.log("Dispatcher", this.dispatcher);
+                    let timeout = setTimeout(() => {
+                        resolve(this._id, signal);
+                    }, this.value);
 
-                // NOTE: This will not be work
-                // Beacuase ther is no "trigger" method on the endpoint item
-                dispatcher({
-                    "component": "endpoints",
-                    "item": this.endpoint,
-                    "method": "trigger",
-                    "args": [this.command]
-                });
+                    signal.addEventListener("abort", () => {
+                        clearTimeout(timeout);
+                    }, {
+                        once: true
+                    });
 
-                // check here
-                // handle this "local" inside the makro class
-                // or deligate/dispatch this to the "system/scene" component handler?
+                } else if (this.type === "command") {
 
-                console.log("Handle makro", this);
+                    dispatcher({
+                        "component": "endpoints",
+                        "item": this.endpoint,
+                        "method": "trigger",
+                        "args": [this.command]
+                    });
 
-                setTimeout(() => {
                     resolve(this._id);
-                }, 1000);
 
+                } else {
+
+                    reject(`${this.type} is invalid!`);
+
+                }
             } catch (err) {
 
                 reject(err);
@@ -83,7 +89,7 @@ module.exports = class Makro {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return String(new mongodb.ObjectId());
             }),
-            type: Joi.string().valid("command"/*, "state"*/).required(),
+            type: Joi.string().valid("command", "timer"/*, "state"*/).required(),
             timestamps: Joi.object({
                 created: Joi.number().allow(null),
                 updated: Joi.number().allow(null)
@@ -98,6 +104,11 @@ module.exports = class Makro {
                     command: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                         return String(new mongodb.ObjectId());
                     })
+                })
+            }, {
+                is: "timer",
+                then: Joi.object({
+                    value: Joi.number().min(1).max(100000)
                 })
             }]
         });

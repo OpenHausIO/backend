@@ -3,6 +3,8 @@ const State = require("./class.state.js");
 //const Commands = require("./class.commands.js");
 //const States = require("./!class.states.js");
 
+const _expose = require("../../helper/expose.js");
+
 /**
  * @description
  * Endpoint item, stored in the component `.items` Array.
@@ -48,6 +50,13 @@ module.exports = class Endpoint {
 
         //this.method1 = _expose(this.commands, "method1");
         //this.method2 = _expose(this.states, "method2");
+
+        Object.defineProperty(this, "trigger", {
+            value: _expose(this.commands, "trigger"),
+            enumerable: false,
+            configurable: false,
+            writable: false
+        });
 
     }
 };
