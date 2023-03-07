@@ -14,11 +14,11 @@ const dispatcher = require("../../system/dispatcher");
  * @param {Object} obj Object that matches the item schema. See properties below:
  * 
  * @property {String} [_id=ObjectID] MongoDB ObjectID as String
- * @property {String} name State name. E.g.: <code>Power</code> or <code>Temperature</code>
- * @property {String} [description=null] State description, e.g.: <code>Power state</code> or <code>Room temperature</code>
- * @property {String,Number,Boolean} value The setted value
- * @property {String,Number,Boolean} type Type of state value
- * @property {String} [identifier=null] Machine readable identifier, e.g.: <code>POWER</code> or <code>TEMPERATURE</code>
+ * @property {String} [type=null] Makro type, trigger `command` or schedule a `timer` or even trigger a other `scene`
+ * @property {String} [command] When `type=command` ObjectID of command to trigger on endpoint
+ * @property {String} [endpoint] When `type=command` ObjectID of endpoint
+ * @property {Number} [value] When `type=timer` Miliseconds to sleep
+ * @property {String} [scene] When `type=scene` ObjectID of scene
  * @property {Object} timestamps Timestamps that are set when added or updated
  * @property {Number} [timestamps.created=Date.now()] Set when added
  * @property {Number} timestamps.updated Every time set to Date.now() when a value is set
@@ -34,6 +34,15 @@ module.exports = class Makro {
     }
 
 
+    /**
+     * @function
+     * Executes the makro
+     * 
+     * @param {Object} result 
+     * @param {AbortionSignal} signal 
+     * 
+     * @returns 
+     */
     execute(result, signal) {
         return new Promise((resolve, reject) => {
             try {
@@ -59,6 +68,15 @@ module.exports = class Makro {
                     });
 
                     resolve(this._id);
+
+                } else if (this.type === "scene") {
+
+                    dispatcher({
+                        "component": "scenes",
+                        "item": this.scene,
+                        "method": "trigger",
+                        "args": []
+                    });
 
                 } else {
 
@@ -89,7 +107,7 @@ module.exports = class Makro {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return String(new mongodb.ObjectId());
             }),
-            type: Joi.string().valid("command", "timer"/*, "state"*/).required(),
+            type: Joi.string().valid("command", "timer", "scene"/*, "state"*/).required(),
             timestamps: Joi.object({
                 created: Joi.number().allow(null),
                 updated: Joi.number().allow(null)
@@ -98,17 +116,18 @@ module.exports = class Makro {
             switch: [{
                 is: "command",
                 then: Joi.object({
-                    endpoint: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                        return String(new mongodb.ObjectId());
-                    }),
-                    command: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                        return String(new mongodb.ObjectId());
-                    })
+                    endpoint: Joi.string().pattern(/^[0-9a-fA-F]{24}$/),
+                    command: Joi.string().pattern(/^[0-9a-fA-F]{24}$/)
                 })
             }, {
                 is: "timer",
                 then: Joi.object({
-                    value: Joi.number().min(1).max(100000)
+                    value: Joi.number().min(1).max(Number.MAX_SAFE_INTEGER)
+                })
+            }, {
+                is: "scene",
+                then: Joi.object({
+                    scene: Joi.string().pattern(/^[0-9a-fA-F]{24}$/)
                 })
             }]
         });
