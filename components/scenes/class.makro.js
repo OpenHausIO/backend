@@ -14,7 +14,7 @@ const dispatcher = require("../../system/dispatcher");
  * @param {Object} obj Object that matches the item schema. See properties below:
  * 
  * @property {String} [_id=ObjectID] MongoDB ObjectID as String
- * @property {String} [type=null] Makro type, trigger `command` or schedule a `timer` or even trigger a other `scene`
+ * @property {String} type Required makro type: trigger `command` or schedule a `timer` or even trigger a other `scene`
  * @property {String} [command] When `type=command` ObjectID of command to trigger on endpoint
  * @property {String} [endpoint] When `type=command` ObjectID of endpoint
  * @property {Number} [value] When `type=timer` Miliseconds to sleep
