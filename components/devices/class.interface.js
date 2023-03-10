@@ -87,7 +87,7 @@ module.exports = class Interface {
                 is: "SERIAL",
                 then: SERIAL
             }),
-            adapter: Joi.array().items("eiscp", "raw").default(["raw"]),
+            adapter: Joi.array().items("eiscp", "raw", "eol").default(["raw"]),
             description: Joi.string().allow(null).default(null)
         });
 

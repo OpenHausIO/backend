@@ -109,7 +109,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask("checksum", () => {
 
-        let m5f = path.join(PATH_DIST, "./checksums.md5");
+        let m5f = path.join(PATH_DIST, "./checksums.txt");
 
         fs.rmSync(m5f, { force: true });
         let files = fs.readdirSync(PATH_DIST);
