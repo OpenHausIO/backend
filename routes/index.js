@@ -6,7 +6,7 @@ const C_ROOMS = require("../components/rooms");
 const C_DEVICES = require("../components/devices");
 const C_ENDPOINTS = require("../components/endpoints");
 const C_VAULT = require("../components/vault");
-//const C_SCENES = require("../components/scenes");
+const C_SCENES = require("../components/scenes");
 const C_SSDP = require("../components/ssdp");
 const C_STORE = require("../components/store");
 const C_USERS = require("../components/users");
@@ -125,7 +125,7 @@ module.exports = (server) => {
         const devicesRouter = express.Router();
         const endpointsRouter = express.Router();
         const vaultRouter = express.Router();
-        //const scenesRouter = express.Router();
+        const scenesRouter = express.Router();
         const eventsRouter = express.Router();
         const ssdpRouter = express.Router();
         const storeRouter = express.Router();
@@ -159,9 +159,9 @@ module.exports = (server) => {
         require("./router.api.vault.js")(app, vaultRouter);
 
         // http://127.0.0.1/api/scenes
-        //api.use("/scenes", scenesRouter);
-        //require("./rest-handler.js")(C_SCENES, scenesRouter);
-        //require("./router.api.scenes.js")(app, scenesRouter);
+        api.use("/scenes", scenesRouter);
+        require("./rest-handler.js")(C_SCENES, scenesRouter);
+        require("./router.api.scenes.js")(app, scenesRouter);
 
         // http://127.0.0.1/api/events
         api.use("/events", eventsRouter);
@@ -186,7 +186,7 @@ module.exports = (server) => {
         api.use("/webhooks", webhooksRouter);
         require("./router.api.webhooks.js")(app, webhooksRouter);
         require("./rest-handler.js")(C_WEBHOOKS, webhooksRouter);
-        
+
         // http://127.0.0.1/api/mqtt
         api.use("/mqtt", mqttRouter);
         require("./router.api.mqtt.js")(app, mqttRouter);
