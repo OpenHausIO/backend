@@ -5,7 +5,6 @@ const _extend = require("../../helper/extend");
 const _merge = require("../../helper/merge");
 
 const COMMON = require("./class.common.js");
-const label = require("./label.js");
 
 const PENDING_CHANGE_EVENTS = new Set();
 
@@ -100,7 +99,7 @@ module.exports = class COMPONENT extends COMMON {
             ...schema,
             //labels: Joi.array().items(Joi.string().regex(/^[a-zA-Z0-9]+=[a-zA-Z0-9]+$/)).default([])
             //labels: Joi.array().items(Joi.string().regex(/^[a-z0-9\.]+=[a-z0-9]+$/)).default([]),
-            labels: Joi.array().items(Joi.string().regex(/^[a-z0-9]+=[a-z0-9]+$/)).default(label),
+            labels: Joi.array().items(Joi.string().regex(/^[a-z0-9]+=[a-z0-9]+$/)).default([]),
             timestamps: Joi.object({
                 ...schema?.timestamps,
                 created: Joi.number().allow(null).default(null),
