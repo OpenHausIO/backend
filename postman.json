@@ -388,7 +388,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Livingroom\"\n}",
+									"raw": "{\n    \"name\": \"Evening\",\n    \"makros\": [{\n        \"type\": \"command\",\n        \"endpoint\": \"63a0ce5b33d59ec69d8ffe18\",\n        \"command\": \"63a0ce5b33d59ec69d8ffe19\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426bf\",\n        \"command\": \"63a1753f44427ef1a83426c0\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426af\",\n        \"command\": \"63a1753f44427ef1a83426b0\"\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -520,29 +520,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const HOST = pm.collectionVariables.get(\"HOST\");",
-											"const PORT = pm.collectionVariables.get(\"PORT\");",
-											"",
-											"//console.log(pm.request.url.toString())",
-											"",
-											"pm.sendRequest({",
-											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
-											"    method: 'GET',",
-											"}, function (err, res) {",
-											"    if(err){",
-											"",
-											"        consle.error(err);",
-											"",
-											"    }else {",
-											"",
-											"        let data = res.json();",
-											"        let key = Math.floor(Math.random()*data.length);",
-											"        let item = data[key];",
-											"",
-											"        pm.variables.set(\"_id\", item._id);",
-											"",
-											"    }",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -553,7 +531,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Evening\"\n}",
+									"raw": "{\n    \"name\": \"Evening\",\n    \"makros\": [{\n        \"type\": \"command\",\n        \"endpoint\": \"63a0ce5b33d59ec69d8ffe18\",\n        \"command\": \"63a0ce5b33d59ec69d8ffe19\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426bf\",\n        \"command\": \"63a1753f44427ef1a83426c0\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426af\",\n        \"command\": \"63a1753f44427ef1a83426b0\"\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -561,7 +539,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6403506b0b4fe3536f0ba8d5",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6406218c7f1a9f7c3f2b92e2",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -570,7 +548,7 @@
 									"path": [
 										"api",
 										"scenes",
-										"6403506b0b4fe3536f0ba8d5"
+										"6406218c7f1a9f7c3f2b92e2"
 									]
 								}
 							},
