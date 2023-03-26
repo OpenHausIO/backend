@@ -26,6 +26,10 @@ function merge(dst, src) {
 
                 // this is simply merging on index, but if you wanted a "smarter" merge, you could look up
                 // the dst by a specific key with sourceArray.find(...)
+                // fix #321
+                let elem = sourceArray.find(({ _id }) => valObj._id === _id);
+                index = sourceArray.indexOf(elem) || index;
+
                 return merge(sourceArray[index] || {}, valObj);
 
             });
