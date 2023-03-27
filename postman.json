@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "87196fff-8d06-44e2-a0ce-626fa3a54a1b",
+		"_postman_id": "7c990139-b42a-4603-9c76-841a6cda01aa",
 		"name": "OpenHaus",
 		"description": "SmartHome/IoT application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -329,10 +329,10 @@
 					]
 				},
 				{
-					"name": "Webhooks",
+					"name": "Scenes",
 					"item": [
 						{
-							"name": "Create new webhook",
+							"name": "Create new scene",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -388,7 +388,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Triggerd from Shelly i3\"\n}",
+									"raw": "{\n    \"name\": \"Evening\",\n    \"makros\": [{\n        \"type\": \"command\",\n        \"endpoint\": \"63a0ce5b33d59ec69d8ffe18\",\n        \"command\": \"63a0ce5b33d59ec69d8ffe19\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426bf\",\n        \"command\": \"63a1753f44427ef1a83426c0\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426af\",\n        \"command\": \"63a1753f44427ef1a83426b0\"\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -396,7 +396,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -404,14 +404,14 @@
 									"port": "{{PORT}}",
 									"path": [
 										"api",
-										"webhooks"
+										"scenes"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Get all webhooks",
+							"name": "Get all scenes",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -452,7 +452,7 @@
 									}
 								],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes?limit=3",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -460,14 +460,20 @@
 									"port": "{{PORT}}",
 									"path": [
 										"api",
-										"webhooks"
+										"scenes"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "3"
+										}
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Get sinlge webhook",
+							"name": "Get sinlge scene",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -492,7 +498,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6403506b0b4fe3536f0ba8d5",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -500,43 +506,21 @@
 									"port": "{{PORT}}",
 									"path": [
 										"api",
-										"webhooks",
-										"63e9fe420d172b3b39313175"
+										"scenes",
+										"6403506b0b4fe3536f0ba8d5"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Update existing webhook",
+							"name": "Update existing scene",
 							"event": [
 								{
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const HOST = pm.collectionVariables.get(\"HOST\");",
-											"const PORT = pm.collectionVariables.get(\"PORT\");",
-											"",
-											"//console.log(pm.request.url.toString())",
-											"",
-											"pm.sendRequest({",
-											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
-											"    method: 'GET',",
-											"}, function (err, res) {",
-											"    if(err){",
-											"",
-											"        consle.error(err);",
-											"",
-											"    }else {",
-											"",
-											"        let data = res.json();",
-											"        let key = Math.floor(Math.random()*data.length);",
-											"        let item = data[key];",
-											"",
-											"        pm.variables.set(\"_id\", item._id);",
-											"",
-											"    }",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -547,7 +531,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Garage\",\n    \"icon\": \"fa-solid fa-warehouse\"\n}",
+									"raw": "{\n    \"name\": \"Evening\",\n    \"makros\": [{\n        \"type\": \"command\",\n        \"endpoint\": \"63a0ce5b33d59ec69d8ffe18\",\n        \"command\": \"63a0ce5b33d59ec69d8ffe19\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426bf\",\n        \"command\": \"63a1753f44427ef1a83426c0\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426af\",\n        \"command\": \"63a1753f44427ef1a83426b0\"\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -555,7 +539,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6406218c7f1a9f7c3f2b92e2",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -563,15 +547,15 @@
 									"port": "{{PORT}}",
 									"path": [
 										"api",
-										"webhooks",
-										"63e9fe420d172b3b39313175"
+										"scenes",
+										"6406218c7f1a9f7c3f2b92e2"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Delete exisiting room",
+							"name": "Delete exisiting scene",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -600,7 +584,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6403506b0b4fe3536f0ba8d5",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -608,29 +592,20 @@
 									"port": "{{PORT}}",
 									"path": [
 										"api",
-										"webhooks",
-										"63e9fe420d172b3b39313175"
+										"scenes",
+										"6403506b0b4fe3536f0ba8d5"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Trigger webhook",
+							"name": "Trigger scene",
 							"request": {
 								"method": "POST",
 								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"and\": \"also\",\n    \"json\": \"data\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/webhooks/63e9fe420d172b3b39313175/trigger?optional=query&parameter=can&be=given",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6403506b0b4fe3536f0ba8d5/trigger",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -638,23 +613,53 @@
 									"port": "{{PORT}}",
 									"path": [
 										"api",
-										"webhooks",
-										"63e9fe420d172b3b39313175",
+										"scenes",
+										"6403506b0b4fe3536f0ba8d5",
 										"trigger"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Abort scene",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6403506b0b4fe3536f0ba8d5/abort",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
 									],
-									"query": [
-										{
-											"key": "optional",
-											"value": "query"
-										},
-										{
-											"key": "parameter",
-											"value": "can"
-										},
-										{
-											"key": "be",
-											"value": "given"
-										}
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"scenes",
+										"6403506b0b4fe3536f0ba8d5",
+										"abort"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get scene state",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6403506b0b4fe3536f0ba8d5/state",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"scenes",
+										"6403506b0b4fe3536f0ba8d5",
+										"state"
 									]
 								}
 							},
@@ -2072,6 +2077,28 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Start plugin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/63f500ea2b40698e90e63beb/start",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"plugins",
+										"63f500ea2b40698e90e63beb",
+										"start"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -2973,9 +3000,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": {
-							"raw": ""
-						}
+						"url": null
 					},
 					"response": []
 				}

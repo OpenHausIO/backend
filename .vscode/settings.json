@@ -4,7 +4,7 @@
         "editor.insertSpaces": true,
         "editor.detectIndentation": false,
         "editor.formatOnSave": true,
-        "editor.formatOnPaste": true
+        "editor.formatOnPaste": false
     },
     "files.exclude": {
         "**/.git": false
