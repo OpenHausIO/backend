@@ -1,18 +1,32 @@
 const { MongoClient } = require('mongodb');
 
-const url = process.env.DATABASE_URL;
+async function checkAuth(username) {
+    const databaseName = 'mydatabase';
+    const uri = `mongodb://${process.env.DATABASE_USERNAME}:${process.env.DATABASE_PASSWORD}@localhost:27017/OpenHaus`;
+    const client = new MongoClient(uri, { useNewUrlParser: true });
 
-const client = new MongoClient(url);
-
-async function run() {
     try {
         await client.connect();
-        // Perform database operations
+        console.log('Connected to MongoDB server');
+
+        // Query the database for the specified username
+        const db = client.db();
+        const users = db.collection('users');
+        const user = await users.findOne({ username });
+
+        // Check if the user exists and has a password
+        if (user && user.password) {
+            return true;
+        } else {
+            return false;
+        }
     } catch (err) {
         console.error(err);
+        return false;
     } finally {
         await client.close();
     }
 }
 
-run();
+module.exports = checkAuth;
+// Example usage: checkAuth('myusername')
