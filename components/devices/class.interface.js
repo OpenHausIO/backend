@@ -134,6 +134,15 @@ module.exports = class Interface {
                 writable: output
             });
 
+            // when multiple reuqests are done parallal, sometimes a AbortedErr is thrown
+            // see #329 for details
+            // TODO: Check if the upstream is drained, and perform requests in series
+            // As "quick fix" till a solution is found for #312 catch the trown error
+            socket.on("error", (err) => {
+                console.log("Catched error on http.agent.createConnection", err);
+                this.stream.destroy();
+            });
+
             /*
                         [socket, this.stream, input, output].forEach((stream) => {
                             let cleanup = finished(stream, (err) => {
