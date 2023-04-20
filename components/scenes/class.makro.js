@@ -108,6 +108,7 @@ module.exports = class Makro {
                 return String(new mongodb.ObjectId());
             }),
             type: Joi.string().valid("command", "timer", "scene"/*, "state"*/).required(),
+            enabled: Joi.boolean().default(true),
             timestamps: Joi.object({
                 created: Joi.number().allow(null),
                 updated: Joi.number().allow(null)
