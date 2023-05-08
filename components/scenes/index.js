@@ -26,6 +26,7 @@ class C_SCENES extends COMPONENT {
             }),
             name: Joi.string().required(),
             makros: Joi.array().items(Makro.schema()).default([])
+            //triggers: Joi.array().items(Trigger.schema()).default([])
         }, module);
 
         this.hooks.post("add", (data, next) => {

@@ -104,6 +104,8 @@ module.exports = class Interface {
      * 
      * @link https://nodejs.org/dist/latest-v16.x/docs/api/http.html#new-agentoptions 
      */
+    /*
+    // *OLD* function, see #329
     httpAgent(options) {
 
         options = Object.assign({
@@ -169,7 +171,7 @@ module.exports = class Interface {
             
                             });
                         });
-            */
+            *
 
 
             // TODO implement other socket functions?!
@@ -191,6 +193,108 @@ module.exports = class Interface {
         return agent;
 
     }
+    */
+
+
+    // NEW VERSION, fix for #329
+    httpAgent(options = {}) {
+
+        let agent = new Agent({
+            keepAlive: true,
+            maxSockets: 1,
+            ...options
+        });
+
+        //let settings = this.settings;
+
+
+        agent.createConnection = ({ host = null, port = null }) => {
+
+            console.log(`############## Create connection to tcp://${host}:${port}`);
+
+            /*
+            // check if passed host/port matches interface settings?
+            if (host != settings.host || port != settings.port) {
+
+                let msg = "host/port for interface missmatch, expected:\r\n";
+                msg += `\thost = ${host}; got = ${settings.host}\r\n`;
+                msg += `\tport = ${settings.port}; got = ${settings.port}`;
+
+                throw new Error(msg);
+
+            }
+            */
+
+            let readable = new PassThrough();
+            let writable = new PassThrough();
+
+
+            // TODO Implement "auto-drain" when no upstream is attached -> Move this "lower", e.g. before ws upstream?
+            /*
+            let writable = new Transform({
+                transform(chunk, enc, cb) {
+
+                    debugger;
+
+                    //console.log("this.stream",);
+                    console.error(">>>> Write data, flowing?", str.upstream ? true : false, settings.host);
+
+                    if (str.upstream) {
+                        this.push(chunk);
+                    } else {
+                        while (this.read() !== null) {
+                            // do nothing with writen input data
+                            // empty readable queue
+                        }
+                    }
+
+                    cb();
+
+                }
+            });
+            */
+
+
+            let stream = new Duplex.from({
+                readable,
+                writable
+            });
+
+            stream.destroy = (...args) => {
+                console.log("socket.destroy();", args);
+            };
+
+            stream.ref = (...args) => {
+                console.log("socket.unref();", args);
+            };
+
+            stream.unref = (...args) => {
+                console.log("socket.unref();", args);
+            };
+
+            stream.setKeepAlive = (...args) => {
+                console.log("socket.setKeepAlive()", args);
+            };
+
+            stream.setTimeout = (...args) => {
+                console.log("socket.setTimeout();", args);
+            };
+
+            stream.setNoDelay = (...args) => {
+                console.log("socket.setNotDelay();", args);
+            };
+
+            this.stream.pipe(readable, { end: false });
+            writable.pipe(this.stream, { end: false });
+
+            return stream;
+
+        };
+
+        return agent;
+
+    }
+
 
 
 };

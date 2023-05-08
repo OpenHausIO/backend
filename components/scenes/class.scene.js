@@ -1,3 +1,5 @@
+const { setTimeout } = require("timers/promises");
+
 const Makro = require("./class.makro.js");
 
 
@@ -54,21 +56,33 @@ module.exports = class Scene {
         let ac = new AbortController();
         this._ac = ac;
 
-        let init = this.makros.map((makro) => {
+        let init = this.makros.filter(({
+            enabled = true
+        }) => {
+
+            // execute only enabled makros
+            return enabled;
+
+        }).map((makro) => {
 
             // bind scope to method
             return makro.execute.bind(makro);
 
         }).reduce((acc, cur, i) => {
             return (result) => {
-                return acc(result, this._ac.signal).then((r) => {
+                return acc(result, this._ac.signal).then(async (r) => {
                     if (this.aborted) {
 
                         return Promise.reject("Aborted!");
 
                     } else {
 
+                        // NOTE: Intended to be a workaround for #329 & #312
+                        // But the general idea of this is not bad
+                        await setTimeout(Number(process.env.SCENES_MAKRO_DELAY));
+
                         this.index = i;
+
                         return cur(r, this._ac.signal);
 
                     }
