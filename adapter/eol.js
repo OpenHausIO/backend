@@ -25,6 +25,7 @@ module.exports = (options = {}) => {
     let decode = new Transform({
         transform(chunk, encoding, cb) {
             log.trace("[encode] (%s) %j", encoding, chunk);
+            // NOTE (mstirner) is this right?
             cb(null, chunk.subarray(0, nl.length));
         },
         ...options
