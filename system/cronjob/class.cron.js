@@ -124,7 +124,6 @@ module.exports = class Cron {
     start() {
         if (!this.timer) {
             this.timer = setInterval(() => {
-                console.log();
                 this.process();
             }, this.interval);
         }
