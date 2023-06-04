@@ -8,7 +8,7 @@ module.exports = (options = {}) => {
     // https://github.com/OpenHausIO/backend/issues/315
     let cr = Buffer.from("\r");
     let lf = Buffer.from("\n");
-    //let eol = Buffer.from("\x1A");
+    //let eof = Buffer.from("\x1A");
     let nl = Buffer.concat([
         cr,
         lf
