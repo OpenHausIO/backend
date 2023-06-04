@@ -7,6 +7,7 @@ const COMPONENT = require("../../system/component/class.component.js");
 
 const Scene = require("./class.scene.js");
 const Makro = require("./class.makro.js");
+const Trigger = require("./class.trigger.js");
 
 /**
  * @description
@@ -25,8 +26,8 @@ class C_SCENES extends COMPONENT {
                 return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
-            makros: Joi.array().items(Makro.schema()).default([])
-            //triggers: Joi.array().items(Trigger.schema()).default([])
+            makros: Joi.array().items(Makro.schema()).default([]),
+            triggers: Joi.array().items(Trigger.schema()).default([])
         }, module);
 
         this.hooks.post("add", (data, next) => {
