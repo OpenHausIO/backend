@@ -7,6 +7,7 @@ const mongodb = require("mongodb");
 const pkg = require("./package.json");
 const { exec } = require("child_process");
 const uuid = require("uuid");
+const { URL } = require("url");
 
 
 const env = require("dotenv").config({
@@ -144,22 +145,32 @@ const init_db = () => {
     return new Promise((resolve, reject) => {
 
         logger.debug("Init Database...");
-        let constr = process.env.DATABASE_URL;
 
-        if (!process.env.DATABASE_URL) {
-            constr = `mongodb://${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`;
+        let url = new URL(`mongodb://${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`);
+
+        if (process.env.DATABASE_AUTH_USERNAME) {
+            url.username = process.env.DATABASE_AUTH_USERNAME;
+        }
+
+        if (process.env.DATABASE_AUTH_USERNAME) {
+            url.password = process.env.DATABASE_AUTH_PASSWORD;
+        }
+
+        if (process.env.DATABASE_URL) {
+            console.log("OVerride DATBAASE_URL");
+            Object.assign(url, new URL(process.env.DATABASE_URL));
         }
 
         // feedback
-        logger.verbose(`Connecting to "%s"...`, process.env.DATABASE_URL || constr);
+        logger.verbose(`Connecting to "%s"...`, url.toString());
 
 
-        mongodb.MongoClient.connect(constr, {
+        mongodb.MongoClient.connect(url.toString(), {
             useUnifiedTopology: true,
             useNewUrlParser: true,
             //connectTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000, // #9
             //socketTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000 // #9
-        }, (err, client) => {
+        }, async (err, client) => {
 
             if (err) {
                 logger.error(err, "Could not connect to database");
@@ -172,10 +183,6 @@ const init_db = () => {
             mongodb.connection = client;
             mongodb.client = client.db();
 
-            // feedback
-            logger.info(`Connected to "%s"`, constr);
-
-            resolve();
 
             client.on("error", (err) => {
                 logger.error(err, "Could not connecto to databse: %s", err.message);
@@ -184,6 +191,29 @@ const init_db = () => {
             client.on("close", () => {
                 process.exit(1000);
             });
+
+
+            try {
+
+                // test authenticiation
+                // throws a error is auth is noc successfull
+                await mongodb.client.stats();
+
+                // feedback
+                logger.info(`Connected to "mongodb://${url.hostname}:${url.port}${url.pathname}"`);
+
+                resolve();
+
+            } catch (err) {
+
+                if (err?.code == 13) {
+                    logger.error("Invalid database credentials!");
+                }
+
+                client.emit("error", err);
+                reject(err);
+
+            }
 
 
         });
