@@ -1,5 +1,5 @@
 const C_WEBHOOKS = require("../components/webhooks");
-
+const C_SCENES = require("../components/scenes");
 
 module.exports = (app, router) => {
 
@@ -27,9 +27,25 @@ module.exports = (app, router) => {
 
     router.all("/:_id/trigger", (req, res) => {
 
-        //res.end(`Hello from webhook: ${req.method}, ${JSON.stringify(req.item)}`);
+        let trigger = C_SCENES.items.map(({ triggers }) => {
+            return triggers;
+        }).flat().find(({ type, params }) => {
 
-        req.item._trigger(req.body, req.query);
+            let found = 1;
+
+            found &= type === "webhook";
+            found &= params?._id === req.params._id;
+            found &= req.item._handler.length === 0;
+
+            return found;
+
+        });
+
+        if (trigger) {
+            trigger.fire();
+        } else {
+            req.item._trigger(req.body, req.query, req);
+        }
 
         res.status(202).end();
 

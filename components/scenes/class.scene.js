@@ -1,6 +1,7 @@
 const { setTimeout } = require("timers/promises");
 
 const Makro = require("./class.makro.js");
+const Trigger = require("./class.trigger.js");
 
 
 module.exports = class Scene {
@@ -12,6 +13,18 @@ module.exports = class Scene {
 
         this.makros = obj.makros.map((makro) => {
             return new Makro(makro);
+        });
+
+        this.triggers = obj.triggers.map((data) => {
+
+            let trigger = new Trigger(data);
+
+            trigger.signal.on("fire", () => {
+                this.trigger();
+            });
+
+            return trigger;
+
         });
 
         Object.defineProperty(this, "running", {
@@ -57,7 +70,12 @@ module.exports = class Scene {
         this._ac = ac;
 
         let init = this.makros.filter(({
+
+            // enabled is per default "true"
+            // when a marko should be disabled
+            // this has explicit to be set to false
             enabled = true
+
         }) => {
 
             // execute only enabled makros

@@ -12,6 +12,17 @@ module.exports = (app, router) => {
         noServer: true
     });
 
+
+    /*
+    C_MDNS.events.on("query", (query) => {        
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(query);
+            }
+        });        
+    });
+    */
+
     // detect broken connections
     let interval = setInterval(() => {
         wss.clients.forEach((ws) => {
@@ -36,6 +47,7 @@ module.exports = (app, router) => {
 
 
     // http route handler
+    // TODO: Reformat to match router.api.mdns.js code style/if-else
     router.get("/", (req, res, next) => {
 
         console.log("Request to /api/mdns");

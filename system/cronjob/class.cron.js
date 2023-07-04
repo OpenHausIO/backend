@@ -123,10 +123,17 @@ module.exports = class Cron {
      */
     start() {
         if (!this.timer) {
+
             this.timer = setInterval(() => {
-                console.log();
                 this.process();
             }, this.interval);
+
+            // do not wait for the interl to exit node
+            // if this is not done, the unit tests never finish
+            // https://nodejs.org/api/timers.html#timers_timeout_unref
+            // https://bilaldurrani.com/post/2018/02/21/mocha-tests-hanging-with-timers/
+            this.timer.unref();
+
         }
     }
 
