@@ -19,8 +19,20 @@ module.exports = class Trigger {
     constructor(obj) {
 
         //this.signal = new TriggerSignal();
-        this.signal = new EventEmitter();
-        this.fired = null;
+        //this.signal = new EventEmitter();
+        //this.fired = null;
+
+        Object.defineProperty(this, "signal", {
+            value: new EventEmitter(),
+            writable: false,
+            enumerable: false
+        });
+
+        Object.defineProperty(this, "fired", {
+            value: null,
+            writable: true,
+            enumerable: false
+        });
 
         Object.assign(this, obj);
 
