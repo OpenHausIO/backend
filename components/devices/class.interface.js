@@ -1,7 +1,7 @@
 const Joi = require("joi");
 const { Agent } = require("http");
 const mongodb = require("mongodb");
-const { PassThrough, Duplex } = require("stream");
+const { Transform, Duplex } = require("stream");
 
 /**
  * @description
@@ -212,6 +212,9 @@ module.exports = class Interface {
 
             console.log(`############## Create connection to tcp://${host}:${port}`);
 
+            // cleanup, could be possible be piped from previous "connections"
+            this.stream.unpipe();
+
             /*
             // check if passed host/port matches interface settings?
             if (host != settings.host || port != settings.port) {
@@ -225,8 +228,37 @@ module.exports = class Interface {
             }
             */
 
-            let readable = new PassThrough();
-            let writable = new PassThrough();
+            //let readable = new PassThrough();
+            //let writable = new PassThrough();
+
+            let readable = new Transform({
+                transform(chunk, enc, cb) {
+
+                    //console.log("[incoming]", chunk.toString());
+
+                    // temp fix for #343
+                    // this is not the prefered fix for this issue
+                    // it should be handled on "stream/socket" level instead
+                    // the issue above occoured with a "shelly 1pm" and parallel requests to /status /ota /settings
+                    // NOTE: what if the body contains json that has a `connection: close` property/key/value?
+                    chunk = chunk.toString().replace(/connection:\s?close\r\n/i, "connection: keep-alive\r\n");
+
+                    this.push(chunk);
+                    cb();
+
+                }
+            });
+
+            let writable = new Transform({
+                transform(chunk, enc, cb) {
+
+                    //console.log("[outgoing]", chunk.toString());
+
+                    this.push(chunk);
+                    cb();
+
+                }
+            });
 
 
             // TODO Implement "auto-drain" when no upstream is attached -> Move this "lower", e.g. before ws upstream?
