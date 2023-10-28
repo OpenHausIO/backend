@@ -202,6 +202,12 @@ const init_db = () => {
                 // feedback
                 logger.info(`Connected to "mongodb://${url.hostname}:${url.port}${url.pathname}"`);
 
+                process.once("SIGINT", () => {
+                    mongodb.connection.close(() => {
+                        logger.info(`Connection closed from "mongodb://${url.hostname}:${url.port}${url.pathname}"`);
+                    });
+                });
+
                 resolve();
 
             } catch (err) {
@@ -324,6 +330,10 @@ const init_http = () => {
 
                     });
 
+                    server.on("close", () => {
+                        logger.info(`HTTP Server closed on http://${process.env.HTTP_ADDRESS}:${process.env.HTTP_PORT}`);
+                    });
+
                     require("./routes")(server);
 
                     // bind/start http server
@@ -355,6 +365,10 @@ const init_http = () => {
 
                     });
 
+                    server.on("close", () => {
+                        logger.info(`HTTP Server closed on ${process.env.HTTP_SOCKET}`);
+                    });
+
                     require("./routes")(server);
 
                     try {
@@ -382,7 +396,13 @@ const init_http = () => {
 
         ];
 
-        Promise.all(servers).then(() => {
+        Promise.all(servers).then((servers) => {
+
+            process.once("SIGINT", () => {
+                servers.forEach((server) => {
+                    server.close();
+                });
+            });
 
             resolve();
 
@@ -398,6 +418,9 @@ const init_http = () => {
 };
 
 
+// NOTE: Could/should be removed
+// was only used in the early state of developing without the plugin component/system
+/*
 const kickstart = () => {
     try {
 
@@ -419,6 +442,7 @@ const kickstart = () => {
 
     }
 };
+*/
 
 
 const starter = new Promise((resolve) => {
@@ -456,7 +480,7 @@ const starter = new Promise((resolve) => {
     init_db,            // phase 1
     init_components,    // phase 2
     init_http,          // phase 3
-    kickstart
+    //kickstart
 ].reduce((cur, prev, i) => {
     return cur.then(prev).catch((err) => {
 
@@ -517,5 +541,12 @@ const starter = new Promise((resolve) => {
     }
 
     logger.info("Startup complete");
+
+    process.once("SIGINT", () => {
+        logger.warn("Shuting down...");
+        setTimeout(() => {
+            process.exit();
+        }, 1000);
+    });
 
 });
