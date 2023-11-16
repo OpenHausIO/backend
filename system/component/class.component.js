@@ -47,7 +47,7 @@ module.exports = class COMPONENT extends COMMON {
     constructor(name, schema, parent) {
 
         if (parent) {
-            require("../prevent_cross_load")(parent);
+            //require("../prevent_cross_load")(parent);
         }
 
         super(require("../../system/logger").create(name));
