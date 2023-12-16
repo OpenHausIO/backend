@@ -39,6 +39,14 @@ module.exports = class Interface {
         let { interfaceStreams } = require("../../system/shared.js");
         interfaceStreams.set(this._id, stream);
 
+        // hot fix for #350
+        Object.defineProperty(this, "cachedAgent", {
+            value: null,
+            enumerable: false,
+            configurable: false,
+            writable: true
+        });
+
     }
 
     /**
@@ -199,6 +207,10 @@ module.exports = class Interface {
     // NEW VERSION, fix for #329
     httpAgent(options = {}) {
 
+        if (this.cachedAgent) {
+            return this.cachedAgent;
+        }
+
         let agent = new Agent({
             keepAlive: true,
             maxSockets: 1,
@@ -208,9 +220,9 @@ module.exports = class Interface {
         //let settings = this.settings;
 
 
-        agent.createConnection = ({ host = null, port = null }) => {
+        agent.createConnection = () => {
 
-            console.log(`############## Create connection to tcp://${host}:${port}`);
+            //console.log(`############## Create connection to tcp://${host}:${port}`);
 
             // cleanup, could be possible be piped from previous "connections"
             this.stream.unpipe();
@@ -292,28 +304,28 @@ module.exports = class Interface {
                 writable
             });
 
-            stream.destroy = (...args) => {
-                console.log("socket.destroy();", args);
+            stream.destroy = () => {
+                //console.log("socket.destroy();", args);
             };
 
-            stream.ref = (...args) => {
-                console.log("socket.unref();", args);
+            stream.ref = () => {
+                //console.log("socket.unref();", args);
             };
 
-            stream.unref = (...args) => {
-                console.log("socket.unref();", args);
+            stream.unref = () => {
+                //console.log("socket.unref();", args);
             };
 
-            stream.setKeepAlive = (...args) => {
-                console.log("socket.setKeepAlive()", args);
+            stream.setKeepAlive = () => {
+                //console.log("socket.setKeepAlive()", args);
             };
 
-            stream.setTimeout = (...args) => {
-                console.log("socket.setTimeout();", args);
+            stream.setTimeout = () => {
+                //console.log("socket.setTimeout();", args);
             };
 
-            stream.setNoDelay = (...args) => {
-                console.log("socket.setNotDelay();", args);
+            stream.setNoDelay = () => {
+                //console.log("socket.setNotDelay();", args);
             };
 
             this.stream.pipe(readable, { end: false });
@@ -323,6 +335,7 @@ module.exports = class Interface {
 
         };
 
+        this.cachedAgent = agent;
         return agent;
 
     }
