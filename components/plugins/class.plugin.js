@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const logger = require("../../system/logger/index.js");
+const semver = require("semver");
+const pkg = require("../../package.json");
 
 //const Bootstrap = require("./class.bootstrap.js");
 
@@ -26,6 +28,40 @@ class Plugin {
         Object.assign(this, obj);
         this._id = String(obj._id);
 
+        let json = {};
+
+        Object.defineProperty(this, "logger", {
+            value: logger.create(`plugins/${this.uuid}`),
+            configurable: false,
+            enumerable: false,
+            writable: false
+        });
+
+        try {
+
+            let file = path.resolve(process.cwd(), "plugins", this.uuid, "package.json");
+            let content = fs.readFileSync(file);
+            json = JSON.parse(content);
+
+        } catch (err) {
+            if (err.code === "ENOENT") {
+
+                this.logger.warn(err, `package.json for plugin "${this.name}" not found.`);
+
+            } else {
+
+                this.logger.warn(err);
+
+            }
+        }
+
+        Object.defineProperty(this, "package", {
+            value: json,
+            configurable: false,
+            enumerable: false,
+            writable: false,
+        });
+
     }
 
     /**
@@ -35,7 +71,15 @@ class Plugin {
     start() {
         if (this.enabled) {
 
+            // feedback
+            logger.debug(`Start plugin "${this.name}"...`);
+
             let plugin = path.resolve(process.cwd(), "plugins", this.uuid);
+            let compatible = semver.satisfies(pkg.version, this.package?.backend);
+
+            if (!compatible) {
+                logger.warn(`Starting incomptaible plugin "${this.name}". It may work not properly or break something!`);
+            }
 
             if (fs.existsSync(plugin)) {
 
@@ -79,11 +123,11 @@ class Plugin {
                 };
 
                 init[Symbol.for("uuid")] = this.uuid;
+                init[Symbol.for("compatible")] = compatible;
 
                 try {
 
-                    let log = logger.create(`plugins/${this.uuid}`);
-                    let returns = require(path.resolve(plugin, "index.js"))(this, log, init);
+                    let returns = require(path.resolve(plugin, "index.js"))(this, this.logger, init);
 
                     if (!returns) {
                         return;
@@ -93,6 +137,8 @@ class Plugin {
                         logger.warn(`Plugin "${this.uuid}" (${this.name}) does not return the init function!`);
                         throw new Error("Invalid init function returnd!");
                     }
+
+                    this.started = true;
 
                 } catch (err) {
                     logger.error(`Error in plugin "${this.name}": `, err);
