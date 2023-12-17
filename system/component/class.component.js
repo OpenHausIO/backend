@@ -99,7 +99,7 @@ module.exports = class COMPONENT extends COMMON {
             ...schema,
             //labels: Joi.array().items(Joi.string().regex(/^[a-zA-Z0-9]+=[a-zA-Z0-9]+$/)).default([])
             //labels: Joi.array().items(Joi.string().regex(/^[a-z0-9\.]+=[a-z0-9]+$/)).default([]),
-            labels: Joi.array().items(Joi.string().regex(/^[a-z0-9]+=[a-z0-9]+$/)).default([]),
+            labels: Joi.array().items(Joi.string().regex(/^.+?=.+|.+=.+$/i)).default([]),
             timestamps: Joi.object({
                 ...schema?.timestamps,
                 created: Joi.number().allow(null).default(null),
@@ -654,6 +654,17 @@ module.exports = class COMPONENT extends COMMON {
             let loop = (filter, target) => {
                 for (let key in filter) {
 
+                    // fix for #351
+                    // NOTE: use later labels method to match more "effecive". e.g. for wildcards
+                    if (key === "labels" && Array.isArray(filter[key]) && Array.isArray(target[key])) {
+
+                        found = filter[key].every((label) => {
+                            return target[key].includes(label);
+                        });
+
+                        return;
+                    }
+
                     if (typeof filter[key] === "object") {
                         loop(filter[key], target[key]);
                         return;
@@ -725,7 +736,7 @@ module.exports = class COMPONENT extends COMMON {
             handler(filter, item);
         };
 
-        // TODO: Ensure to no create a memory leak
+        // TODO: Ensure to not create a memory leak
         // E.g. When used in ssdp with "update" event
         // And the announcement timestamp gets updated
         // the function is triggerd again. How to prevent that?

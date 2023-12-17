@@ -24,7 +24,8 @@ module.exports = function (grunt) {
             options: {
                 mangle: {
                     toplevel: true
-                }
+                },
+                //banner: fs.readFileSync(path.join(process.cwd(), "docs/banner.txt"), "utf8")
             },
             build: {
                 files: [{
