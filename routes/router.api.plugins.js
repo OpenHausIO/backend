@@ -67,7 +67,10 @@ module.exports = (app, router) => {
 
         } catch (err) {
 
-            res.status(500).end(err);
+            res.status(500).json({
+                error: err.message,
+                stack: err.stack
+            });
 
         }
     });

@@ -39,6 +39,7 @@
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^4.11.0",
     "mqtt-packet": "^8.1.2",
+    "semver": "^7.5.4",
     "uuid": "^9.0.0",
     "ws": "^8.10.0"
   },
