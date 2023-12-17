@@ -37,6 +37,13 @@ class Plugin {
             writable: false
         });
 
+        Object.defineProperty(this, "started", {
+            value: false,
+            configurable: false,
+            enumerable: false,
+            writable: true
+        });
+
         try {
 
             let file = path.resolve(process.cwd(), "plugins", this.uuid, "package.json");
@@ -69,96 +76,98 @@ class Plugin {
      * Start installed plugin
      */
     start() {
-        if (this.enabled) {
+        if (!this.started) {
+            if (this.enabled) {
 
-            // feedback
-            logger.debug(`Start plugin "${this.name}"...`);
+                // feedback
+                logger.debug(`Start plugin "${this.name}"...`);
 
-            let plugin = path.resolve(process.cwd(), "plugins", this.uuid);
-            let compatible = semver.satisfies(pkg.version, this.package?.backend);
+                let plugin = path.resolve(process.cwd(), "plugins", this.uuid);
+                let compatible = semver.satisfies(pkg.version, this.package?.backend);
 
-            if (!compatible) {
-                logger.warn(`Starting incomptaible plugin "${this.name}". It may work not properly or break something!`);
-            }
+                if (!compatible) {
+                    logger.warn(`Starting incomptaible plugin "${this.name}". It may work not properly or break something!`);
+                }
 
-            if (fs.existsSync(plugin)) {
+                if (fs.existsSync(plugin)) {
 
-                let init = (dependencies, cb) => {
-                    try {
+                    let init = (dependencies, cb) => {
+                        try {
 
-                        const granted = dependencies.every((c) => {
-                            if (this.intents.includes(c)) {
+                            const granted = dependencies.every((c) => {
+                                if (this.intents.includes(c)) {
 
-                                return true;
+                                    return true;
+
+                                } else {
+
+                                    logger.warn(`Plugin ${this.uuid} (${this.name}) wants to access not registerd intens "${c}"`);
+                                    return false;
+
+                                }
+                            });
+
+                            if (granted) {
+
+                                let components = dependencies.map((name) => {
+                                    return require(path.resolve(process.cwd(), `components/${name}`));
+                                });
+
+                                cb(this, components);
+                                return init;
 
                             } else {
 
-                                logger.warn(`Plugin ${this.uuid} (${this.name}) wants to access not registerd intens "${c}"`);
-                                return false;
+                                throw new Error(`Unregisterd intents access approach`);
 
                             }
-                        });
 
-                        if (granted) {
+                        } catch (err) {
 
-                            let components = dependencies.map((name) => {
-                                return require(path.resolve(process.cwd(), `components/${name}`));
-                            });
-
-                            cb(this, components);
-                            return init;
-
-                        } else {
-
-                            throw new Error(`Unregisterd intents access approach`);
+                            logger.error(err, `Plugin could not initalize!`, err.message);
+                            throw err;
 
                         }
+                    };
+
+                    init[Symbol.for("uuid")] = this.uuid;
+                    init[Symbol.for("compatible")] = compatible;
+
+                    try {
+
+                        let returns = require(path.resolve(plugin, "index.js"))(this, this.logger, init);
+
+                        if (!returns) {
+                            return;
+                        }
+
+                        if (returns[Symbol.for("uuid")] !== this.uuid) {
+                            logger.warn(`Plugin "${this.uuid}" (${this.name}) does not return the init function!`);
+                            throw new Error("Invalid init function returnd!");
+                        }
+
+                        this.started = true;
 
                     } catch (err) {
-
-                        logger.error(err, `Plugin could not initalize!`, err.message);
+                        logger.error(`Error in plugin "${this.name}": `, err);
                         throw err;
-
-                    }
-                };
-
-                init[Symbol.for("uuid")] = this.uuid;
-                init[Symbol.for("compatible")] = compatible;
-
-                try {
-
-                    let returns = require(path.resolve(plugin, "index.js"))(this, this.logger, init);
-
-                    if (!returns) {
-                        return;
                     }
 
-                    if (returns[Symbol.for("uuid")] !== this.uuid) {
-                        logger.warn(`Plugin "${this.uuid}" (${this.name}) does not return the init function!`);
-                        throw new Error("Invalid init function returnd!");
-                    }
+                } else {
 
-                    this.started = true;
+                    logger.error(`Could not found plugin file/folder "${this.uuid}"`);
+                    throw new Error("Plugin not found");
 
-                } catch (err) {
-                    logger.error(`Error in plugin "${this.name}": `, err);
-                    throw err;
                 }
 
             } else {
 
-                logger.error(`Could not found plugin file/folder "${this.uuid}"`);
-                throw new Error("Plugin not found");
+                let err = Error("Plugin is not enabled!");
+                err.code = "PLUGIN_NOT_ENABLED";
+
+                throw err;
 
             }
-
-        } else {
-
-            let err = Error("Plugin is not enabled!");
-            err.code = "PLUGIN_NOT_ENABLED";
-
-            throw err;
-
         }
     }
 
