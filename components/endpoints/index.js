@@ -6,6 +6,8 @@ const COMPONENT = require("../../system/component/class.component.js");
 
 
 const Endpoint = require("./class.endpoint.js");
+const Command = require("./class.command.js");
+const State = require("./class.state.js");
 
 
 //const _expose = require("../../helper/expose.js");
@@ -44,6 +46,27 @@ class C_ENDPOINTS extends COMPONENT {
 
         this.hooks.post("add", (data, next) => {
             next(null, new Endpoint(data));
+        });
+
+
+        this.hooks.post("update", (data, next) => {
+
+            // fix for #368
+            data.states.forEach((state, i, arr) => {
+                if (!(state instanceof State)) {
+                    arr[i] = new State(state);
+                }
+            });
+
+            // fix for #287
+            data.commands.forEach((command, i, arr) => {
+                if (!(command instanceof Command)) {
+                    arr[i] = new Command(command);
+                }
+            });
+
+            next();
+
         });
 
 
