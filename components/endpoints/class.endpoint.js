@@ -1,3 +1,6 @@
+const Joi = require("joi");
+const mongodb = require("mongodb");
+
 const Command = require("./class.command.js");
 const State = require("./class.state.js");
 //const Commands = require("./class.commands.js");
@@ -28,6 +31,7 @@ const _expose = require("../../helper/expose.js");
  * @see InterfaceStream components/devices/class.interfaceStream.js
  */
 module.exports = class Endpoint {
+
     constructor(obj) {
 
         Object.assign(this, obj);
@@ -59,4 +63,25 @@ module.exports = class Endpoint {
         });
 
     }
+
+    static schema() {
+        return Joi.object({
+            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
+                return String(new mongodb.ObjectId());
+            }),
+            name: Joi.string().required(),
+            enabled: Joi.boolean().default(true),
+            room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
+            device: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
+            commands: Joi.array().items(Command.schema()).default([]),
+            states: Joi.array().items(State.schema()).default([]),
+            identifier: Joi.any().allow(null).default(null),   // usefull for ssdp, etc.
+            icon: Joi.string().allow(null).default(null)
+        });
+    }
+
+    static validate(data) {
+        return Endpoint.schema().validate(data);
+    }
+
 };

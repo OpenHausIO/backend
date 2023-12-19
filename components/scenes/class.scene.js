@@ -1,3 +1,6 @@
+const Joi = require("joi");
+const mongodb = require("mongodb");
+
 const { setTimeout } = require("timers/promises");
 
 const Makro = require("./class.makro.js");
@@ -62,6 +65,22 @@ module.exports = class Scene {
             writable: true
         });
 
+    }
+
+    static schema() {
+        return Joi.object({
+            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
+                return String(new mongodb.ObjectId());
+            }),
+            name: Joi.string().required(),
+            makros: Joi.array().items(Makro.schema()).default([]),
+            triggers: Joi.array().items(Trigger.schema()).default([]),
+            visible: Joi.boolean().default(true)
+        });
+    }
+
+    static validate(data) {
+        return Scene.schema().validate(data);
     }
 
     trigger() {

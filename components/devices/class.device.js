@@ -1,3 +1,6 @@
+const Joi = require("joi");
+const mongodb = require("mongodb");
+
 const InterfaceStream = require("./class.interfaceStream.js");
 const Interface = require("./class.interface.js");
 
@@ -21,6 +24,7 @@ const mixins = require("../../helper/mixins.js");
  * @see interfaceStream components/devices/class.interfaceStream.js
  */
 module.exports = class Device {
+
     constructor(props) {
 
         // set properties from db
@@ -61,4 +65,29 @@ module.exports = class Device {
         });
 
     }
+
+    static schema() {
+        return Joi.object({
+            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
+                return String(new mongodb.ObjectId());
+            }),
+            name: Joi.string().required(),
+            room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
+            enabled: Joi.boolean().default(true),
+            //interfaces: Joi.array().items(Interface.schema()).min(1).required()
+            interfaces: Joi.array().min(1).items(Interface.schema()).required(),
+            meta: {
+                manufacturer: Joi.string().allow(null).default(null),
+                model: Joi.string().allow(null).default(null),
+                revision: Joi.number().allow(null).default(null),
+                serial: Joi.string().allow(null).default(null)
+            },
+            icon: Joi.string().allow(null).default(null)
+        });
+    }
+
+    static validate(data) {
+        return Device.schema().validate(data);
+    }
+
 };

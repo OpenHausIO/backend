@@ -1,13 +1,8 @@
-const mongodb = require("mongodb");
-const Joi = require("joi");
-
 //const logger = require("../../system/logger").create("rooms");
 //const COMMON_COMPONENT = require("../../system/component/common.js");
 const COMPONENT = require("../../system/component/class.component.js");
 
 const Scene = require("./class.scene.js");
-const Makro = require("./class.makro.js");
-const Trigger = require("./class.trigger.js");
 
 /**
  * @description
@@ -21,15 +16,7 @@ class C_SCENES extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("scenes", {
-            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectId());
-            }),
-            name: Joi.string().required(),
-            makros: Joi.array().items(Makro.schema()).default([]),
-            triggers: Joi.array().items(Trigger.schema()).default([]),
-            visible: Joi.boolean().default(true)
-        }, module);
+        super("scenes", Scene.schema(), module);
 
         this.hooks.post("add", (data, next) => {
             next(null, new Scene(data));

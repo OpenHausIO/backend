@@ -1,8 +1,11 @@
 const fs = require("fs");
 const path = require("path");
+const Joi = require("joi");
+const mongodb = require("mongodb");
 const logger = require("../../system/logger/index.js");
 const semver = require("semver");
 const pkg = require("../../package.json");
+const uuid = require("uuid");
 
 //const Bootstrap = require("./class.bootstrap.js");
 
@@ -69,6 +72,27 @@ class Plugin {
             writable: false,
         });
 
+    }
+
+    static schema() {
+        return Joi.object({
+            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
+                return String(new mongodb.ObjectId());
+            }),
+            name: Joi.string().required(),
+            uuid: Joi.string().default(() => {
+                return uuid.v4();
+            }),
+            version: Joi.number().required(),
+            //runlevel: Joi.number().min(0).max(2).default(0),
+            autostart: Joi.boolean().default(true),
+            enabled: Joi.boolean().default(true),
+            intents: Joi.array().items("devices", "endpoints", "plugins", "rooms", "ssdp", "store", "users", "vault", "mqtt", "mdns", "webhooks").required()
+        });
+    }
+
+    static validate(data) {
+        return Plugin.schema().validate(data);
     }
 
     /**
