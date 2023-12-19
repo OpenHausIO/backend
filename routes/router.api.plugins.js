@@ -8,8 +8,32 @@ module.exports = (app, router) => {
 
     router.put("/:_id/files", (req, res) => {
 
+        if (Number(req.headers["content-length"]) <= 0) {
+            return res.status(400).json({
+                error: "Invalid upload size."
+            });
+        }
+
         let p = path.resolve(process.cwd(), "plugins", req.item.uuid);
         let tar = exec(`tar vzxf - -C ${p}`);
+
+        tar.once("exit", (code) => {
+
+            if (code > 0) {
+                if (!res.headersSent) {
+
+                    res.status(400).json({
+                        error: "tar could not read input file. Upload failed/client failer?",
+                        details: `tar exit code ${code}`
+                    });
+
+                }
+            }
+
+            // trigger closing pipeline below
+            tar.stdin.close();
+
+        });
 
         let rl = readline.createInterface({
             input: tar.stdout,
@@ -27,10 +51,18 @@ module.exports = (app, router) => {
 
         pipeline(req, tar.stdin, (err) => {
 
-            if (err) {
-                res.status(500).end(err.message);
-            } else {
-                res.json(req.item);
+            if (!res.headersSent) {
+                if (err) {
+
+                    res.status(500).json({
+                        error: err.message
+                    });
+
+                } else {
+
+                    res.json(req.item);
+
+                }
             }
 
             rl.close();
