@@ -321,7 +321,15 @@ module.exports = class COMPONENT extends COMMON {
                                 let item = this.items.find((item) => {
 
                                     return Object.keys(err.keyValue).every((value) => {
+
+                                        // fixing "Duplicate unique key/index in database, but no matching item"
+                                        // see #367
+                                        if (err.keyValue[value] instanceof mongodb.ObjectId) {
+                                            return item[value] === err.keyValue[value].toString();
+                                        }
+
                                         return item[value] === err.keyValue[value];
+
                                     });
 
                                     /*
