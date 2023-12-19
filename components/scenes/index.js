@@ -3,6 +3,7 @@
 const COMPONENT = require("../../system/component/class.component.js");
 
 const Scene = require("./class.scene.js");
+const Makro = require("./class.makro.js");
 
 /**
  * @description
@@ -20,6 +21,20 @@ class C_SCENES extends COMPONENT {
 
         this.hooks.post("add", (data, next) => {
             next(null, new Scene(data));
+        });
+
+        // handle change makro array
+        // see #364
+        this.hooks.post("update", (data, next) => {
+
+            data.makros.forEach((makro, i, arr) => {
+                if (!(makro instanceof Makro)) {
+                    arr[i] = new Makro(makro);
+                }
+            });
+
+            next();
+
         });
 
     }
