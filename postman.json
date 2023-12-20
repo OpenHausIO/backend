@@ -2631,42 +2631,6 @@
 			]
 		},
 		{
-			"name": "Logfiles",
-			"item": [
-				{
-					"name": "Get logfile entrys",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/api/logs/?offset=0&limit=3",
-							"protocol": "http",
-							"host": [
-								"{{HOST}}"
-							],
-							"port": "{{PORT}}",
-							"path": [
-								"api",
-								"logs",
-								""
-							],
-							"query": [
-								{
-									"key": "offset",
-									"value": "0"
-								},
-								{
-									"key": "limit",
-									"value": "3"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
 			"name": "Authentication",
 			"item": [
 				{

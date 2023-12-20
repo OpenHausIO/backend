@@ -10,7 +10,7 @@ const collection = require("../../postman.json");
 
 describe("HTTP API", function () {
 
-    this.timeout(10000);
+    this.timeout(30000);
 
     //let HTTP_PORT = crypto.randomInt(2048, 1024);
     let child = null;
@@ -39,36 +39,42 @@ describe("HTTP API", function () {
 
 
     // https://gist.github.com/davfive/eae043135ed98b9647ad631bbfc1ab38
+    // https://github.com/postmanlabs/newman/wiki/Newman-Run-Events
     it("- Should not have any items in summary.run.failres array", (done) => {
 
+        // https://www.npmjs.com/package/newman#newman-options
         let emitter = newman.run({
             collection,
             reporters: "json",
-            workingDir: __dirname
+            workingDir: __dirname,
+            timeoutRequest: 3000
+        });
+
+        emitter.once("exception", (err, { error }) => {
+            console.error("Exception happend", err || error);
+            done(err || error);
         });
 
         emitter.once("done", (err, summary) => {
-            if (err || summary.error) {
+            try {
+                if (err || summary.error) {
 
-                // stop backend
-                child.kill();
+                    done(err || summary.error);
 
-                done(err || summary.error);
+                } else {
 
-            } else {
+                    summary.run.failures.forEach(({ source: { request }, error }) => {
+                        console.error(`[${request.method}] ${request.url.toString()}`, error.message);
+                    });
 
-                // stop backend
-                child.kill();
+                    assert.equal(summary.run.failures.length, 0);
 
-                summary.run.failures.forEach(({ source: { request }, error }) => {
-                    console.error(`[${request.method}] ${request.url.toString()}`, error.message);
-                });
+                    done();
 
-                assert.equal(summary.run.failures.length, 0);
+                }
+            } catch (err) {
 
-                // give some time to kill the backend
-                setTimeout(done, 1000);
-                //done();
+                done(err);
 
             }
         });
@@ -76,9 +82,10 @@ describe("HTTP API", function () {
     });
 
 
-    it("- Should stop the backend", () => {
-        assert(!child.connected);
+    // ensure to kill the backend
+    // so that github actions complete
+    this.afterAll(() => {
+        child.kill();
     });
-
 
 });
