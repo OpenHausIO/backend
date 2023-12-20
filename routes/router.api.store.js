@@ -7,7 +7,7 @@ module.exports = (app, router) => {
         });
 
         if (!req.config) {
-            return res.status(404);
+            return res.status(404).end();
         }
 
         next();

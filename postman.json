@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "7c990139-b42a-4603-9c76-841a6cda01aa",
+		"_postman_id": "7b801daa-eb6a-407c-9c0c-66ac044ed8f3",
 		"name": "OpenHaus",
 		"description": "SmartHome/IoT application",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6522444"
 	},
 	"item": [
 		{
@@ -28,37 +29,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check room name: input = output\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"    let req = JSON.parse(pm.request.body);",
-											"",
-											"    pm.expect(res.name).to.eql(req.name);",
-											"",
-											"});",
-											"",
-											"pm.test(\"Check properties\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"",
-											"    let props = [",
-											"        \"name\", \"timestamps\", \"_id\",",
-											"        \"number\", \"floor\", \"icon\"",
-											"    ];",
-											"",
-											"    Object.keys(res).forEach((key) => {",
-											"        pm.expect(props.includes(key)).to.be.true;",
-											"    });",
-											"",
-											"    props.forEach((item) => {",
-											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
-											"    });",
-											"",
-											"})"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -69,7 +40,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Livingroom\"\n}",
+									"raw": "{\n    \"_id\": \"65818753e275da05046aaa78\",\n    \"name\": \"Livingroom\"    \n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -107,16 +78,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"The response has all properties\", () => {",
-											"    let json = pm.response.json();",
-											"    pm.expect(json).to.have.lengthOf(json.length);",
-											"});",
-											"",
-											"pm.test(\"Status code is 200\", () => {",
-											"  pm.response.to.have.status(200);",
-											"});",
-											"",
-											"console.log(\"Fooo\")"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -183,7 +145,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/{{_id}}",
+									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/65818753e275da05046aaa78",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -192,7 +154,7 @@
 									"path": [
 										"api",
 										"rooms",
-										"{{_id}}"
+										"65818753e275da05046aaa78"
 									]
 								}
 							},
@@ -205,29 +167,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const HOST = pm.collectionVariables.get(\"HOST\");",
-											"const PORT = pm.collectionVariables.get(\"PORT\");",
-											"",
-											"//console.log(pm.request.url.toString())",
-											"",
-											"pm.sendRequest({",
-											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
-											"    method: 'GET',",
-											"}, function (err, res) {",
-											"    if(err){",
-											"",
-											"        consle.error(err);",
-											"",
-											"    }else {",
-											"",
-											"        let data = res.json();",
-											"        let key = Math.floor(Math.random()*data.length);",
-											"        let item = data[key];",
-											"",
-											"        pm.variables.set(\"_id\", item._id);",
-											"",
-											"    }",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -246,7 +186,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/63bf017582fa29f44cf8dfd6",
+									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/65818753e275da05046aaa78",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -255,7 +195,7 @@
 									"path": [
 										"api",
 										"rooms",
-										"63bf017582fa29f44cf8dfd6"
+										"65818753e275da05046aaa78"
 									]
 								}
 							},
@@ -268,7 +208,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -277,11 +217,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
-											"",
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -291,7 +227,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/63bf017582fa29f44cf8dfd6",
+									"raw": "http://{{HOST}}:{{PORT}}/api/rooms/65818753e275da05046aaa78",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -300,7 +236,7 @@
 									"path": [
 										"api",
 										"rooms",
-										"63bf017582fa29f44cf8dfd6"
+										"65818753e275da05046aaa78"
 									]
 								}
 							},
@@ -347,37 +283,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check room name: input = output\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"    let req = JSON.parse(pm.request.body);",
-											"",
-											"    pm.expect(res.name).to.eql(req.name);",
-											"",
-											"});",
-											"",
-											"pm.test(\"Check properties\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"",
-											"    let props = [",
-											"        \"name\", \"timestamps\", \"_id\",",
-											"        \"number\", \"floor\", \"icon\"",
-											"    ];",
-											"",
-											"    Object.keys(res).forEach((key) => {",
-											"        pm.expect(props.includes(key)).to.be.true;",
-											"    });",
-											"",
-											"    props.forEach((item) => {",
-											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
-											"    });",
-											"",
-											"})"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -388,7 +294,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Evening\",\n    \"makros\": [{\n        \"type\": \"command\",\n        \"endpoint\": \"63a0ce5b33d59ec69d8ffe18\",\n        \"command\": \"63a0ce5b33d59ec69d8ffe19\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426bf\",\n        \"command\": \"63a1753f44427ef1a83426c0\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426af\",\n        \"command\": \"63a1753f44427ef1a83426b0\"\n    }]\n}",
+									"raw": "{\n    \"_id\": \"658187db41c59ef57eb25df8\",\n    \"name\": \"Evening\",\n    \"makros\": [{\n        \"type\": \"command\",\n        \"endpoint\": \"63a0ce5b33d59ec69d8ffe18\",\n        \"command\": \"63a0ce5b33d59ec69d8ffe19\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426bf\",\n        \"command\": \"63a1753f44427ef1a83426c0\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426af\",\n        \"command\": \"63a1753f44427ef1a83426b0\"\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -426,16 +332,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"The response has all properties\", () => {",
-											"    let json = pm.response.json();",
-											"    pm.expect(json).to.have.lengthOf(json.length);",
-											"});",
-											"",
-											"pm.test(\"Status code is 200\", () => {",
-											"  pm.response.to.have.status(200);",
-											"});",
-											"",
-											"console.log(\"Fooo\")"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -498,7 +395,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6403506b0b4fe3536f0ba8d5",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/658187db41c59ef57eb25df8",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -507,7 +404,29 @@
 									"path": [
 										"api",
 										"scenes",
-										"6403506b0b4fe3536f0ba8d5"
+										"658187db41c59ef57eb25df8"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get scene state",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/658187db41c59ef57eb25df8/state",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"scenes",
+										"658187db41c59ef57eb25df8",
+										"state"
 									]
 								}
 							},
@@ -531,7 +450,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Evening\",\n    \"makros\": [{\n        \"type\": \"command\",\n        \"endpoint\": \"63a0ce5b33d59ec69d8ffe18\",\n        \"command\": \"63a0ce5b33d59ec69d8ffe19\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426bf\",\n        \"command\": \"63a1753f44427ef1a83426c0\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426af\",\n        \"command\": \"63a1753f44427ef1a83426b0\"\n    }]\n}",
+									"raw": "{\n    \"name\": \"Evening\",\n    \"makros\": [{\n        \"type\": \"command\",\n        \"endpoint\": \"63a0ce5b33d59ec69d8ffe18\",\n        \"command\": \"63a0ce5b33d59ec69d8ffe19\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426bf\",\n        \"command\": \"63a1753f44427ef1a83426c0\"\n    }, {\n        \"type\": \"timer\",\n        \"value\": \"3000\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426af\",\n        \"command\": \"63a1753f44427ef1a83426b0\"\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -539,7 +458,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6406218c7f1a9f7c3f2b92e2",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/658187db41c59ef57eb25df8",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -548,52 +467,7 @@
 									"path": [
 										"api",
 										"scenes",
-										"6406218c7f1a9f7c3f2b92e2"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Delete exisiting scene",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
-											"",
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "DELETE",
-								"header": [],
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6403506b0b4fe3536f0ba8d5",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"scenes",
-										"6403506b0b4fe3536f0ba8d5"
+										"658187db41c59ef57eb25df8"
 									]
 								}
 							},
@@ -605,7 +479,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6403506b0b4fe3536f0ba8d5/trigger",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/658187db41c59ef57eb25df8/trigger",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -614,7 +488,7 @@
 									"path": [
 										"api",
 										"scenes",
-										"6403506b0b4fe3536f0ba8d5",
+										"658187db41c59ef57eb25df8",
 										"trigger"
 									]
 								}
@@ -627,7 +501,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6403506b0b4fe3536f0ba8d5/abort",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/658187db41c59ef57eb25df8/abort",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -636,7 +510,7 @@
 									"path": [
 										"api",
 										"scenes",
-										"6403506b0b4fe3536f0ba8d5",
+										"658187db41c59ef57eb25df8",
 										"abort"
 									]
 								}
@@ -644,12 +518,32 @@
 							"response": []
 						},
 						{
-							"name": "Get scene state",
+							"name": "Delete exisiting scene",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
-								"method": "GET",
+								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/6403506b0b4fe3536f0ba8d5/state",
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/658187db41c59ef57eb25df8",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -658,8 +552,7 @@
 									"path": [
 										"api",
 										"scenes",
-										"6403506b0b4fe3536f0ba8d5",
-										"state"
+										"658187db41c59ef57eb25df8"
 									]
 								}
 							},
@@ -706,37 +599,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check room name: input = output\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"    let req = JSON.parse(pm.request.body);",
-											"",
-											"    pm.expect(res.name).to.eql(req.name);",
-											"",
-											"});",
-											"",
-											"pm.test(\"Check properties\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"",
-											"    let props = [",
-											"        \"name\", \"timestamps\", \"_id\",",
-											"        \"number\", \"floor\", \"icon\"",
-											"    ];",
-											"",
-											"    Object.keys(res).forEach((key) => {",
-											"        pm.expect(props.includes(key)).to.be.true;",
-											"    });",
-											"",
-											"    props.forEach((item) => {",
-											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
-											"    });",
-											"",
-											"})"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -747,7 +610,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"shelly*.local\",\n    \"type\": \"A\"\n}",
+									"raw": "{\n    \"_id\": \"658188273df500c8cd1524cc\",\n    \"name\": \"shelly*.local\",\n    \"type\": \"A\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -785,16 +648,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"The response has all properties\", () => {",
-											"    let json = pm.response.json();",
-											"    pm.expect(json).to.have.lengthOf(json.length);",
-											"});",
-											"",
-											"pm.test(\"Status code is 200\", () => {",
-											"  pm.response.to.have.status(200);",
-											"});",
-											"",
-											"console.log(\"Fooo\")"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -851,7 +705,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/mdns/63e7f7ba26b161df7f3af1d6",
+									"raw": "http://{{HOST}}:{{PORT}}/api/mdns/658188273df500c8cd1524cc",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -860,7 +714,7 @@
 									"path": [
 										"api",
 										"mdns",
-										"63e7f7ba26b161df7f3af1d6"
+										"658188273df500c8cd1524cc"
 									]
 								}
 							},
@@ -873,29 +727,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const HOST = pm.collectionVariables.get(\"HOST\");",
-											"const PORT = pm.collectionVariables.get(\"PORT\");",
-											"",
-											"//console.log(pm.request.url.toString())",
-											"",
-											"pm.sendRequest({",
-											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
-											"    method: 'GET',",
-											"}, function (err, res) {",
-											"    if(err){",
-											"",
-											"        consle.error(err);",
-											"",
-											"    }else {",
-											"",
-											"        let data = res.json();",
-											"        let key = Math.floor(Math.random()*data.length);",
-											"        let item = data[key];",
-											"",
-											"        pm.variables.set(\"_id\", item._id);",
-											"",
-											"    }",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -914,7 +746,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/mdns/63e7f7ba26b161df7f3af1d6",
+									"raw": "http://{{HOST}}:{{PORT}}/api/mdns/658188273df500c8cd1524cc",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -923,7 +755,7 @@
 									"path": [
 										"api",
 										"mdns",
-										"63e7f7ba26b161df7f3af1d6"
+										"658188273df500c8cd1524cc"
 									]
 								}
 							},
@@ -936,7 +768,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -945,11 +777,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
-											"",
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -959,7 +787,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/mdns/63e7f7ba26b161df7f3af1d6",
+									"raw": "http://{{HOST}}:{{PORT}}/api/mdns/658188273df500c8cd1524cc",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -968,7 +796,7 @@
 									"path": [
 										"api",
 										"mdns",
-										"63e7f7ba26b161df7f3af1d6"
+										"658188273df500c8cd1524cc"
 									]
 								}
 							},
@@ -1015,37 +843,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check room name: input = output\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"    let req = JSON.parse(pm.request.body);",
-											"",
-											"    pm.expect(res.name).to.eql(req.name);",
-											"",
-											"});",
-											"",
-											"pm.test(\"Check properties\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"",
-											"    let props = [",
-											"        \"name\", \"timestamps\", \"_id\",",
-											"        \"number\", \"floor\", \"icon\"",
-											"    ];",
-											"",
-											"    Object.keys(res).forEach((key) => {",
-											"        pm.expect(props.includes(key)).to.be.true;",
-											"    });",
-											"",
-											"    props.forEach((item) => {",
-											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
-											"    });",
-											"",
-											"})"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1056,7 +854,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"topic\": \"air-sensor/sensor/particulate_matter_25m_concentration\"\n}",
+									"raw": "{\n    \"_id\": \"65818856464bebcf19ebec4c\",\n    \"topic\": \"air-sensor/sensor/particulate_matter_25m_concentration\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1094,16 +892,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"The response has all properties\", () => {",
-											"    let json = pm.response.json();",
-											"    pm.expect(json).to.have.lengthOf(json.length);",
-											"});",
-											"",
-											"pm.test(\"Status code is 200\", () => {",
-											"  pm.response.to.have.status(200);",
-											"});",
-											"",
-											"console.log(\"Fooo\")"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1160,7 +949,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/mqtt/63e8f7d2ab413a9760e9b08c",
+									"raw": "http://{{HOST}}:{{PORT}}/api/mqtt/65818856464bebcf19ebec4c",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1169,7 +958,7 @@
 									"path": [
 										"api",
 										"mqtt",
-										"63e8f7d2ab413a9760e9b08c"
+										"65818856464bebcf19ebec4c"
 									]
 								}
 							},
@@ -1182,29 +971,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const HOST = pm.collectionVariables.get(\"HOST\");",
-											"const PORT = pm.collectionVariables.get(\"PORT\");",
-											"",
-											"//console.log(pm.request.url.toString())",
-											"",
-											"pm.sendRequest({",
-											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
-											"    method: 'GET',",
-											"}, function (err, res) {",
-											"    if(err){",
-											"",
-											"        consle.error(err);",
-											"",
-											"    }else {",
-											"",
-											"        let data = res.json();",
-											"        let key = Math.floor(Math.random()*data.length);",
-											"        let item = data[key];",
-											"",
-											"        pm.variables.set(\"_id\", item._id);",
-											"",
-											"    }",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1223,7 +990,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/mqtt/63e8f7d2ab413a9760e9b08c",
+									"raw": "http://{{HOST}}:{{PORT}}/api/mqtt/65818856464bebcf19ebec4c",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1232,7 +999,7 @@
 									"path": [
 										"api",
 										"mqtt",
-										"63e8f7d2ab413a9760e9b08c"
+										"65818856464bebcf19ebec4c"
 									]
 								}
 							},
@@ -1245,7 +1012,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1254,11 +1021,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
-											"",
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1268,7 +1031,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/mqtt/63e8f7d2ab413a9760e9b08c",
+									"raw": "http://{{HOST}}:{{PORT}}/api/mqtt/65818856464bebcf19ebec4c",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1277,7 +1040,7 @@
 									"path": [
 										"api",
 										"mqtt",
-										"63e8f7d2ab413a9760e9b08c"
+										"65818856464bebcf19ebec4c"
 									]
 								}
 							},
@@ -1324,37 +1087,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check room name: input = output\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"    let req = JSON.parse(pm.request.body);",
-											"",
-											"    pm.expect(res.name).to.eql(req.name);",
-											"",
-											"});",
-											"",
-											"pm.test(\"Check properties\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"",
-											"    let props = [",
-											"        \"name\", \"timestamps\", \"_id\",",
-											"        \"number\", \"floor\", \"icon\"",
-											"    ];",
-											"",
-											"    Object.keys(res).forEach((key) => {",
-											"        pm.expect(props.includes(key)).to.be.true;",
-											"    });",
-											"",
-											"    props.forEach((item) => {",
-											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
-											"    });",
-											"",
-											"})"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1365,7 +1098,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n        \"nt\": \"urn:schemas-upnp-org:device:sensor:1\",\n        \"description\": null,\n        \"usn\": null\n}",
+									"raw": "{\n    \"_id\": \"65818876deb8cb80755ade02\",\n    \"nt\": \"urn:schemas-upnp-org:device:sensor:1\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1403,16 +1136,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"The response has all properties\", () => {",
-											"    let json = pm.response.json();",
-											"    pm.expect(json).to.have.lengthOf(json.length);",
-											"});",
-											"",
-											"pm.test(\"Status code is 200\", () => {",
-											"  pm.response.to.have.status(200);",
-											"});",
-											"",
-											"console.log(\"Fooo\")"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1469,7 +1193,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/ssdp/63cbcdb1f2c46434242de489",
+									"raw": "http://{{HOST}}:{{PORT}}/api/ssdp/65818876deb8cb80755ade02",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1478,7 +1202,7 @@
 									"path": [
 										"api",
 										"ssdp",
-										"63cbcdb1f2c46434242de489"
+										"65818876deb8cb80755ade02"
 									]
 								}
 							},
@@ -1510,7 +1234,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/ssdp/63cbcdb1f2c46434242de489",
+									"raw": "http://{{HOST}}:{{PORT}}/api/ssdp/65818876deb8cb80755ade02",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1519,7 +1243,7 @@
 									"path": [
 										"api",
 										"ssdp",
-										"63cbcdb1f2c46434242de489"
+										"65818876deb8cb80755ade02"
 									]
 								}
 							},
@@ -1532,7 +1256,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1541,11 +1265,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
-											"",
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1555,7 +1275,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/ssdp/63cbcdb1f2c46434242de489",
+									"raw": "http://{{HOST}}:{{PORT}}/api/ssdp/65818876deb8cb80755ade02",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1564,7 +1284,7 @@
 									"path": [
 										"api",
 										"ssdp",
-										"63cbcdb1f2c46434242de489"
+										"65818876deb8cb80755ade02"
 									]
 								}
 							},
@@ -1611,37 +1331,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check room name: input = output\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"    let req = JSON.parse(pm.request.body);",
-											"",
-											"    pm.expect(res.name).to.eql(req.name);",
-											"",
-											"});",
-											"",
-											"pm.test(\"Check properties\", () => {",
-											"",
-											"    let res = pm.response.json();",
-											"",
-											"    let props = [",
-											"        \"name\", \"timestamps\", \"_id\",",
-											"        \"number\", \"floor\", \"icon\"",
-											"    ];",
-											"",
-											"    Object.keys(res).forEach((key) => {",
-											"        pm.expect(props.includes(key)).to.be.true;",
-											"    });",
-											"",
-											"    props.forEach((item) => {",
-											"        pm.expect(Object.prototype.hasOwnProperty.call(res, item)).to.be.true;",
-											"    });",
-											"",
-											"})"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1652,7 +1342,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Hans Hubert #3\",\n    \"email\": \"hans.hubert3@example.com\",\n    \"password\": \"Pa$$w0rd\"\n}",
+									"raw": "{\n    \"_id\": \"658188a7aadfcc026a0e0131\",\n    \"name\": \"Hans Hubert #3\",\n    \"email\": \"hans.hubert3@example.com\",\n    \"password\": \"Pa$$w0rd\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1752,7 +1442,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/users/6288b67b1f3bc42774ce0ec1",
+									"raw": "http://{{HOST}}:{{PORT}}/api/users/658188a7aadfcc026a0e0131",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1761,7 +1451,7 @@
 									"path": [
 										"api",
 										"users",
-										"6288b67b1f3bc42774ce0ec1"
+										"658188a7aadfcc026a0e0131"
 									]
 								}
 							},
@@ -1774,29 +1464,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"const HOST = pm.collectionVariables.get(\"HOST\");",
-											"const PORT = pm.collectionVariables.get(\"PORT\");",
-											"",
-											"//console.log(pm.request.url.toString())",
-											"",
-											"pm.sendRequest({",
-											"    url: `http://${HOST}:${PORT}/api/rooms/`,",
-											"    method: 'GET',",
-											"}, function (err, res) {",
-											"    if(err){",
-											"",
-											"        consle.error(err);",
-											"",
-											"    }else {",
-											"",
-											"        let data = res.json();",
-											"        let key = Math.floor(Math.random()*data.length);",
-											"        let item = data[key];",
-											"",
-											"        pm.variables.set(\"_id\", item._id);",
-											"",
-											"    }",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1815,7 +1483,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/users/6288b67b1f3bc42774ce0ec1",
+									"raw": "http://{{HOST}}:{{PORT}}/api/users/658188a7aadfcc026a0e0131",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1824,7 +1492,7 @@
 									"path": [
 										"api",
 										"users",
-										"6288b67b1f3bc42774ce0ec1"
+										"658188a7aadfcc026a0e0131"
 									]
 								}
 							},
@@ -1837,7 +1505,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1846,11 +1514,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"console.log(\"_id varaible\", pm.variables.get(\"_id\"));",
-											"",
-											"pm.test(\"status code: 200\", () => {",
-											"    pm.response.to.have.status(200);",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -1860,7 +1524,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/users/6288b67b1f3bc42774ce0ec1",
+									"raw": "http://{{HOST}}:{{PORT}}/api/users/658188a7aadfcc026a0e0131",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1869,7 +1533,7 @@
 									"path": [
 										"api",
 										"users",
-										"6288b67b1f3bc42774ce0ec1"
+										"658188a7aadfcc026a0e0131"
 									]
 								}
 							},
@@ -1907,7 +1571,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Phoscon Gateway\",\n    \"enabled\": true,\n    \"version\": 1,\n    \"intents\": [\n        \"devices\", \n        \"endpoints\", \n        \"ssdp\", \n        \"vault\", \n        \"store\"\n    ]\n}",
+									"raw": "{\n    \"_id\": \"658188e93cde9987c3228806\",\n    \"name\": \"Plugin Boilerplate Demo\",\n    \"enabled\": true,\n    \"version\": 1,\n    \"intents\": [\n        \"devices\",\n        \"endpoints\",\n        \"plugins\",\n        \"rooms\",\n        \"ssdp\",\n        \"store\",\n        \"users\",\n        \"vault\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1925,62 +1589,6 @@
 										"api",
 										"plugins",
 										""
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Upload plugin *.tgz content",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "file",
-									"file": {
-										"src": ""
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/63a17284ba003ca7440f97e3/files",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"plugins",
-										"63a17284ba003ca7440f97e3",
-										"files"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Delete plugin *.tgz content",
-							"request": {
-								"method": "DELETE",
-								"header": [],
-								"body": {
-									"mode": "file",
-									"file": {
-										"src": "/home/marc/projects/playground/oh-plg-dummy/oh-plg-dummy-v1.0.0.tgz"
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/639efd69e42746a787a02455/files",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"plugins",
-										"639efd69e42746a787a02455",
-										"files"
 									]
 								}
 							},
@@ -2012,7 +1620,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/<id>",
+									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2021,7 +1629,7 @@
 									"path": [
 										"api",
 										"plugins",
-										"<id>"
+										"658188e93cde9987c3228806"
 									]
 								}
 							},
@@ -2034,7 +1642,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"enabled\": true,\n    \"autostart\": false\n}",
+									"raw": "{\n    \"name\": \"New updated\",\n    \"enabled\": true,\n    \"autostart\": false\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2042,7 +1650,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/61103781f897a74ae9ca89c7",
+									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2051,19 +1659,25 @@
 									"path": [
 										"api",
 										"plugins",
-										"61103781f897a74ae9ca89c7"
+										"658188e93cde9987c3228806"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Delete exisiting plugins",
+							"name": "Upload plugin *.tgz content",
 							"request": {
-								"method": "DELETE",
+								"method": "PUT",
 								"header": [],
+								"body": {
+									"mode": "file",
+									"file": {
+										"src": "/home/marc/projects/OpenHaus/plugins/plugin-boilerplate/dist/oh-plg-plugin-boilerplate.tgz"
+									}
+								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/62868c7e9af74130e98863c1",
+									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806/files",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2072,7 +1686,8 @@
 									"path": [
 										"api",
 										"plugins",
-										"62868c7e9af74130e98863c1"
+										"658188e93cde9987c3228806",
+										"files"
 									]
 								}
 							},
@@ -2084,7 +1699,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/63f500ea2b40698e90e63beb/start",
+									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806/start",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2093,8 +1708,57 @@
 									"path": [
 										"api",
 										"plugins",
-										"63f500ea2b40698e90e63beb",
+										"658188e93cde9987c3228806",
 										"start"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete plugin *.tgz content",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "file",
+									"file": {
+										"src": "/home/marc/projects/playground/oh-plg-dummy/oh-plg-dummy-v1.0.0.tgz"
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806/files",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"plugins",
+										"658188e93cde9987c3228806",
+										"files"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete exisiting plugins",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"plugins",
+										"658188e93cde9987c3228806"
 									]
 								}
 							},
@@ -2112,7 +1776,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"SmartMeter\",\n    \"interfaces\": [{\n        \"type\": \"ETHERNET\",\n        \"description\": \"WebSocket API\",\n        \"settings\": {\n            \"host\": \"192.168.2.155\",\n            \"port\": 8080\n        },\n        \"adapter\": [\"raw\"]\n    }],\n    \"room\": \"62a4bc8bd9256b5e8d6988a0\",\n    \"icon\": \"fa-solid fa-gauge-high\"\n}",
+									"raw": "{\n    \"_id\": \"65818918d32dad8dab53e433\",\n    \"name\": \"SmartMeter\",\n    \"interfaces\": [{\n        \"_id\": \"6581c55abc21a0a3122b9998\",\n        \"type\": \"ETHERNET\",\n        \"description\": \"WebSocket API\",\n        \"settings\": {\n            \"host\": \"192.168.2.155\",\n            \"port\": 8080\n        },\n        \"adapter\": [\"raw\"]\n    }],\n    \"room\": \"62a4bc8bd9256b5e8d6988a0\",\n    \"icon\": \"fa-solid fa-gauge-high\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2160,7 +1824,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/devices/6042785432c51e3e98e7acc0",
+									"raw": "http://{{HOST}}:{{PORT}}/api/devices/65818918d32dad8dab53e433",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2169,7 +1833,7 @@
 									"path": [
 										"api",
 										"devices",
-										"6042785432c51e3e98e7acc0"
+										"65818918d32dad8dab53e433"
 									]
 								}
 							},
@@ -2190,7 +1854,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/devices/63bf020e82fa29f44cf8dfd8",
+									"raw": "http://{{HOST}}:{{PORT}}/api/devices/65818918d32dad8dab53e433",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2199,7 +1863,7 @@
 									"path": [
 										"api",
 										"devices",
-										"63bf020e82fa29f44cf8dfd8"
+										"65818918d32dad8dab53e433"
 									]
 								}
 							},
@@ -2211,7 +1875,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/devices/61103caa50139f51160ae790",
+									"raw": "http://{{HOST}}:{{PORT}}/api/devices/65818918d32dad8dab53e433",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2220,7 +1884,7 @@
 									"path": [
 										"api",
 										"devices",
-										"61103caa50139f51160ae790"
+										"65818918d32dad8dab53e433"
 									]
 								}
 							},
@@ -2238,7 +1902,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"name\": \"Dummy Endpoint\",\n  \"device\": \"6398ae590dce390161f7fc2f\",\n  \"states\": [\n    {\n      \"name\": \"Total Power\",\n      \"alias\": \"POWER_TOTAL\",\n      \"type\": \"number\"\n    },\n    {\n      \"name\": \"Powerd on?\",\n      \"alias\": \"POWERD_ON\",\n      \"type\": \"boolean\"\n    }\n  ],\n  \"commands\": [\n    {\n      \"name\": \"Switch to Input 03\",\n      \"payload\": {\n        \"type\": \"Buffer\",\n        \"data\": [\n          115,\n          119,\n          32,\n          105,\n          48,\n          51,\n          13,\n          10\n        ]\n      },\n      \"alias\": \"INPUT_03\",\n      \"interface\": \"6398ae590dce390161f7fc30\"\n    },\n    {\n      \"name\": \"Command as String\",\n      \"payload\": \"foobar\",\n      \"alias\": \"STRING_CMD\",\n      \"interface\": \"6398ae590dce390161f7fc30\"\n    }\n  ]\n}\n",
+									"raw": "{\n  \"_id\": \"658189336fa19198939caa21\",\n  \"name\": \"Dummy Endpoint\",\n  \"device\": \"6398ae590dce390161f7fc2f\",\n  \"states\": [\n    {\n      \"_id\": \"658190d232fe653a07638863\",\n      \"name\": \"Total Power\",\n      \"alias\": \"POWER_TOTAL\",\n      \"type\": \"number\"\n    },\n    {\n      \"_id\": \"658190de4a1369d179c3387f\",\n      \"name\": \"Powerd on?\",\n      \"alias\": \"POWERD_ON\",\n      \"type\": \"boolean\"\n    }\n  ],\n  \"commands\": [\n    {\n      \"_id\": \"658190acbccb180491c2672c\",\n      \"name\": \"Switch to Input 03\",\n      \"payload\": {\n        \"type\": \"Buffer\",\n        \"data\": [\n          115,\n          119,\n          32,\n          105,\n          48,\n          51,\n          13,\n          10\n        ]\n      },\n      \"alias\": \"INPUT_03\",\n      \"interface\": \"6581c55abc21a0a3122b9998\"\n    },\n    {\n      \"_id\": \"658190ec0e09c0d5d22c59f0\",\n      \"name\": \"Command as String\",\n      \"payload\": \"foobar\",\n      \"alias\": \"STRING_CMD\",\n      \"interface\": \"6581c55abc21a0a3122b9998\"\n    }\n  ]\n}\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2286,7 +1950,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/604a75e6eb5de037846df24f",
+									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/658189336fa19198939caa21",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2295,7 +1959,7 @@
 									"path": [
 										"api",
 										"endpoints",
-										"604a75e6eb5de037846df24f"
+										"658189336fa19198939caa21"
 									]
 								}
 							},
@@ -2303,12 +1967,23 @@
 						},
 						{
 							"name": "Update existing endpoint",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "PATCH",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "   {\n        \"_id\": \"63a5a4c2bd5fe7cb165960d0\",\n        \"name\": \"Fernseher\",\n        \"device\": \"63a5a4c2bd5fe7cb165960cd\",\n        \"commands\": [\n            {\n                \"payload\": \"KEY_0\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_0\",\n                \"name\": \"KEY_0\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d1\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_1\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_1\",\n                \"name\": \"KEY_1\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d2\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_2\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_2\",\n                \"name\": \"KEY_2\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d3\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_3\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_3\",\n                \"name\": \"KEY_3\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d4\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_4\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_4\",\n                \"name\": \"KEY_4\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d5\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_5\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_5\",\n                \"name\": \"KEY_5\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d6\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_6\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_6\",\n                \"name\": \"KEY_6\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d7\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_7\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_7\",\n                \"name\": \"KEY_7\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d8\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_8\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_8\",\n                \"name\": \"KEY_8\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960d9\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_9\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_9\",\n                \"name\": \"KEY_9\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960da\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_10\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_10\",\n                \"name\": \"KEY_10\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960db\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_11\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_11\",\n                \"name\": \"KEY_11\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960dc\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_12\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_12\",\n                \"name\": \"KEY_12\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960dd\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_CHDOWN\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_CHDOWN\",\n                \"name\": \"KEY_CHDOWN\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960de\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_CHUP\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_CHUP\",\n                \"name\": \"KEY_CHUP\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960df\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_VOLDOWN\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_VOLDOWN\",\n                \"name\": \"KEY_VOLDOWN\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e0\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_VOLUP\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_VOLUP\",\n                \"name\": \"KEY_VOLUP\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e1\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_MUTE\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_MUTE\",\n                \"name\": \"KEY_MUTE\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e2\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_SOURCE\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_SOURCE\",\n                \"name\": \"KEY_SOURCE\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e3\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_LEFT\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_LEFT\",\n                \"name\": \"KEY_LEFT\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e4\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_RIGHT\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_RIGHT\",\n                \"name\": \"KEY_RIGHT\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e5\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_UP\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_UP\",\n                \"name\": \"KEY_UP\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e6\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_DOWN\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_DOWN\",\n                \"name\": \"KEY_DOWN\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e7\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_ENTER\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_ENTER\",\n                \"name\": \"KEY_ENTER\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e8\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_MENU\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_MENU\",\n                \"name\": \"KEY_MENU\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960e9\",\n                \"identifier\": null,\n                \"description\": null\n            },\n            {\n                \"payload\": \"KEY_EXIT\",\n                \"interface\": \"63a5a4c2bd5fe7cb165960ce\",\n                \"alias\": \"KEY_EXIT\",\n                \"name\": \"KEY_EXIT\",\n                \"_id\": \"63a5a4c2bd5fe7cb165960ea\",\n                \"identifier\": null,\n                \"description\": null\n            }\n        ],\n        \"timestamps\": {\n            \"created\": 1671800002321,\n            \"updated\": null\n        },\n        \"enabled\": true,\n        \"room\": \"62a4bbf0d9256b5e8d69889c\",\n        \"states\": [],\n        \"identifier\": null,\n        \"icon\": \"fa-solid fa-tv\"\n    }",
+									"raw": "{\n  \"name\": \"Dummy Endpoint (name changed)\",\n  \"device\": \"6398ae590dce390161f7fc2f\",\n  \"commands\": [{\n      \"_id\": \"6581fc8ac20cb522e02868ff\",\n      \"name\": \"new command\",\n      \"payload\": \"new_command\",\n      \"alias\": \"new_cmd\",\n      \"interface\": \"6398ae590dce390161f7fc30\"\n    }]\n}\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2316,7 +1991,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/63a5a4c2bd5fe7cb165960d0",
+									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/658189336fa19198939caa21",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2325,60 +2000,7 @@
 									"path": [
 										"api",
 										"endpoints",
-										"63a5a4c2bd5fe7cb165960d0"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Delete exisiting endpoint",
-							"request": {
-								"method": "DELETE",
-								"header": [],
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/61103caa50139f51160ae790",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"endpoints",
-										"61103caa50139f51160ae790"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Trigger command",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "[{\n    \"key\": \"VOLUME\",\n    \"value\": 15\n}]",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/610e865a0c7edd636843a409/commands/610e865a0c7edd636843a406",
-									"protocol": "http",
-									"host": [
-										"{{HOST}}"
-									],
-									"port": "{{PORT}}",
-									"path": [
-										"api",
-										"endpoints",
-										"610e865a0c7edd636843a409",
-										"commands",
-										"610e865a0c7edd636843a406"
+										"658189336fa19198939caa21"
 									]
 								}
 							},
@@ -2399,7 +2021,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/6398b0bcf8a893ef43e283d5/states/6398b0bcf8a893ef43e283d8",
+									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/658189336fa19198939caa21/states/658190d232fe653a07638863",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2408,12 +2030,65 @@
 									"path": [
 										"api",
 										"endpoints",
-										"6398b0bcf8a893ef43e283d5",
+										"658189336fa19198939caa21",
 										"states",
-										"6398b0bcf8a893ef43e283d8"
+										"658190d232fe653a07638863"
 									]
 								},
 								"description": "TODO!"
+							},
+							"response": []
+						},
+						{
+							"name": "Trigger command",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[{\n    \"key\": \"VOLUME\",\n    \"value\": 15\n}]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/658189336fa19198939caa21/commands/6581fc8ac20cb522e02868ff",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"endpoints",
+										"658189336fa19198939caa21",
+										"commands",
+										"6581fc8ac20cb522e02868ff"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete exisiting endpoint",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/endpoints/658189336fa19198939caa21",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"endpoints",
+										"658189336fa19198939caa21"
+									]
+								}
 							},
 							"response": []
 						}
@@ -2429,7 +2104,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"pm.request.payload = JSON.parse(pm.request.body.raw);"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -2438,16 +2113,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"",
-											"",
-											"",
-											"console.log(pm.request.payload)",
-											"",
-											"pm.test(\"Input = Output name\", () => {",
-											"",
-											"    ",
-											"",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -2458,7 +2124,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"FritzBox\",\n    \"identifier\": \"FRITZBOX\",\n    \"secrets\": [{\n        \"key\": \"USERNAME\",\n        \"name\": \"Username\",\n        \"value\": \"username@example.com\"\n    }, {\n        \"key\": \"PASSWORD\",\n        \"name\": \"Password\",\n        \"value\": \"Pa$$w0rd\"\n    }]\n}",
+									"raw": "{\n    \"_id\": \"6581896929ae93ba734cc72a\",\n    \"name\": \"FritzBox\",\n    \"identifier\": \"FRITZBOX\",\n    \"secrets\": [{\n        \"_id\": \"65818cb27c731f3cba187149\",\n        \"key\": \"USERNAME\",\n        \"name\": \"Username\",\n        \"value\": \"username@example.com\"\n    }, {\n        \"_id\": \"65818cbdb9302888a0b6ca35\",\n        \"key\": \"PASSWORD\",\n        \"name\": \"Password\",\n        \"value\": \"Pa$$w0rd\"\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2506,7 +2172,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/vault/63a5a4c2bd5fe7cb165960eb",
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault/6581896929ae93ba734cc72a",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2515,7 +2181,7 @@
 									"path": [
 										"api",
 										"vault",
-										"63a5a4c2bd5fe7cb165960eb"
+										"6581896929ae93ba734cc72a"
 									]
 								}
 							},
@@ -2527,7 +2193,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/vault/639c9562cece5101bdccdeb1/secrets",
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault/6581896929ae93ba734cc72a/secrets",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2536,7 +2202,7 @@
 									"path": [
 										"api",
 										"vault",
-										"639c9562cece5101bdccdeb1",
+										"6581896929ae93ba734cc72a",
 										"secrets"
 									]
 								}
@@ -2558,7 +2224,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/vault/637a5f290a21379bf30c62be/secrets/637a614b0a21379bf30c62c2/encrypt",
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault/6581896929ae93ba734cc72a/secrets/65818cb27c731f3cba187149/encrypt",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2567,9 +2233,9 @@
 									"path": [
 										"api",
 										"vault",
-										"637a5f290a21379bf30c62be",
+										"6581896929ae93ba734cc72a",
 										"secrets",
-										"637a614b0a21379bf30c62c2",
+										"65818cb27c731f3cba187149",
 										"encrypt"
 									]
 								}
@@ -2583,7 +2249,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"PASSWORD\": \"Pa$$w0rd\",\n    \"USERNAME\": \"user-1@example.com\"\n}",
+									"raw": "",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2591,7 +2257,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/vault/637a5f290a21379bf30c62be/secrets/637a614b0a21379bf30c62c2/decrypt",
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault/6581896929ae93ba734cc72a/secrets/65818cb27c731f3cba187149/decrypt",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2600,9 +2266,9 @@
 									"path": [
 										"api",
 										"vault",
-										"637a5f290a21379bf30c62be",
+										"6581896929ae93ba734cc72a",
 										"secrets",
-										"637a614b0a21379bf30c62c2",
+										"65818cb27c731f3cba187149",
 										"decrypt"
 									]
 								}
@@ -2624,7 +2290,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/vault/61a15b436d63a6517e1385ed",
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault/6581896929ae93ba734cc72a",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2633,7 +2299,7 @@
 									"path": [
 										"api",
 										"vault",
-										"61a15b436d63a6517e1385ed"
+										"6581896929ae93ba734cc72a"
 									]
 								}
 							},
@@ -2645,7 +2311,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/vault/<id>",
+									"raw": "http://{{HOST}}:{{PORT}}/api/vault/6581896929ae93ba734cc72a",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2654,7 +2320,7 @@
 									"path": [
 										"api",
 										"vault",
-										"<id>"
+										"6581896929ae93ba734cc72a"
 									]
 								}
 							},
@@ -2672,7 +2338,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"pm.request.payload = JSON.parse(pm.request.body.raw);"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -2681,16 +2347,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"",
-											"",
-											"",
-											"console.log(pm.request.payload)",
-											"",
-											"pm.test(\"Input = Output name\", () => {",
-											"",
-											"    ",
-											"",
-											"});"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -2701,7 +2358,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"config\": [{\n        \"key\": \"pairing\",\n        \"type\": \"boolean\",\n        \"value\": false,\n        \"description\": \"Is the Gateway ready for pairing?\"\n    }, {\n        \"key\": \"interval\",\n        \"type\": \"number\",\n        \"value\": 3000,\n        \"description\": \"Sync intervall for Endpoints\"\n    }]\n}",
+									"raw": "{\n    \"_id\": \"65818986ca5133d8de2bb4a1\",\n    \"config\": [{\n        \"_id\": \"6581a14f1c6d01f32129dabc\",\n        \"key\": \"pairing\",\n        \"type\": \"boolean\",\n        \"value\": false,\n        \"description\": \"Is the Gateway ready for pairing?\"\n    }, {\n        \"_id\": \"6581a1520bcb15659d48b207\",\n        \"key\": \"interval\",\n        \"type\": \"number\",\n        \"value\": 3000,\n        \"description\": \"Sync intervall for Endpoints\"\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2724,7 +2381,7 @@
 							"response": []
 						},
 						{
-							"name": "Get all config items",
+							"name": "Get all config stores",
 							"request": {
 								"method": "GET",
 								"header": [],
@@ -2744,12 +2401,12 @@
 							"response": []
 						},
 						{
-							"name": "Get single store item",
+							"name": "Get single store",
 							"request": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/store/626cf0d940cbe8290f0b4e3f",
+									"raw": "http://{{HOST}}:{{PORT}}/api/store/65818986ca5133d8de2bb4a1",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2758,7 +2415,7 @@
 									"path": [
 										"api",
 										"store",
-										"626cf0d940cbe8290f0b4e3f"
+										"65818986ca5133d8de2bb4a1"
 									]
 								}
 							},
@@ -2770,7 +2427,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/store/6377697882393a47683cc76c/config",
+									"raw": "http://{{HOST}}:{{PORT}}/api/store/65818986ca5133d8de2bb4a1/config",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2779,7 +2436,7 @@
 									"path": [
 										"api",
 										"store",
-										"6377697882393a47683cc76c",
+										"65818986ca5133d8de2bb4a1",
 										"config"
 									]
 								}
@@ -2792,7 +2449,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/store/6377697882393a47683cc76c/config/6377697882393a47683cc76e",
+									"raw": "http://{{HOST}}:{{PORT}}/api/store/65818986ca5133d8de2bb4a1/config/6581a14f1c6d01f32129dabc",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2801,9 +2458,9 @@
 									"path": [
 										"api",
 										"store",
-										"6377697882393a47683cc76c",
+										"65818986ca5133d8de2bb4a1",
 										"config",
-										"6377697882393a47683cc76e"
+										"6581a14f1c6d01f32129dabc"
 									]
 								}
 							},
@@ -2824,7 +2481,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/store/63a035ceb3add4c2c7b79d05/config/63a035ceb3add4c2c7b79d06",
+									"raw": "http://{{HOST}}:{{PORT}}/api/store/65818986ca5133d8de2bb4a1/config/6581a14f1c6d01f32129dabc",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2833,9 +2490,9 @@
 									"path": [
 										"api",
 										"store",
-										"63a035ceb3add4c2c7b79d05",
+										"65818986ca5133d8de2bb4a1",
 										"config",
-										"63a035ceb3add4c2c7b79d06"
+										"6581a14f1c6d01f32129dabc"
 									]
 								}
 							},
@@ -2856,7 +2513,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/store/6375352db0c7df8ecab9e7ad",
+									"raw": "http://{{HOST}}:{{PORT}}/api/store/65818986ca5133d8de2bb4a1",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2865,19 +2522,19 @@
 									"path": [
 										"api",
 										"store",
-										"6375352db0c7df8ecab9e7ad"
+										"65818986ca5133d8de2bb4a1"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "Delete config entry",
+							"name": "Delete config store",
 							"request": {
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/store/63a035ceb3add4c2c7b79d05",
+									"raw": "http://{{HOST}}:{{PORT}}/api/store/65818986ca5133d8de2bb4a1",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -2886,7 +2543,7 @@
 									"path": [
 										"api",
 										"store",
-										"63a035ceb3add4c2c7b79d05"
+										"65818986ca5133d8de2bb4a1"
 									]
 								}
 							},
@@ -2904,42 +2561,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"console.log(\"compoents pre request script\")",
-							"",
-							"",
-							"/*",
-							"",
-							"        console.log(\"Name3\", name)",
-							"",
-							"        let HOST = pm.collectionVariables.get(\"HOST\");",
-							"        let PORT = pm.collectionVariables.get(\"PORT\");",
-							"",
-							"        pm.sendRequest({",
-							"            url: `http://${HOST}:${PORT}/api/${name}/`,",
-							"            method: 'GET',",
-							"        }, (err, res) => {",
-							"            if(err){",
-							"",
-							"                console.log(\"err\", err)",
-							"",
-							"                consle.error(err);",
-							"                done(err);",
-							"",
-							"            }else {",
-							"",
-							"                console.log(\"Callback\")",
-							"",
-							"                let data = res.json();",
-							"                let key = Math.floor(Math.random()*data.length);",
-							"                let item = data[key];",
-							"",
-							"                pm.variables.set(\"_id\", item._id);",
-							"",
-							"                done(null, item._id);",
-							"",
-							"            }",
-							"        });",
-							"*/"
+							""
 						]
 					}
 				},
@@ -2948,61 +2570,63 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.test(\"application/content = json\", () => {",
-							"    pm.response.to.be.json",
+							"let IGNORE = {",
+							"    \"PUT\": [",
+							"        \"/api/plugins/658188e93cde9987c3228806/files\"",
+							"    ],",
+							"    \"POST\": [",
+							"        \"/api/plugins/658188e93cde9987c3228806/start\",",
+							"        \"/api/endpoints/658189336fa19198939caa21/commands/6581fc8ac20cb522e02868ff\"",
+							"    ]",
+							"};",
+							"",
+							"",
+							"console.log(\"Check ignore object\", pm.request.method, pm.request.url.toString());",
+							"",
+							"",
+							"if(Object.prototype.hasOwnProperty.call(IGNORE, pm.request.method)){",
+							"",
+							"    let skip = IGNORE[pm.request.method].some((url) => {",
+							"        return pm.request.url.toString().includes(url);",
+							"    });",
+							"",
+							"    console.log(\"Ignore\", pm.request.url.toString(), skip);",
+							"",
+							"    if(skip){",
+							"        return;",
+							"    }",
+							"",
+							"}",
+							"",
+							"",
+							"pm.test(\"content-type = application/json\", () => {",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
 							"});",
 							"",
+							"",
+							"pm.test(\"Status code 200 || 202\", () => {",
+							"    pm.expect(pm.response.code).to.be.oneOf([",
+							"        200,",
+							"        202",
+							"    ]);",
+							"});",
+							"",
+							"",
 							"pm.test(\"Response has no error field\", () => {",
+							"",
+							"    let length = pm.response.headers.get(\"content-length\");",
+							"",
+							"    // ignore empty response/no body",
+							"    if(!length || Number(length) === 0){",
+							"        return;",
+							"    }",
+							"",
 							"    let json = pm.response.json();",
-							"    pm.expect(!json.error);",
+							"    pm.expect(!json.error, true);",
+							"",
 							"});"
 						]
 					}
-				}
-			]
-		},
-		{
-			"name": "Logfiles",
-			"item": [
-				{
-					"name": "Get logfile entrys",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/api/logs/?offset=0&limit=3",
-							"protocol": "http",
-							"host": [
-								"{{HOST}}"
-							],
-							"port": "{{PORT}}",
-							"path": [
-								"api",
-								"logs",
-								""
-							],
-							"query": [
-								{
-									"key": "offset",
-									"value": "0"
-								},
-								{
-									"key": "limit",
-									"value": "3"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "New Request",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": null
-					},
-					"response": []
 				}
 			]
 		},

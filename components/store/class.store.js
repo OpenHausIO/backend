@@ -1,5 +1,8 @@
 const { EventEmitter } = require("events");
+const Joi = require("joi");
+const mongodb = require("mongodb");
 const Value = require("./class.value.js");
+const uuid = require("uuid");
 
 const Item = require("../../system/component/class.item.js");
 
@@ -59,6 +62,22 @@ module.exports = class Store extends Item {
 
     }
 
+    static schema() {
+        return Joi.object({
+            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
+                return String(new mongodb.ObjectId());
+            }),
+            config: Joi.array().min(1).items(Value.schema()).required(),
+            item: Joi.string().allow(null).default(null),
+            namespace: Joi.string().default(() => {
+                return uuid.v4();
+            }),
+        });
+    }
+
+    static validate(data) {
+        return Store.schema().validate(data);
+    }
 
     /**
      * @function changes

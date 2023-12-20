@@ -1,3 +1,6 @@
+const Joi = require("joi");
+const mongodb = require("mongodb");
+
 const Item = require("../../system/component/class.item.js");
 
 /**
@@ -41,6 +44,19 @@ module.exports = class Webhook extends Item {
             writable: false
         });
 
+    }
+
+    static schema() {
+        return Joi.object({
+            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
+                return String(new mongodb.ObjectId());
+            }),
+            name: Joi.string().required()
+        });
+    }
+
+    static validate(data) {
+        return Webhook.schema().validate(data);
     }
 
     handle(cb) {

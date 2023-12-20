@@ -1,13 +1,8 @@
-const mongodb = require("mongodb");
-const Joi = require("joi");
-const uuid = require("uuid");
-
 const COMPONENT = require("../../system/component/class.component.js");
 
 //const Value = require("./class.value.js");
 //const Namespace = require("./class.namespace.js");
 const Store = require("./class.store.js");
-const Value = require("./class.value.js");
 
 /**
  * @description
@@ -38,16 +33,7 @@ class C_STORE extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("store", {
-            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectId());
-            }),
-            config: Joi.array().min(1).items(Value.schema()).required(),
-            item: Joi.string().allow(null).default(null),
-            namespace: Joi.string().default(() => {
-                return uuid.v4();
-            }),
-        }, module);
+        super("store", Store.schema(), module);
 
         this.hooks.post("add", (data, next) => {
             next(null, new Store(data, this));

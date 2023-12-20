@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+const Joi = require("joi");
+const mongodb = require("mongodb");
 
 const _promisify = require("../../helper/promisify");
 
@@ -37,6 +39,30 @@ module.exports = class User extends Item {
             configurable: false
         });
 
+    }
+
+    static schema() {
+        return Joi.object({
+            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
+                return String(new mongodb.ObjectId());
+            }),
+            name: Joi.string().required(),
+            email: Joi.string().required(),
+            password: Joi.string().required(),
+            enabled: Joi.boolean().default(false),
+            tokens: Joi.array().items(Joi.string()).default([]),
+            admin: Joi.boolean().default(false),
+            timestamps: {
+                // NOTE: would be greate to have a expiration date for users
+                // expires: Joi.number().allow(null).default(null)
+                login: Joi.number().allow(null).default(null),
+                logout: Joi.number().allow(null).default(null)
+            }
+        });
+    }
+
+    static validate(data) {
+        return User.schema().validate(data);
     }
 
     /**

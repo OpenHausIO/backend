@@ -1,6 +1,3 @@
-const mongodb = require("mongodb");
-const Joi = require("joi");
-
 //const util = require("util");
 
 //const logger = require("../../system/logger").create("endpoints");
@@ -44,23 +41,32 @@ class C_ENDPOINTS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("endpoints", {
-            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectId());
-            }),
-            name: Joi.string().required(),
-            enabled: Joi.boolean().default(true),
-            room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
-            device: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
-            commands: Joi.array().items(Command.schema()).default([]),
-            states: Joi.array().items(State.schema()).default([]),
-            identifier: Joi.any().allow(null).default(null),   // usefull for ssdp, etc.
-            icon: Joi.string().allow(null).default(null)
-        }, module);
+        super("endpoints", Endpoint.schema(), module);
 
 
         this.hooks.post("add", (data, next) => {
             next(null, new Endpoint(data));
+        });
+
+
+        this.hooks.post("update", (data, next) => {
+
+            // fix for #368
+            data.states.forEach((state, i, arr) => {
+                if (!(state instanceof State)) {
+                    arr[i] = new State(state);
+                }
+            });
+
+            // fix for #287
+            data.commands.forEach((command, i, arr) => {
+                if (!(command instanceof Command)) {
+                    arr[i] = new Command(command);
+                }
+            });
+
+            next();
+
         });
 
 

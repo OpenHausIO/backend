@@ -25,7 +25,7 @@ const getItmes = (obj) => {
 
 describe("component", function () {
 
-    let instance = new COMPONENT("test", {});
+    let instance = new COMPONENT("test", joi.object({}));
 
     describe("- should have following properties", () => {
 

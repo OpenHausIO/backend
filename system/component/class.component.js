@@ -95,8 +95,7 @@ module.exports = class COMPONENT extends COMMON {
 
         this.collection = mongodb.client.collection(name);
 
-        this.schema = Joi.object({
-            ...schema,
+        let baseSchema = Joi.object({
             //labels: Joi.array().items(Joi.string().regex(/^[a-zA-Z0-9]+=[a-zA-Z0-9]+$/)).default([])
             //labels: Joi.array().items(Joi.string().regex(/^[a-z0-9\.]+=[a-z0-9]+$/)).default([]),
             labels: Joi.array().items(Joi.string().regex(/^.+?=.+|.+=.+$/i)).default([]),
@@ -106,6 +105,9 @@ module.exports = class COMPONENT extends COMMON {
                 updated: Joi.number().allow(null).default(null)
             })
         });
+
+        // concat base schema with component specific
+        this.schema = baseSchema.concat(schema);
 
         if (process.env.DATABASE_WATCH_CHANGES === "true") {
             try {
@@ -319,7 +321,15 @@ module.exports = class COMPONENT extends COMMON {
                                 let item = this.items.find((item) => {
 
                                     return Object.keys(err.keyValue).every((value) => {
+
+                                        // fixing "Duplicate unique key/index in database, but no matching item"
+                                        // see #367
+                                        if (err.keyValue[value] instanceof mongodb.ObjectId) {
+                                            return item[value] === err.keyValue[value].toString();
+                                        }
+
                                         return item[value] === err.keyValue[value];
+
                                     });
 
                                     /*
