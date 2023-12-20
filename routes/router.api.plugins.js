@@ -31,7 +31,7 @@ module.exports = (app, router) => {
             }
 
             // trigger closing pipeline below
-            tar.stdin.close();
+            tar.stdin.end();
 
         });
 
