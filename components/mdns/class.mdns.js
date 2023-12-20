@@ -1,9 +1,14 @@
-class MDNS {
+const Item = require("../../system/component/class.item.js");
+
+module.exports = class MDNS extends Item {
 
     constructor(obj) {
 
-        Object.assign(this, obj);
-        this._id = String(obj._id);
+        super(obj);
+
+        // removed for #356
+        //Object.assign(this, obj);
+        //this._id = String(obj._id);
 
         Object.defineProperty(this, "_matches", {
             value: [],
@@ -18,6 +23,4 @@ class MDNS {
         this._matches.push(cb);
     }
 
-}
-
-module.exports = MDNS;
+};

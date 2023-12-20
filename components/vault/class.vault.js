@@ -7,6 +7,8 @@ const _debounce = require("../../helper/debounce.js");
 
 const Secret = require("./class.secret.js");
 
+const Item = require("../../system/component/class.item.js");
+
 /**
  * @description
  * Contains a collection of secrets
@@ -22,11 +24,13 @@ const Secret = require("./class.secret.js");
  * 
  * @see secret components/vault/class.secret.js
  */
-class Vault {
+module.exports = class Vault extends Item {
 
     #privates = new Map();
 
     constructor(obj, scope) {
+
+        super(obj);
 
         // create event emitter for lean object
         let events = new EventEmitter();
@@ -53,8 +57,9 @@ class Vault {
             }
         }, Number(process.env.DATABASE_UPDATE_DEBOUNCE_TIMER));
 
-        Object.assign(this, obj);
-        this._id = String(obj._id);
+        // removed for #356
+        //Object.assign(this, obj);
+        //this._id = String(obj._id);
 
         this.secrets = obj.secrets.map((secret) => {
             return new Secret(secret, () => {
@@ -132,6 +137,4 @@ class Vault {
         }, {});
     }
 
-}
-
-module.exports = Vault;
+};

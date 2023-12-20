@@ -4,6 +4,8 @@ const sinon = require("sinon");
 
 const _iterate = require("../../helper/iterate.js");
 
+const Item = require("../../system/component/class.item.js");
+
 module.exports = (C_COMPONENT, method, desc, worker) => {
 
     if (!worker && desc instanceof Function) {
@@ -48,6 +50,16 @@ module.exports = (C_COMPONENT, method, desc, worker) => {
 
         it(`Items array should have 1 item ${desc ? "(" + desc + ")" : ""}`, (done) => {
             assert.equal(C_COMPONENT.items.length, 1);
+            done();
+        });
+
+        it("Component item should be instance of item class", (done) => {
+            assert.ok(C_COMPONENT.items[0] instanceof Item);
+            done();
+        });
+
+        it("Component item _id property should be a string, not a ObjectId instance", (done) => {
+            assert.ok(typeof (C_COMPONENT.items[0]._id) === "string");
             done();
         });
 

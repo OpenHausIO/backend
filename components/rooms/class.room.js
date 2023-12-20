@@ -1,3 +1,5 @@
+const Item = require("../../system/component/class.item.js");
+
 /**
  * @description
  * Represents a room item
@@ -11,9 +13,16 @@
  * @property {Number} [floor=null] Floor on which the room is located
  * @property {String} [icon=null] fontawesome class string for the frontend
  */
-module.exports = class Room {
+module.exports = class Room extends Item {
+
     constructor(obj) {
-        Object.assign(this, obj);
-        this._id = String(obj._id);
+
+        super(obj);
+
+        // removed for #356
+        //Object.assign(this, obj);
+        //this._id = String(obj._id);
+
     }
+
 };
