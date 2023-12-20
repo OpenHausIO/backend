@@ -1,6 +1,3 @@
-const mongodb = require("mongodb");
-const Joi = require("joi");
-
 //const logger = require("../../system/logger").create("rooms");
 //const COMMON_COMPONENT = require("../../system/component/common.js");
 const COMPONENT = require("../../system/component/class.component.js");
@@ -48,19 +45,7 @@ class C_SSDP extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("ssdp", {
-            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectId());
-            }),
-            description: Joi.string().allow(null).default(null),
-            nt: Joi.string().allow(null).default(null),
-            usn: Joi.string().allow(null).default(null),
-            // NOTE: Removed head field since currently no unique index can be build with it
-            //headers: Joi.array().items(Joi.string()).allow(null).default([]),
-            timestamps: {
-                announced: Joi.number().allow(null).default(null)
-            }
-        }, module);
+        super("ssdp", SSDP.schema(), module);
 
         this.hooks.post("add", (data, next) => {
             next(null, new SSDP(data));

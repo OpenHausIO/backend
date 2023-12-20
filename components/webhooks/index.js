@@ -1,6 +1,3 @@
-const mongodb = require("mongodb");
-const Joi = require("joi");
-
 //const logger = require("../../system/logger").create("rooms");
 //const COMMON_COMPONENT = require("../../system/component/common.js");
 const COMPONENT = require("../../system/component/class.component.js");
@@ -18,12 +15,7 @@ class C_WEBHOOKS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("webhooks", {
-            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectId());
-            }),
-            name: Joi.string().required()
-        }, module);
+        super("webhooks", Webhook.schema(), module);
 
         this.hooks.post("add", (data, next) => {
             next(null, new Webhook(data));

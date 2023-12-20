@@ -1,6 +1,4 @@
 // external modules
-const mongodb = require("mongodb");
-const Joi = require("joi");
 const bcrypt = require("bcrypt");
 
 // system stuff
@@ -25,23 +23,7 @@ class C_USERS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("users", {
-            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectId());
-            }),
-            name: Joi.string().required(),
-            email: Joi.string().required(),
-            password: Joi.string().required(),
-            enabled: Joi.boolean().default(false),
-            tokens: Joi.array().items(Joi.string()).default([]),
-            admin: Joi.boolean().default(false),
-            timestamps: {
-                //would be greate to have a expiration date for users
-                //expires: Joi.number().allow(null).default(null)
-                login: Joi.number().allow(null).default(null),
-                logout: Joi.number().allow(null).default(null)
-            }
-        }, module);
+        super("users", User.schema(), module);
 
         this.hooks.post("add", (data, next) => {
             next(null, new User(this, data));

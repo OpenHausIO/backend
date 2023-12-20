@@ -78,10 +78,14 @@ class Vault {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return String(new mongodb.ObjectId());
             }),
-            key: Joi.string().required(),
-            value: Joi.any().required(),
-            description: Joi.string().required()
+            name: Joi.string().required(),
+            identifier: Joi.string().required(),
+            secrets: Joi.array().items(Secret.schema()).default([])
         });
+    }
+
+    static validate(data) {
+        return Vault.schema().validate(data);
     }
 
 

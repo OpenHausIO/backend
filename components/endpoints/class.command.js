@@ -190,6 +190,12 @@ module.exports = class Command {
         let worker = this.#privates.get("handler");
         let iface = interfaces.get(this.interface);
 
+        if (!iface) {
+            let err = new Error(`Interface "${this.interface}" not found, cant write to it.`);
+            err.code = "NO_INTERFACE";
+            return cb(err, false);
+        }
+
         let timer = _timeout(this.#privates.get("timeout"), (timedout, duration, args) => {
             if (timedout) {
 

@@ -1,3 +1,6 @@
+const Joi = require("joi");
+const mongodb = require("mongodb");
+
 /**
  * @description
  * Represents a mqtt topic item
@@ -31,6 +34,20 @@ class MQTT {
             enumerable: false
         });
 
+    }
+
+    static schema() {
+        return Joi.object({
+            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
+                return String(new mongodb.ObjectId());
+            }),
+            topic: Joi.string().required(),
+            description: Joi.string().allow(null).default(null)
+        });
+    }
+
+    static validate(data) {
+        return MQTT.schema().validate(data);
     }
 
     /**

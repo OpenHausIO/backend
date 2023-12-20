@@ -1,12 +1,8 @@
-const mongodb = require("mongodb");
-const Joi = require("joi");
-
 //const logger = require("../../system/logger").create("vault");
 //const COMMON_COMPONENT = require("../../system/component/common.js");
 const COMPONENT = require("../../system/component/class.component.js");
 
 const Vault = require("./class.vault.js");
-const Secret = require("./class.secret.js");
 
 const encrypt = require("./encrypt.js");
 
@@ -35,14 +31,7 @@ class C_VAULT extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("vault", {
-            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectId());
-            }),
-            name: Joi.string().required(),
-            identifier: Joi.string().required(),
-            secrets: Joi.array().items(Secret.schema()).default([])
-        }, module);
+        super("vault", Vault.schema(), module);
 
         this.hooks.pre("add", (data, next) => {
             try {
