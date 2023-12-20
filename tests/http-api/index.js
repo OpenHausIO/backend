@@ -57,19 +57,6 @@ describe("HTTP API", function () {
 
             console.log("Done emitted!!!!!!!", err, summary.run.failures.length);
 
-            if (err || summary.error) {
-
-                done(err || summary.error);
-
-            } else {
-
-                assert.equal(summary.run.failures.length, 0);
-
-                done();
-
-            }
-
-            /*
             try {
                 if (err || summary.error) {
 
@@ -77,11 +64,9 @@ describe("HTTP API", function () {
 
                 } else {
 
-                    /*
                     summary.run.failures.forEach(({ source: { request }, error }) => {
                         console.error(`[${request.method}] ${request.url.toString()}`, error.message);
-                    })
-                    *
+                    });
 
                     assert.equal(summary.run.failures.length, 0);
 
@@ -92,13 +77,8 @@ describe("HTTP API", function () {
 
                 done(err);
 
-            } finally {
-
-                // stop backend
-                child.kill();
-
             }
-            */
+
         });
 
     });
