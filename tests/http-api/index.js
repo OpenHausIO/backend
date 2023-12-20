@@ -39,6 +39,7 @@ describe("HTTP API", function () {
 
 
     // https://gist.github.com/davfive/eae043135ed98b9647ad631bbfc1ab38
+    // https://github.com/postmanlabs/newman/wiki/Newman-Run-Events
     it("- Should not have any items in summary.run.failres array", (done) => {
 
         let emitter = newman.run({
@@ -47,7 +48,15 @@ describe("HTTP API", function () {
             workingDir: __dirname
         });
 
+        emitter.once("exception", (err, { error }) => {
+            console.error("Exception happend", err || error);
+            done(err || error);
+        });
+
         emitter.once("done", (err, summary) => {
+
+            console.log("Done emitted!!!!!!!", err, summary.run.failures.length);
+
             if (err || summary.error) {
 
                 done(err || summary.error);
