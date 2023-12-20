@@ -10,7 +10,7 @@ const collection = require("../../postman.json");
 
 describe("HTTP API", function () {
 
-    this.timeout(120000);
+    this.timeout(30000);
 
     //let HTTP_PORT = crypto.randomInt(2048, 1024);
     let child = null;
@@ -42,10 +42,12 @@ describe("HTTP API", function () {
     // https://github.com/postmanlabs/newman/wiki/Newman-Run-Events
     it("- Should not have any items in summary.run.failres array", (done) => {
 
+        // https://www.npmjs.com/package/newman#newman-options
         let emitter = newman.run({
             collection,
             reporters: "json",
-            workingDir: __dirname
+            workingDir: __dirname,
+            timeoutRequest: 3000
         });
 
         emitter.once("exception", (err, { error }) => {
@@ -54,9 +56,6 @@ describe("HTTP API", function () {
         });
 
         emitter.once("done", (err, summary) => {
-
-            console.log("Done emitted!!!!!!!", err, summary.run.failures.length);
-
             try {
                 if (err || summary.error) {
 
@@ -78,7 +77,6 @@ describe("HTTP API", function () {
                 done(err);
 
             }
-
         });
 
     });
