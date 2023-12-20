@@ -48,27 +48,33 @@ describe("HTTP API", function () {
         });
 
         emitter.once("done", (err, summary) => {
-            if (err || summary.error) {
+            try {
+                if (err || summary.error) {
 
-                // stop backend
-                child.kill();
+                    // stop backend
+                    child.kill();
 
-                done(err || summary.error);
+                    done(err || summary.error);
 
-            } else {
+                } else {
 
-                // stop backend
-                child.kill();
+                    // stop backend
+                    child.kill();
 
-                summary.run.failures.forEach(({ source: { request }, error }) => {
-                    console.error(`[${request.method}] ${request.url.toString()}`, error.message);
-                });
+                    summary.run.failures.forEach(({ source: { request }, error }) => {
+                        console.error(`[${request.method}] ${request.url.toString()}`, error.message);
+                    });
 
-                assert.equal(summary.run.failures.length, 0);
+                    assert.equal(summary.run.failures.length, 0);
 
-                // give some time to kill the backend
-                setTimeout(done, 1000);
-                //done();
+                    // give some time to kill the backend
+                    setTimeout(done, 1000);
+                    //done();
+
+                }
+            } catch (err) {
+
+                done(err);
 
             }
         });
@@ -80,5 +86,11 @@ describe("HTTP API", function () {
         assert(!child.connected);
     });
 
+
+    // ensure to kill the backend
+    // so that github actions complete
+    this.afterAll(() => {
+        child.kill();
+    });
 
 });
