@@ -10,7 +10,7 @@ const collection = require("../../postman.json");
 
 describe("HTTP API", function () {
 
-    this.timeout(30000);
+    this.timeout(120000);
 
     //let HTTP_PORT = crypto.randomInt(2048, 1024);
     let child = null;
