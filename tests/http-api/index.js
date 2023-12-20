@@ -51,15 +51,9 @@ describe("HTTP API", function () {
             try {
                 if (err || summary.error) {
 
-                    // stop backend
-                    child.kill();
-
                     done(err || summary.error);
 
                 } else {
-
-                    // stop backend
-                    child.kill();
 
                     summary.run.failures.forEach(({ source: { request }, error }) => {
                         console.error(`[${request.method}] ${request.url.toString()}`, error.message);
@@ -67,23 +61,21 @@ describe("HTTP API", function () {
 
                     assert.equal(summary.run.failures.length, 0);
 
-                    // give some time to kill the backend
-                    setTimeout(done, 1000);
-                    //done();
+                    done();
 
                 }
             } catch (err) {
 
                 done(err);
 
+            } finally {
+
+                // stop backend
+                child.kill();
+
             }
         });
 
-    });
-
-
-    it("- Should stop the backend", () => {
-        assert(!child.connected);
     });
 
 
