@@ -4,6 +4,8 @@ const mongodb = require("mongodb");
 
 const _promisify = require("../../helper/promisify");
 
+const Item = require("../../system/component/class.item.js");
+
 /**
  * @description
  * Represents a user item
@@ -20,12 +22,15 @@ const _promisify = require("../../helper/promisify");
  * @property {Boolean} [enabled=false] Is user enabled/can login?
  * @property {Array} tokens Internal used to store JWTs (Active tokens/sessions)
  */
-module.exports = class User {
+module.exports = class User extends Item {
 
     constructor(scope, obj) {
 
-        Object.assign(this, obj);
-        this._id = String(obj._id);
+        super(obj);
+
+        // removed for #356
+        //Object.assign(this, obj);
+        //this._id = String(obj._id);
 
         Object.defineProperty(this, "_scope", {
             value: scope,

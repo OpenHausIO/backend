@@ -5,6 +5,7 @@ const Command = require("./class.command.js");
 const State = require("./class.state.js");
 //const Commands = require("./class.commands.js");
 //const States = require("./!class.states.js");
+const Item = require("../../system/component/class.item.js");
 
 const _expose = require("../../helper/expose.js");
 
@@ -30,12 +31,14 @@ const _expose = require("../../helper/expose.js");
  * @see Devices components/devices/
  * @see InterfaceStream components/devices/class.interfaceStream.js
  */
-module.exports = class Endpoint {
-
+module.exports = class Endpoint extends Item {
     constructor(obj) {
 
-        Object.assign(this, obj);
-        this._id = String(obj._id);
+        super(obj);
+
+        // removed for #356
+        //Object.assign(this, obj);
+        //this._id = String(obj._id);
 
         //this.commands = new Commands(obj.commands);
         //this.states = new States(obj.states);

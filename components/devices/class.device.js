@@ -3,6 +3,7 @@ const mongodb = require("mongodb");
 
 const InterfaceStream = require("./class.interfaceStream.js");
 const Interface = require("./class.interface.js");
+const Item = require("../../system/component/class.item.js");
 
 const mixins = require("../../helper/mixins.js");
 
@@ -23,13 +24,15 @@ const mixins = require("../../helper/mixins.js");
  * @see interface components/devices/class.interface.js
  * @see interfaceStream components/devices/class.interfaceStream.js
  */
-module.exports = class Device {
-
+module.exports = class Device extends Item {
     constructor(props) {
 
+        super(props);
+
+        // removed for #356
         // set properties from db
-        Object.assign(this, props);
-        this._id = String(props._id);
+        //Object.assign(this, props);
+        //this._id = String(props._id);
 
         // create for each interface a interface class instance
         // for each interface class, create a interface stream

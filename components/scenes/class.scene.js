@@ -6,13 +6,18 @@ const { setTimeout } = require("timers/promises");
 const Makro = require("./class.makro.js");
 const Trigger = require("./class.trigger.js");
 
+const Item = require("../../system/component/class.item.js");
 
-module.exports = class Scene {
+
+module.exports = class Scene extends Item {
 
     constructor(obj) {
 
-        Object.assign(this, obj);
-        this._id = String(obj._id);
+        super(obj);
+
+        // removed for #356
+        //Object.assign(this, obj);
+        //this._id = String(obj._id);
 
         this.makros = obj.makros.map((makro) => {
             return new Makro(makro);

@@ -1,6 +1,8 @@
 const Joi = require("joi");
 const mongodb = require("mongodb");
 
+const Item = require("../../system/component/class.item.js");
+
 /**
  * @description
  * Represents a webhook item
@@ -12,12 +14,15 @@ const mongodb = require("mongodb");
  * @property {String} _id MongoDB Object is as string
  * @property {String} name Webhook name
  */
-module.exports = class Webhook {
+module.exports = class Webhook extends Item {
 
     constructor(obj) {
 
-        Object.assign(this, obj);
-        this._id = String(obj._id);
+        super(obj);
+
+        // removed for #356
+        //Object.assign(this, obj);
+        //this._id = String(obj._id);
 
         Object.defineProperty(this, "_handler", {
             value: [],

@@ -1,3 +1,4 @@
+const Item = require("../../system/component/class.item.js");
 const Joi = require("joi");
 const mongodb = require("mongodb");
 
@@ -13,12 +14,15 @@ const mongodb = require("mongodb");
  * @property {String} topic MQTT topic e.g. `air-sensor/sensor/particulate_matter_25m_concentration/state`
  * @property {String} description Description for Admins/Topic
  */
-class MQTT {
+class MQTT extends Item {
 
     constructor(obj) {
 
-        Object.assign(this, obj);
-        this._id = String(obj._id);
+        super(obj);
+
+        // removed for #356
+        //Object.assign(this, obj);
+        //this._id = String(obj._id);
 
         Object.defineProperty(this, "_subscriber", {
             value: [],

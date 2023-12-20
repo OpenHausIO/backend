@@ -7,6 +7,8 @@ const semver = require("semver");
 const pkg = require("../../package.json");
 const uuid = require("uuid");
 
+const Item = require("../../system/component/class.item.js");
+
 //const Bootstrap = require("./class.bootstrap.js");
 
 /**
@@ -24,12 +26,15 @@ const uuid = require("uuid");
  * @property {Boolean} autostart Start the plugin after the backend has initzialized successful?
  * @property {Boolean} enabled Indicates if this thing can do anything
  */
-class Plugin {
+module.exports = class Plugin extends Item {
 
     constructor(obj) {
 
-        Object.assign(this, obj);
-        this._id = String(obj._id);
+        super(obj);
+
+        // removed for #356
+        //Object.assign(this, obj);
+        //this._id = String(obj._id);
 
         let json = {};
 
@@ -202,6 +207,4 @@ class Plugin {
     }
     */
 
-}
-
-module.exports = Plugin;
+};

@@ -1,12 +1,17 @@
 const Joi = require("joi");
 const mongodb = require("mongodb");
 
-module.exports = class SSDP {
+const Item = require("../../system/component/class.item.js");
+
+module.exports = class SSDP extends Item {
 
     constructor(obj) {
 
-        Object.assign(this, obj);
-        this._id = String(obj._id);
+        super(obj);
+
+        // removed for #356
+        //Object.assign(this, obj);
+        //this._id = String(obj._id);
 
         Object.defineProperty(this, "_matches", {
             value: [],
