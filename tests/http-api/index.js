@@ -45,8 +45,7 @@ describe("HTTP API", function () {
         // https://www.npmjs.com/package/newman#newman-options
         let emitter = newman.run({
             collection,
-            reporters: "json",
-            workingDir: __dirname,
+            //reporters: "json",
             timeoutRequest: 3000
         });
 
