@@ -16,7 +16,11 @@ try {
         C_COMPONENT.add({
             _id,
             name: "Endpoint #1",
-            device: _device
+            device: _device,
+            labels: [
+                "key1=value1",
+                "key2=value2"
+            ]
         }, (err, item) => {
             try {
 
@@ -59,7 +63,11 @@ try {
 
     workflow(C_COMPONENT, "update", (done) => {
         C_COMPONENT.update(_id, {
-            name: "Endpoint #2 - updated"
+            name: "Endpoint #2 - updated",
+            labels: [
+                "overriden=true",
+                "key3=value3"
+            ]
         }, (err, item) => {
             try {
 
