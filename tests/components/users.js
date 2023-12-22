@@ -59,7 +59,10 @@ try {
 
     workflow(C_COMPONENT, "update", (done) => {
         C_COMPONENT.update(_id, {
-            enabled: true
+            enabled: true,
+            labels: [
+                "expires=29991231"
+            ]
         }, (err, item) => {
             try {
 
@@ -83,7 +86,11 @@ try {
 
             // update call 1
             C_COMPONENT.update(_id, {
-                password: "12345678"
+                password: "12345678",
+                labels: [
+                    "expires=29991231",
+                    "key=value"
+                ]
             }),
 
             // update call 2

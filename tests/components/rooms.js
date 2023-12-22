@@ -15,7 +15,11 @@ try {
         C_COMPONENT.add({
             _id,
             name: "Room #1",
-            floor: 1
+            floor: 1,
+            labels: [
+                "foo=bar",
+                "baz=true"
+            ]
         }, (err, item) => {
             try {
 

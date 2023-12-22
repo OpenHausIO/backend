@@ -1,10 +1,11 @@
 const mongodb = require("mongodb");
-const Joi = require("joi");
+//const Joi = require("joi");
 
 const _extend = require("../../helper/extend");
 const _merge = require("../../helper/merge");
 
 const COMMON = require("./class.common.js");
+const Item = require("./class.item.js");
 
 const PENDING_CHANGE_EVENTS = new Set();
 
@@ -94,11 +95,29 @@ module.exports = class COMPONENT extends COMMON {
         });
 
         this.collection = mongodb.client.collection(name);
+        this.schema = Item.schema().concat(schema);
 
+        /*
         let baseSchema = Joi.object({
             //labels: Joi.array().items(Joi.string().regex(/^[a-zA-Z0-9]+=[a-zA-Z0-9]+$/)).default([])
             //labels: Joi.array().items(Joi.string().regex(/^[a-z0-9\.]+=[a-z0-9]+$/)).default([]),
-            labels: Joi.array().items(Joi.string().regex(/^.+?=.+|.+=.+$/i)).default([]),
+            //labels: Joi.array().items(Joi.string().regex(/^.+?=.+|.+=.+$/i)).default([]),
+            labels: Joi.array().items(Joi.alternatives().try(
+                Joi.string().regex(/^.+?=.+|.+=.+$/i),
+                Joi.object().custom((value, helpers) => {
+                    if (value instanceof Label) {
+
+                        // convert to string
+                        // otherwise the serialized object is saved into the database
+                        return value.toString();
+
+                    } else {
+
+                        return helpers.error("any.custom");
+
+                    }
+                }, "Instance of class.label.js")
+            )).default([]),
             timestamps: Joi.object({
                 ...schema?.timestamps,
                 created: Joi.number().allow(null).default(null),
@@ -108,6 +127,7 @@ module.exports = class COMPONENT extends COMMON {
 
         // concat base schema with component specific
         this.schema = baseSchema.concat(schema);
+        */
 
         if (process.env.DATABASE_WATCH_CHANGES === "true") {
             try {
