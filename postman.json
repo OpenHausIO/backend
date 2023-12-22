@@ -40,7 +40,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"_id\": \"65818753e275da05046aaa78\",\n    \"name\": \"Livingroom\"    \n}",
+									"raw": "{\n    \"_id\": \"65818753e275da05046aaa78\",\n    \"name\": \"Livingroom\",\n    \"labels\": [\n        \"foo=bar\",\n        \"baz=true\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -854,7 +854,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"_id\": \"65818856464bebcf19ebec4c\",\n    \"topic\": \"air-sensor/sensor/particulate_matter_25m_concentration\"\n}",
+									"raw": "{\n    \"_id\": \"65818856464bebcf19ebec4c\",\n    \"topic\": \"air-sensor/sensor/particulate_matter_25m_concentration\",\n    \"labels\": [\n        \"manufacturer=custom\",\n        \"esp8266=true\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -982,7 +982,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"description\": \"Ikea VINDRIKTNING MQTT modd\"\n}",
+									"raw": "{\n    \"description\": \"Ikea VINDRIKTNING MQTT mod\",\n    \"labels\": [\n        \"manufacturer=Ikea\",\n        \"model=VINDRIKTNING\",\n        \"esp8266=true\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1342,7 +1342,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"_id\": \"658188a7aadfcc026a0e0131\",\n    \"name\": \"Hans Hubert #3\",\n    \"email\": \"hans.hubert3@example.com\",\n    \"password\": \"Pa$$w0rd\"\n}",
+									"raw": "{\n    \"_id\": \"658188a7aadfcc026a0e0131\",\n    \"name\": \"Hans Hubert #3\",\n    \"email\": \"hans.hubert3@example.com\",\n    \"password\": \"Pa$$w0rd\",\n    \"labels\": [\n        \"expires=29991231\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1571,7 +1571,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"_id\": \"658188e93cde9987c3228806\",\n    \"name\": \"Plugin Boilerplate Demo\",\n    \"enabled\": true,\n    \"version\": 1,\n    \"intents\": [\n        \"devices\",\n        \"endpoints\",\n        \"plugins\",\n        \"rooms\",\n        \"ssdp\",\n        \"store\",\n        \"users\",\n        \"vault\"\n    ]\n}",
+									"raw": "{\n    \"_id\": \"658188e93cde9987c3228806\",\n    \"name\": \"Plugin Boilerplate Demo\",\n    \"uuid\": \"6951dee2-8541-4a69-bd3e-629fdadf093a\",\n    \"enabled\": true,\n    \"version\": 1,\n    \"intents\": [\n        \"devices\",\n        \"endpoints\",\n        \"plugins\",\n        \"rooms\",\n        \"ssdp\",\n        \"store\",\n        \"users\",\n        \"vault\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1642,7 +1642,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"New updated\",\n    \"enabled\": true,\n    \"autostart\": false\n}",
+									"raw": "{\n    \"name\": \"New updated\",\n    \"enabled\": true,\n    \"autostart\": false,\n    \"labels\": [\n        \"worker_thread=false\",\n        \"my_custom_label={\\\"json\\\":true, \\\"number\\\":0815420}\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1667,6 +1667,26 @@
 						},
 						{
 							"name": "Upload plugin *.tgz content",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "PUT",
 								"header": [],
@@ -1776,7 +1796,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"_id\": \"65818918d32dad8dab53e433\",\n    \"name\": \"SmartMeter\",\n    \"interfaces\": [{\n        \"_id\": \"6581c55abc21a0a3122b9998\",\n        \"type\": \"ETHERNET\",\n        \"description\": \"WebSocket API\",\n        \"settings\": {\n            \"host\": \"192.168.2.155\",\n            \"port\": 8080\n        },\n        \"adapter\": [\"raw\"]\n    }],\n    \"room\": \"62a4bc8bd9256b5e8d6988a0\",\n    \"icon\": \"fa-solid fa-gauge-high\"\n}",
+									"raw": "{\n    \"_id\": \"65818918d32dad8dab53e433\",\n    \"name\": \"SmartMeter\",\n    \"interfaces\": [{\n        \"_id\": \"6581c55abc21a0a3122b9998\",\n        \"type\": \"ETHERNET\",\n        \"description\": \"WebSocket API\",\n        \"settings\": {\n            \"host\": \"192.168.2.155\",\n            \"port\": 8080\n        },\n        \"adapter\": [\"raw\"]\n    }],\n    \"room\": \"62a4bc8bd9256b5e8d6988a0\",\n    \"icon\": \"fa-solid fa-gauge-high\",\n    \"labels\": [\n        \"test=true\",\n         \"protected=false\", \n         \"foo=bar\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1846,7 +1866,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"enabled\": true,\n    \"name\": \"SaMsUnG FrIdGe\"\n}",
+									"raw": "{\n    \"enabled\": true,\n    \"name\": \"SaMsUnG FrIdGe\",\n    \"labels\": [\n        \"test=true\",\n         \"protected=true\", \n         \"foo=bar\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2505,7 +2525,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"item\": \"6375343d0b555ccd42460a2e\"\n}",
+									"raw": "{\n    \"item\": \"6375343d0b555ccd42460a2e\",\n    \"labels\": [\n        \"device=65818918d32dad8dab53e433\",\n        \"endpoint=658189336fa19198939caa21\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2599,16 +2619,16 @@
 							"}",
 							"",
 							"",
-							"pm.test(\"content-type = application/json\", () => {",
-							"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
-							"});",
-							"",
-							"",
 							"pm.test(\"Status code 200 || 202\", () => {",
 							"    pm.expect(pm.response.code).to.be.oneOf([",
 							"        200,",
 							"        202",
 							"    ]);",
+							"});",
+							"",
+							"",
+							"pm.test(\"content-type = application/json\", () => {",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
 							"});",
 							"",
 							"",
