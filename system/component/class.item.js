@@ -1,3 +1,5 @@
+const Joi = require("joi");
+
 const Labels = require("./class.labels.js");
 const Label = require("./class.label.js");
 
@@ -49,6 +51,35 @@ module.exports = class Item {
             configurable: false
         });
 
+    }
+
+    static schema() {
+        return Joi.object({
+            labels: Joi.array().items(Joi.alternatives().try(
+                Joi.string().regex(/^.+?=.+|.+=.+$/i),
+                Joi.object().custom((value, helpers) => {
+                    if (value instanceof Label) {
+
+                        // convert to string
+                        // otherwise the serialized object is saved into the database
+                        return value.toString();
+
+                    } else {
+
+                        return helpers.error("any.custom");
+
+                    }
+                }, "Instance of class.label.js")
+            )).default([]),
+            timestamps: Joi.object({
+                created: Joi.number().allow(null).default(null),
+                updated: Joi.number().allow(null).default(null)
+            })
+        });
+    }
+
+    static validate(data) {
+        return Item.schema().validate(data);
     }
 
 };
