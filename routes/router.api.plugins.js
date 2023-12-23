@@ -75,8 +75,13 @@ module.exports = (app, router) => {
         try {
 
             let p = path.resolve(process.cwd(), "plugins", req.item.uuid);
+            let files = await fs.readdir(p);
 
-            for (let file of await fs.readdir(p)) {
+            // add plugin directory as last item
+            // every files/folder inside are deleted before
+            files.push(p);
+
+            for (let file of files) {
                 await fs.rm(path.join(p, file), {
                     recursive: true
                 });
