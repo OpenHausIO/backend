@@ -47,7 +47,7 @@ module.exports = (app, router) => {
                             error: err.message
                         });
                     } else {
-                        res.status(500).end({
+                        res.status(500).json({
                             error: err.message
                         });
                     }

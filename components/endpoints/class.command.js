@@ -4,6 +4,7 @@ const mongodb = require("mongodb");
 const _timeout = require("../../helper/timeout.js");
 const { interfaces } = require("../../system/shared.js");
 
+const Param = require("./class.param.js");
 
 /**
  * @description
@@ -83,6 +84,13 @@ module.exports = class Command {
         if (obj.payload instanceof mongodb.Binary) {
             this.payload = obj.payload.read(0);
         }
+
+        // fix #383
+        obj.params?.forEach((param, i, arr) => {
+            if (!(param instanceof Param)) {
+                arr[i] = new Param(param);
+            }
+        });
 
         // command duration timeout
         this.#privates.set("timeout", Number(process.env.COMMAND_RESPONSE_TIMEOUT));
@@ -190,10 +198,33 @@ module.exports = class Command {
         let worker = this.#privates.get("handler");
         let iface = interfaces.get(this.interface);
 
+        //console.log("params array:", this.params, params)
+
+        let valid = params.every(({ key, value }) => {
+
+            let param = this.params.find((param) => {
+                return param.key === key;
+            });
+
+            // auto convert "123" to 123
+            if (param.type === "number") {
+                value = Number(value);
+            }
+
+            return typeof (value) === param.type;
+
+        });
+
         if (!iface) {
             let err = new Error(`Interface "${this.interface}" not found, cant write to it.`);
             err.code = "NO_INTERFACE";
             return cb(err, false);
+        }
+
+        if (!valid) {
+            let err = new Error(`Invalid params type`);
+            err.code = "INVALID_PARAMETER_TYPE";
+            return cb(err);
         }
 
         let timer = _timeout(this.#privates.get("timeout"), (timedout, duration, args) => {
@@ -237,29 +268,7 @@ module.exports = class Command {
             //payload: Joi.string().allow(null).default(null),
             payload: Joi.alternatives().try(Joi.string(), Joi.binary()).allow(null).default(null),
             description: Joi.string().allow(null).default(null),
-            params: Joi.array().items(Joi.object({
-                type: Joi.string().valid("number", "string", "boolean").required(),
-                key: Joi.string().required()
-            }).when(".type", {
-                switch: [{
-                    is: "number",
-                    then: Joi.object({
-                        value: Joi.number().default(null).allow(null),
-                        min: Joi.number().default(0),
-                        max: Joi.number().default(100)
-                    })
-                }, {
-                    is: "string",
-                    then: Joi.object({
-                        value: Joi.string().default(null).allow(null)
-                    })
-                }, {
-                    is: "boolean",
-                    then: Joi.object({
-                        value: Joi.boolean().default(null).allow(null)
-                    })
-                }]
-            }))
+            params: Joi.array().items(Param.schema())
         });
     }
 

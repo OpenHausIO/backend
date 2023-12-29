@@ -689,7 +689,10 @@ module.exports = class COMPONENT extends COMMON {
                     if (key === "labels" && Array.isArray(filter[key]) && Array.isArray(target[key])) {
 
                         found = filter[key].every((label) => {
-                            return target[key].includes(label);
+                            // fix #381
+                            // target[key] is a instance if class.labels.js and not of plain string.
+                            // convert it to a array wiht plain strings, so that .includes works.
+                            return target[key]?.toString().includes(label);
                         });
 
                         return;
@@ -786,7 +789,7 @@ module.exports = class COMPONENT extends COMMON {
 
     /**
     * @function _labels
-    * Checks if filter array contains matching labels
+    * Checks if filter array contains matching labels on items.labels array
     * 
     * @param {Array} arr Array with item labels to check with filter
     * @param {Array} filter Filter array
@@ -795,7 +798,13 @@ module.exports = class COMPONENT extends COMMON {
     */
     _labels(arr, filter) {
         return filter.every((filter) => {
-            if (arr.includes(filter)) {
+            if (arr.map((label) => {
+
+                // convert back to string array
+                // so the .include can do its job
+                return label.toString();
+
+            }).includes(filter)) {
 
                 return true;
 
@@ -805,14 +814,12 @@ module.exports = class COMPONENT extends COMMON {
 
                 return arr.some((label) => {
 
-                    let [k, v] = label.split("=");
-
                     if (value === "*") {
-                        return key === k;
+                        return key === label.key;
                     }
 
                     if (key === "*") {
-                        return value === v;
+                        return value === label.value;
                     }
 
                     return false;
