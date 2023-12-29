@@ -635,6 +635,12 @@ module.exports = class COMPONENT extends COMMON {
                         let loop = (target, filter) => {
                             return Object.keys(filter).every((key) => {
 
+                                if (key === "labels" && Array.isArray(filter[key])) {
+                                    return filter[key].every((label) => {
+                                        return item.labels.includes(label);
+                                    });
+                                }
+
                                 if (target[key] instanceof Object) {
                                     return loop(target[key], filter[key]);
                                 } else {
