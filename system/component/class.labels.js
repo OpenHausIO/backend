@@ -48,4 +48,8 @@ module.exports = class Labels extends Array {
         });
     }
 
+    includes(str) {
+        return Array.prototype.includes.call(this.toJSON(), str);
+    }
+
 };
