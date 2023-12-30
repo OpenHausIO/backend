@@ -188,11 +188,16 @@ module.exports = class Command {
      * @param {Array} [params] Parameter array
      * @param {Function} [cb] Callback
      */
-    trigger(params, cb = () => { }) {
+    trigger(params, cb) {
 
         if (!cb && params instanceof Function) {
             cb = params;
             params = [];
+        }
+
+        if (!params && !cb) {
+            params = [];
+            cb = () => { };
         }
 
         let worker = this.#privates.get("handler");

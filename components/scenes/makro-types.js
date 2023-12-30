@@ -27,7 +27,14 @@ module.exports = {
                 "component": "endpoints",
                 "item": endpoint,
                 "method": "trigger",
-                "args": [command]
+                "args": [command, () => {
+
+                    //console.log("Command executed adasdasdfasdfasdfasfdadsfasdf", err || success)
+                    // how should this be catched?
+                    // reject the makro execution if one command fails?
+                    // or ignore it simple, and continue?
+
+                }]
             });
 
             resolve(_id);
