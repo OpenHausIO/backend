@@ -22,7 +22,7 @@ module.exports = class Item {
             }
         });
 
-        let labels = new Labels(...obj.labels);
+        let labels = new Labels(...obj.labels || []);
 
         Object.defineProperty(this, "labels", {
             get() {
