@@ -10,17 +10,20 @@ try {
     const workflow = require("./test.workflow.js");
 
     let _id = String(new mongodb.ObjectId());
-    let namespace = String(new mongodb.ObjectId());
+    let uuid = uuidv4();
 
     workflow(C_COMPONENT, "add", (done, { event }) => {
         C_COMPONENT.add({
             _id,
+            name: "Test store",
+            description: "Test item for unit tests",
             config: [{
+                name: "Test Key",
                 key: "key",
                 type: "string",
                 description: "Test key"
             }],
-            namespace
+            uuid
         }, (err, item) => {
 
             // check event arguments
@@ -57,16 +60,13 @@ try {
 
     workflow(C_COMPONENT, "update", (done) => {
 
-        let uuid = uuidv4();
-
         C_COMPONENT.update(_id, {
-            item: uuid
+            name: "Updated Name"
         }, (err, item) => {
             try {
 
                 assert.ok(err === null);
                 assert.equal(item instanceof Store, true);
-                assert.equal(item.item, uuid);
 
                 done(err);
 
@@ -85,12 +85,12 @@ try {
 
             // update call 1
             C_COMPONENT.update(_id, {
-                item: uuidv4()
+                uuid: uuidv4()
             }),
 
             // update call 2
             C_COMPONENT.update(_id, {
-                item: uuidv4()
+                name: "New config/store name"
             })
 
         ]).then(() => {
