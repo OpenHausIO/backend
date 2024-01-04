@@ -340,6 +340,7 @@ module.exports = class COMPONENT extends COMMON {
 
                                 let item = this.items.find((item) => {
 
+                                    // NOTE: rename value to key
                                     return Object.keys(err.keyValue).every((value) => {
 
                                         // fixing "Duplicate unique key/index in database, but no matching item"
