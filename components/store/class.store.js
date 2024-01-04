@@ -67,11 +67,13 @@ module.exports = class Store extends Item {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return String(new mongodb.ObjectId());
             }),
+            name: Joi.string().required(),
+            description: Joi.string().allow(null).default(null),
             config: Joi.array().min(1).items(Value.schema()).required(),
-            item: Joi.string().allow(null).default(null),
-            namespace: Joi.string().default(() => {
+            //item: Joi.string().allow(null).default(null),
+            uuid: Joi.string().default(() => {
                 return uuid.v4();
-            }),
+            })
         });
     }
 

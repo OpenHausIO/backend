@@ -80,7 +80,8 @@ module.exports = class Scene extends Item {
             name: Joi.string().required(),
             makros: Joi.array().items(Makro.schema()).default([]),
             triggers: Joi.array().items(Trigger.schema()).default([]),
-            visible: Joi.boolean().default(true)
+            visible: Joi.boolean().default(true),
+            icon: Joi.string().allow(null).default(null)
         });
     }
 

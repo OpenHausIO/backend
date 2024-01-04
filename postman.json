@@ -2378,7 +2378,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"_id\": \"65818986ca5133d8de2bb4a1\",\n    \"config\": [{\n        \"_id\": \"6581a14f1c6d01f32129dabc\",\n        \"key\": \"pairing\",\n        \"type\": \"boolean\",\n        \"value\": false,\n        \"description\": \"Is the Gateway ready for pairing?\"\n    }, {\n        \"_id\": \"6581a1520bcb15659d48b207\",\n        \"key\": \"interval\",\n        \"type\": \"number\",\n        \"value\": 3000,\n        \"description\": \"Sync intervall for Endpoints\"\n    }]\n}",
+									"raw": "{\n    \"name\": \"Store item #1\",\n    \"description\": \"Configuration settings for pluginx xyz\",\n    \"_id\": \"65818986ca5133d8de2bb4a1\",\n    \"config\": [{\n        \"_id\": \"6581a14f1c6d01f32129dabc\",\n        \"name\": \"Gateway Pairing\",\n        \"key\": \"pairing\",\n        \"type\": \"boolean\",\n        \"value\": false,\n        \"description\": \"Is the Gateway ready for pairing?\"\n    }, {\n        \"_id\": \"6581a1520bcb15659d48b207\",\n        \"name\": \"Polling Interval\",\n        \"key\": \"interval\",\n        \"type\": \"number\",\n        \"value\": 3000,\n        \"description\": \"Sync intervall for Endpoints\"\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2525,7 +2525,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"item\": \"6375343d0b555ccd42460a2e\",\n    \"labels\": [\n        \"device=65818918d32dad8dab53e433\",\n        \"endpoint=658189336fa19198939caa21\"\n    ]\n}",
+									"raw": "{\n    \"labels\": [\n        \"device=65818918d32dad8dab53e433\",\n        \"endpoint=658189336fa19198939caa21\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
