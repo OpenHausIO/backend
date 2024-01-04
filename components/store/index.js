@@ -39,6 +39,10 @@ class C_STORE extends COMPONENT {
             next(null, new Store(data, this));
         });
 
+        this.collection.createIndex("uuid", {
+            unique: true
+        });
+
     }
 
 }
