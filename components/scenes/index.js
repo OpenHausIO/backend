@@ -4,6 +4,7 @@ const COMPONENT = require("../../system/component/class.component.js");
 
 const Scene = require("./class.scene.js");
 const Makro = require("./class.makro.js");
+const Trigger = require("./class.trigger.js");
 
 /**
  * @description
@@ -30,6 +31,13 @@ class C_SCENES extends COMPONENT {
             data.makros.forEach((makro, i, arr) => {
                 if (!(makro instanceof Makro)) {
                     arr[i] = new Makro(makro);
+                }
+            });
+
+            // fix #390
+            data.triggers.forEach((trigger, i, arr) => {
+                if (!(trigger instanceof Trigger)) {
+                    arr[i] = new Trigger(trigger);
                 }
             });
 
