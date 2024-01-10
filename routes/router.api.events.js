@@ -1,4 +1,6 @@
 const WebSocket = require("ws");
+const path = require("path");
+const fs = require("fs");
 
 module.exports = (app, router) => {
 
@@ -25,7 +27,7 @@ module.exports = (app, router) => {
         clearInterval(interval);
     });
 
-
+    /*
     const componentNames = [
         "devices",
         "endpoints",
@@ -35,6 +37,10 @@ module.exports = (app, router) => {
         "store",
         "vault"
     ];
+    */
+
+    // fix #403 "Add missing components"
+    let componentNames = fs.readdirSync(path.resolve(process.cwd(), "components"));
 
 
     function reemit(event, component) {
@@ -48,7 +54,8 @@ module.exports = (app, router) => {
             });
 
             wss.clients.forEach((client) => {
-                if (client.readyState === WebSocket.OPEN) {
+                // fix #403 "Implement named subscriptions"
+                if (client.intents.includes(event) && client.readyState === WebSocket.OPEN) {
                     client.send(obj);
                 }
             });
@@ -98,6 +105,16 @@ module.exports = (app, router) => {
                 ws.on("pong", () => {
                     ws.isAlive = true;
                 });
+
+                // monkey patch intents for "named subscriptions"
+                // see #403; get default everyhting
+                // NOTE: remove the "default everything" part?
+                ws.intents = req.query?.intents || [
+                    "add",
+                    "get",
+                    "update",
+                    "remove"
+                ];
 
                 wss.emit("connection", ws, req);
 
