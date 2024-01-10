@@ -32,7 +32,7 @@ const _expose = require("../../helper/expose.js");
  * @see InterfaceStream components/devices/class.interfaceStream.js
  */
 module.exports = class Endpoint extends Item {
-    constructor(obj) {
+    constructor(obj, scope) {
 
         super(obj);
 
@@ -44,7 +44,13 @@ module.exports = class Endpoint extends Item {
         //this.states = new States(obj.states);
 
         this.states = obj.states.map((item) => {
-            return new State(item);
+            return new State(item, async () => {
+
+                // trigger update on endpoint item
+                // otherwise ui is not rendered/refreshed on state changed
+                await scope.update(this._id, this);
+
+            });
         });
 
         this.commands = obj.commands.map((item) => {

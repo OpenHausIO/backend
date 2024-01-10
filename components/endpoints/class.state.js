@@ -22,8 +22,7 @@ const mongodb = require("mongodb");
  */
 module.exports = class State {
 
-
-    constructor(obj) {
+    constructor(obj, changed = () => { }) {
 
         Object.assign(this, obj);
         this._id = String(obj._id);
@@ -46,17 +45,28 @@ module.exports = class State {
 
                 // check for value type, but allow null value
                 if (((typeof value) !== this.type) && (value !== null)) {
+                    // TODO: uncomment & make active
+                    //throw new TypeError(`Invalid type "${typeof (value)}"`);
                     return;
                 }
 
                 // fix #251
                 if (this.type === "number" && !(value >= this.min && value <= this.max)) {
+                    // TODO: uncomment & make active
+                    //throw new RangeError(`Invalid value "${value}"`);
+                    return;
+                }
+
+                // prevent useles set/update
+                if (value === obj.value) {
                     return;
                 }
 
                 obj.value = value;
 
                 this.timestamps.updated = Date.now();
+
+                process.nextTick(changed, this);
 
             },
             configurable: false,

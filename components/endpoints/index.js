@@ -45,7 +45,7 @@ class C_ENDPOINTS extends COMPONENT {
 
 
         this.hooks.post("add", (data, next) => {
-            next(null, new Endpoint(data));
+            next(null, new Endpoint(data, this));
         });
 
 
@@ -54,7 +54,13 @@ class C_ENDPOINTS extends COMPONENT {
             // fix for #368
             data.states.forEach((state, i, arr) => {
                 if (!(state instanceof State)) {
-                    arr[i] = new State(state);
+                    arr[i] = new State(state, async () => {
+
+                        // trigger update on endpoint item
+                        // otherwise ui is not rendered/refreshed on state changed
+                        await this.update(this._id, this);
+
+                    });
                 }
             });
 
@@ -126,7 +132,7 @@ instance.init((scope, ready) => {
         } else {
 
             data = data.map((item) => {
-                return new Endpoint(item);
+                return new Endpoint(item, scope);
             });
 
             scope.items.push(...data);
