@@ -21,7 +21,7 @@ describe("HTTP API", function () {
             silent: true,
             env: Object.assign({}, process.env, {
                 UUID: crypto.randomUUID(),
-                DATABASE_NAME: "/test",
+                DATABASE_NAME: "test",
                 VAULT_MASTER_PASSWORD: crypto.randomBytes(24).toString("hex"),
                 USERS_JWT_SECRET: crypto.randomBytes(24).toString("hex")
             })
