@@ -1,3 +1,4 @@
+const { ServerResponse } = require("http");
 const express = require("express");
 const bodyParser = require("body-parser");
 
@@ -219,5 +220,21 @@ module.exports = (server) => {
 
     // use express request handler
     server.on("request", app);
+
+    // fix #408, see:
+    // https://github.com/OpenHausIO/connector/issues/38
+    // https://github.com/websockets/ws/issues/2193
+    server.on("upgrade", (req, socket) => {
+
+        let res = new ServerResponse(req);
+        res.assignSocket(socket);
+
+        res.on("finish", () => {
+            res.socket.destroy();
+        });
+
+        app(req, res);
+
+    });
 
 };
