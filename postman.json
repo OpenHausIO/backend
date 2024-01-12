@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7b801daa-eb6a-407c-9c0c-66ac044ed8f3",
+		"_postman_id": "efc273f1-779c-4fce-a23e-82c17555ff65",
 		"name": "OpenHaus",
 		"description": "SmartHome/IoT application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -2378,7 +2378,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Store item #1\",\n    \"description\": \"Configuration settings for pluginx xyz\",\n    \"_id\": \"65818986ca5133d8de2bb4a1\",\n    \"config\": [{\n        \"_id\": \"6581a14f1c6d01f32129dabc\",\n        \"name\": \"Gateway Pairing\",\n        \"key\": \"pairing\",\n        \"type\": \"boolean\",\n        \"value\": false,\n        \"description\": \"Is the Gateway ready for pairing?\"\n    }, {\n        \"_id\": \"6581a1520bcb15659d48b207\",\n        \"name\": \"Polling Interval\",\n        \"key\": \"interval\",\n        \"type\": \"number\",\n        \"value\": 3000,\n        \"description\": \"Sync intervall for Endpoints\"\n    }]\n}",
+									"raw": "{\n    \"_id\": \"65818986ca5133d8de2bb4a1\",\n    \"name\": \"Store name\",\n    \"config\": [{\n        \"_id\": \"6581a14f1c6d01f32129dabc\",\n        \"name\": \"Device Pairing\",\n        \"key\": \"pairing\",\n        \"type\": \"boolean\",\n        \"value\": false,\n        \"description\": \"Is the Gateway ready for pairing?\"\n    }, {\n        \"_id\": \"6581a1520bcb15659d48b207\",\n        \"name\": \"Polling interval\",\n        \"key\": \"interval\",\n        \"type\": \"number\",\n        \"value\": 3000,\n        \"description\": \"Sync intervall for Endpoints\"\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
