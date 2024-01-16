@@ -19,7 +19,6 @@
     "release": "grunt release",
     "db:export": "mongodump --db OpenHaus --archive=./demo-database.gz",
     "db:import": "mongorestore --db OpenHaus --archive=./demo-database.gz",
-    "postinstall": "scripts/post-install.sh",
     "publish": "grunt publish",
     "prepare": "husky install"
   },
