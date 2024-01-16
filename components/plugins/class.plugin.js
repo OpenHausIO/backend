@@ -36,8 +36,6 @@ module.exports = class Plugin extends Item {
         //Object.assign(this, obj);
         //this._id = String(obj._id);
 
-        let json = {};
-
         Object.defineProperty(this, "logger", {
             value: logger.create(`plugins/${this.uuid}`),
             configurable: false,
@@ -50,31 +48,6 @@ module.exports = class Plugin extends Item {
             configurable: false,
             enumerable: false,
             writable: true
-        });
-
-        try {
-
-            let file = path.resolve(process.cwd(), "plugins", this.uuid, "package.json");
-            let content = fs.readFileSync(file);
-            json = JSON.parse(content);
-
-        } catch (err) {
-            if (err.code === "ENOENT") {
-
-                this.logger.warn(err, `package.json for plugin "${this.name}" not found.`);
-
-            } else {
-
-                this.logger.warn(err);
-
-            }
-        }
-
-        Object.defineProperty(this, "package", {
-            value: json,
-            configurable: false,
-            enumerable: false,
-            writable: false,
         });
 
     }
@@ -111,13 +84,33 @@ module.exports = class Plugin extends Item {
                 // feedback
                 logger.debug(`Start plugin "${this.name}"...`);
 
+                let json = {};
                 let plugin = path.resolve(process.cwd(), "plugins", this.uuid);
-                let compatible = semver.satisfies(pkg.version, this.package?.backend);
+                let file = path.resolve(plugin, "package.json");
 
-                if (!compatible) {
-                    logger.warn(`Starting incomptaible plugin "${this.name}". It may work not properly or break something!`);
+                // 1) check if plugin is compatible
+                try {
+
+                    let content = fs.readFileSync(file);
+                    json = JSON.parse(content);
+
+                    if (!semver.satisfies(pkg.version, json?.backend)) {
+                        this.logger.warn(`Plugin "${this.name}" is incompatible. It may work not properly or break something!`);
+                    }
+
+                } catch (err) {
+
+                    this.logger.warn(err, `Could not check plugin compatibility for plugin "${this.name}"`);
+
+                    if (err.code === "ENOENT") {
+                        this.logger.warn(`package.json for plugin "${this.name}" not found, try to start it anyway...`);
+                    } else {
+                        this.logger.error(err);
+                    }
+
                 }
 
+                // 2) start plugin
                 if (fs.existsSync(plugin)) {
 
                     let init = (dependencies, cb) => {
@@ -160,7 +153,6 @@ module.exports = class Plugin extends Item {
                     };
 
                     init[Symbol.for("uuid")] = this.uuid;
-                    init[Symbol.for("compatible")] = compatible;
 
                     try {
 
