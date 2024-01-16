@@ -19,8 +19,8 @@
     "release": "grunt release",
     "db:export": "mongodump --db OpenHaus --archive=./demo-database.gz",
     "db:import": "mongorestore --db OpenHaus --archive=./demo-database.gz",
-    "publish": "grunt publish",
-    "prepare": "husky install"
+    "postinstall": "scripts/post-install.sh",
+    "publish": "grunt publish"
   },
   "engines": {
     "node": ">=0.16.0"
@@ -55,7 +55,6 @@
     "mocha.parallel": "^0.15.6",
     "newman": "^6.0.0",
     "nodemon": "^3.0.1",
-    "sinon": "^14.0.2",
-    "husky": "^8.0.0"
+    "sinon": "^14.0.2"
   }
 }
