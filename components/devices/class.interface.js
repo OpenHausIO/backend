@@ -219,8 +219,23 @@ module.exports = class Interface {
 
         //let settings = this.settings;
 
+        /*
+        // added for testing a solution for #411
+        // does nothing/not work, but feels like can be useful in the future
+        // see: 
+        // - https://nodejs.org/docs/latest/api/http.html#agentkeepsocketalivesocket
+        // - https://nodejs.org/docs/latest/api/http.html#agentkeepsocketalivesocket
+        agent.keepSocketAlive = (socket) => {
+            console.log("agent.keepSocketAlive called");
+            return true;
+        };
 
-        agent.createConnection = () => {
+        agent.reuseSocket = (socket, request) => {
+            console.log("agent.reuseSocket called");
+        };
+        */
+
+        agent.createConnection = ({ headers = {} }) => {
 
             //console.log(`############## Create connection to tcp://${host}:${port}`);
 
@@ -243,17 +258,33 @@ module.exports = class Interface {
             //let readable = new PassThrough();
             //let writable = new PassThrough();
 
+            // convert headers key/values to lowercase
+            // the string conversion prevents a error thrown for numbers
+            // this happens for websocket requests, where e.g. "sec-websocket-version=13"
+            // see snipp below "detect websocket connection with set headers"
+            headers = Object.keys(headers).reduce((obj, key) => {
+                obj[key.toLowerCase()] = `${headers[key]}`.toLowerCase();
+                return obj;
+            }, {});
+
+
             let readable = new Transform({
                 transform(chunk, enc, cb) {
 
-                    //console.log("[incoming]", chunk.toString());
+                    //console.log("[incoming]", chunk);
 
                     // temp fix for #343
                     // this is not the prefered fix for this issue
                     // it should be handled on "stream/socket" level instead
                     // the issue above occoured with a "shelly 1pm" and parallel requests to /status /ota /settings
                     // NOTE: what if the body contains json that has a `connection: close` property/key/value?
-                    chunk = chunk.toString().replace(/connection:\s?close\r\n/i, "connection: keep-alive\r\n");
+
+                    // detect websocket connection with set headers, fix #411
+                    // agent.protocol is never "ws" regardless of the url used in requests
+                    // temp solution, more like a hotfix than a final solution
+                    if (agent.protocol === "http:" && !(headers?.upgrade === "websocket" && headers?.connection === "upgrade")) {
+                        chunk = chunk.toString().replace(/connection:\s?close\r\n/i, "connection: keep-alive\r\n");
+                    }
 
                     this.push(chunk);
                     cb();
@@ -264,7 +295,7 @@ module.exports = class Interface {
             let writable = new Transform({
                 transform(chunk, enc, cb) {
 
-                    //console.log("[outgoing]", chunk.toString());
+                    //console.log("[outgoing]", chunk);
 
                     this.push(chunk);
                     cb();

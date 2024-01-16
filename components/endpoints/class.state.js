@@ -43,6 +43,10 @@ module.exports = class State {
             },
             set: (value) => {
 
+                if (this.type === "number" && this.invert && value < 0) {
+                    value = value * -1;
+                }
+
                 // check for value type, but allow null value
                 if (((typeof value) !== this.type) && (value !== null)) {
                     // TODO: uncomment & make active
@@ -106,7 +110,8 @@ module.exports = class State {
                 then: Joi.object({
                     value: Joi.number().default(null).allow(null),
                     min: Joi.number().default(0),
-                    max: Joi.number().default(100)
+                    max: Joi.number().default(100),
+                    invert: Joi.boolean().default(false)
                 })
             }, {
                 is: "string",

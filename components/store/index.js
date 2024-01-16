@@ -3,6 +3,7 @@ const COMPONENT = require("../../system/component/class.component.js");
 //const Value = require("./class.value.js");
 //const Namespace = require("./class.namespace.js");
 const Store = require("./class.store.js");
+const Value = require("./class.value.js");
 
 /**
  * @description
@@ -37,6 +38,19 @@ class C_STORE extends COMPONENT {
 
         this.hooks.post("add", (data, next) => {
             next(null, new Store(data, this));
+        });
+
+        // fix #406
+        this.hooks.post("update", (data, next) => {
+
+            data.config.forEach((value, i, arr) => {
+                if (!(value instanceof Value)) {
+                    arr[i] = new Value(value);
+                }
+            });
+
+            next();
+
         });
 
         this.collection.createIndex("uuid", {
