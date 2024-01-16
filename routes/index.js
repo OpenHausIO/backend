@@ -19,6 +19,10 @@ const C_MDNS = require("../components/mdns");
 //const { encode } = require("../helper/sanitize");
 //const iterate = require("../helper/iterate");
 
+// add logger for http, fix #409
+const logger = require("../system/logger/index.js");
+const log = logger.create("http");
+
 // copied from https://github.com/vkarpov15/mongo-sanitize
 function sanitize(v) {
     if (v instanceof Object) {
@@ -48,6 +52,26 @@ module.exports = (server) => {
         "linklocal",
         "uniquelocal"
     ]);
+
+    // fix #409
+    // add logging for http requests
+    app.use((req, res, next) => {
+
+        // log basic http requests, do not reveal any senstive information
+        // thats why "req.path" is used instead of "req.url"
+        log.debug(`[${req.method}] ${req.socket.remoteAddress} - ${req.path}`);
+
+        // log verbose requests
+        // this may reveal senstive informations like tokens or cookies
+        log.verbose(JSON.stringify({
+            query: req.query,
+            params: req.params,
+            headers: req.headers
+        }));
+
+        next();
+
+    });
 
     app.use(bodyParser.json({
         limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
