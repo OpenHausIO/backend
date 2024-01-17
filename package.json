@@ -50,6 +50,7 @@
     "grunt-contrib-uglify": "^5.0.1",
     "grunt-env": "^1.0.1",
     "grunt-run": "^0.8.1",
+    "husky": "^8.0.3",
     "minimist": "^1.2.6",
     "mocha": "^9.2.2",
     "mocha.parallel": "^0.15.6",
