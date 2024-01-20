@@ -59,7 +59,7 @@ module.exports = (server) => {
 
         // log basic http requests, do not reveal any senstive information
         // thats why "req.path" is used instead of "req.url"
-        log.debug(`${req.socket.remoteAddress} - [${req.method}] ${req.path}`);
+        log.debug(`${req.ip} - [${req.method}] ${req.path}`);
 
         // log verbose requests
         // this may reveal senstive informations like tokens or cookies

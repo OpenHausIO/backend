@@ -8,6 +8,7 @@ const State = require("./class.state.js");
 const Item = require("../../system/component/class.item.js");
 
 const _expose = require("../../helper/expose.js");
+const _debounce = require("../../helper/debounce.js");
 
 /**
  * @description
@@ -43,13 +44,41 @@ module.exports = class Endpoint extends Item {
         //this.commands = new Commands(obj.commands);
         //this.states = new States(obj.states);
 
-        this.states = obj.states.map((item) => {
-            return new State(item, async () => {
+        // see 407 & 420
+        let updater = _debounce(async () => {
+            try {
 
                 // trigger update on endpoint item
                 // otherwise ui is not rendered/refreshed on state changed
                 await scope.update(this._id, this);
 
+                // feedback
+                scope.logger.verbose("Endpoint states updated", this.states);
+
+            } catch (err) {
+
+                scope.logger.warn(err, "Could not update item states after debouncing");
+
+            }
+        }, 100);
+
+        // see 407 & 420
+        this.states = obj.states.map((item) => {
+            return new State(item, () => {
+                try {
+
+                    // feedback 
+                    scope.logger.verbose(`Value in endpoint ("${obj._id}") state ("${item._id}") changed: ${item.alias}=${item.value}`);
+
+                    // update item in database 
+                    //await scope.update(this._id, this); 
+                    updater();
+
+                } catch (err) {
+
+                    scope.logger.warn(err, `Could not update item (${obj._id}) state ("${item._id}") in database: ${item.alias}=${item.value}`);
+
+                }
             });
         });
 
