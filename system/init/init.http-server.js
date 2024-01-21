@@ -47,6 +47,11 @@ module.exports = (logger) => {
                             logger.info(`HTTP Server closed on http://${process.env.HTTP_ADDRESS}:${process.env.HTTP_PORT}`);
                         });
 
+                        // NOTE: Route handler get required/create twice:
+                        // instead, require router file global
+                        // and pass/move the request handler here
+                        // thus prevents to create 2 express apps for each server
+                        // "routes/index.js" should export the express app
                         require("../../routes/index.js")(server);
 
                         // bind/start http server
@@ -92,6 +97,11 @@ module.exports = (logger) => {
                             logger.info(`HTTP Server closed on ${process.env.HTTP_SOCKET}`);
                         });
 
+                        // NOTE: Route handler get required/create twice:
+                        // instead, require router file global
+                        // and pass/move the request handler here
+                        // thus prevents to create 2 express apps for each server
+                        // "routes/index.js" should export the express app
                         require("../../routes/index.js")(server);
 
                         try {
