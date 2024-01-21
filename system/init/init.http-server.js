@@ -7,6 +7,10 @@ module.exports = (logger) => {
 
             logger.debug("Init http server...");
 
+            // store active sockets from requests
+            // see #345
+            const sockets = new Set();
+
             const servers = [
 
                 // http server for ip/port
@@ -14,6 +18,16 @@ module.exports = (logger) => {
                     if (process.env.HTTP_ADDRESS !== "") {
 
                         let server = http.createServer();
+
+                        server.on("connection", (socket) => {
+
+                            sockets.add(socket);
+
+                            socket.on("close", () => {
+                                sockets.delete(socket);
+                            });
+
+                        });
 
                         server.on("error", (err) => {
                             logger.error(err, `Could not start http server: ${err.message}`);
@@ -48,6 +62,16 @@ module.exports = (logger) => {
                     if (process.env.HTTP_SOCKET !== "") {
 
                         let server = http.createServer();
+
+                        server.on("connection", (socket) => {
+
+                            sockets.add(socket);
+
+                            socket.on("close", () => {
+                                sockets.delete(socket);
+                            });
+
+                        });
 
                         server.on("error", (err) => {
 
@@ -98,9 +122,17 @@ module.exports = (logger) => {
             Promise.all(servers).then((servers) => {
 
                 process.once("SIGINT", () => {
+
+                    // see #345
+                    // close all active http sockets/requests
+                    for (const socket of sockets.values()) {
+                        socket.destroy();
+                    }
+
                     servers.forEach((server) => {
                         server.close();
                     });
+
                 });
 
                 resolve();
