@@ -7,6 +7,10 @@ module.exports = (logger) => {
 
             logger.debug("Init http server...");
 
+            // store active sockets from requests
+            // see #345
+            const sockets = new Set();
+
             const servers = [
 
                 // http server for ip/port
@@ -14,6 +18,16 @@ module.exports = (logger) => {
                     if (process.env.HTTP_ADDRESS !== "") {
 
                         let server = http.createServer();
+
+                        server.on("connection", (socket) => {
+
+                            sockets.add(socket);
+
+                            socket.on("close", () => {
+                                sockets.delete(socket);
+                            });
+
+                        });
 
                         server.on("error", (err) => {
                             logger.error(err, `Could not start http server: ${err.message}`);
@@ -33,6 +47,11 @@ module.exports = (logger) => {
                             logger.info(`HTTP Server closed on http://${process.env.HTTP_ADDRESS}:${process.env.HTTP_PORT}`);
                         });
 
+                        // NOTE: Route handler get required/create twice:
+                        // instead, require router file global
+                        // and pass/move the request handler here
+                        // thus prevents to create 2 express apps for each server
+                        // "routes/index.js" should export the express app
                         require("../../routes/index.js")(server);
 
                         // bind/start http server
@@ -48,6 +67,16 @@ module.exports = (logger) => {
                     if (process.env.HTTP_SOCKET !== "") {
 
                         let server = http.createServer();
+
+                        server.on("connection", (socket) => {
+
+                            sockets.add(socket);
+
+                            socket.on("close", () => {
+                                sockets.delete(socket);
+                            });
+
+                        });
 
                         server.on("error", (err) => {
 
@@ -68,6 +97,11 @@ module.exports = (logger) => {
                             logger.info(`HTTP Server closed on ${process.env.HTTP_SOCKET}`);
                         });
 
+                        // NOTE: Route handler get required/create twice:
+                        // instead, require router file global
+                        // and pass/move the request handler here
+                        // thus prevents to create 2 express apps for each server
+                        // "routes/index.js" should export the express app
                         require("../../routes/index.js")(server);
 
                         try {
@@ -98,9 +132,17 @@ module.exports = (logger) => {
             Promise.all(servers).then((servers) => {
 
                 process.once("SIGINT", () => {
+
+                    // see #345
+                    // close all active http sockets/requests
+                    for (const socket of sockets.values()) {
+                        socket.destroy();
+                    }
+
                     servers.forEach((server) => {
                         server.close();
                     });
+
                 });
 
                 resolve();
