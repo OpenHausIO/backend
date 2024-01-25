@@ -36,8 +36,6 @@ module.exports = (app, router) => {
     // http route handler
     router.get("/", (req, res, next) => {
 
-        console.log("Request to /ai/mqtt");
-
         // check if connection is a simple get request or ws client
         if ((!req.headers["upgrade"] || !req.headers["connection"])) {
             //return res.status(403).end();
@@ -56,7 +54,6 @@ module.exports = (app, router) => {
             });
 
             ws.on("close", () => {
-                console.log("MQTT Client disconnected disolaskjdflaskjfdasdf");
                 C_MQTT.events.emit("disconnected", ws);
             });
 
