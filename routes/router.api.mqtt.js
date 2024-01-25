@@ -33,6 +33,23 @@ module.exports = (app, router) => {
     });
 
 
+    // listen for websockt clients
+    // forward messages between component & ws client
+    wss.once("connection", (ws) => {
+
+        C_MQTT.events.emit("connected", ws);
+
+        ws.on("message", (msg) => {
+            C_MQTT.events.emit("message", msg);
+        });
+
+        ws.on("close", () => {
+            C_MQTT.events.emit("disconnected", ws);
+        });
+
+    });
+
+
     // http route handler
     router.get("/", (req, res, next) => {
 
@@ -42,22 +59,6 @@ module.exports = (app, router) => {
             next(); // let the rest-handler.js do its job
             return;
         }
-
-        // listen for websockt clients
-        // keep sending new log entrys to client
-        wss.once("connection", (ws) => {
-
-            C_MQTT.events.emit("connected", ws);
-
-            ws.on("message", (msg) => {
-                C_MQTT.events.emit("message", msg);
-            });
-
-            ws.on("close", () => {
-                C_MQTT.events.emit("disconnected", ws);
-            });
-
-        });
 
         // handle request as websocket
         // perform websocket handshake 
