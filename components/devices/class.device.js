@@ -78,7 +78,7 @@ module.exports = class Device extends Item {
             room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
             enabled: Joi.boolean().default(true),
             //interfaces: Joi.array().items(Interface.schema()).min(1).required()
-            interfaces: Joi.array().min(1).items(Interface.schema()).required(),
+            interfaces: Joi.array().items(Interface.schema()).default([]),
             meta: {
                 manufacturer: Joi.string().allow(null).default(null),
                 model: Joi.string().allow(null).default(null),
