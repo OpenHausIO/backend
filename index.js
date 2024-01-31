@@ -54,7 +54,7 @@ process.env = Object.assign({
     USERS_BCRYPT_SALT_ROUNDS: "12",
     USERS_JWT_SECRET: "",
     USERS_JWT_ALGORITHM: "HS384",
-    MQTT_BROKER_VERSION: "3",
+    MQTT_BROKER_VERSION: "4",
     MQTT_CLIENT_ID: "OpenHaus",
     MQTT_PING_INTERVAL: "5000"
 }, env.parsed, process.env);
@@ -253,7 +253,7 @@ const starter = new Promise((resolve) => {
 
         } catch (err) {
 
-            logger.warn(`Could not boot plugin "${plugin.name}" (${plugin.uuid})`);
+            logger.error(err, `Could not boot plugin "${plugin.name}" (${plugin.uuid})`);
 
         }
     });
@@ -266,8 +266,12 @@ const starter = new Promise((resolve) => {
 
     logger.info("Startup complete");
 
-    process.once("SIGINT", () => {
-        logger.warn("Shuting down...");
+    ["SIGINT", "SIGTERM", "SIGQUIT"].forEach((signal) => {
+        process.once(signal, () => {
+
+            logger.warn("Shuting down...");
+
+        });
     });
 
 });
