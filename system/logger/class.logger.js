@@ -62,6 +62,21 @@ module.exports = class Logger {
 
                     } else {
 
+                        // fix #331
+                        // NOTE: here could be a level specific options
+                        // e.g. for "verbose", set "showProxy" or "getters"
+                        // https://nodejs.org/docs/latest/api/util.html#utilinspectobject-showhidden-depth-colors
+                        // optinal configurable with environment variable like "LOGGER_INSPECT_OPTIONS" or so...
+                        /*
+                        args = args.map((arg) => {
+                            //return JSON.stringify(arg, null, 2);
+                            return util.inspect(arg, {
+                                depth: null,
+                                colors: true,
+                            });
+                        });
+                        */
+
                         //obj.message = args.shift();
                         obj.message = util.format(...args);
                         //obj.fields = args;
