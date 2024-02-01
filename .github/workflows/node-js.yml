@@ -27,11 +27,11 @@ jobs:
         strategy:
             matrix:
                 os: [ubuntu-latest]
-                node-version: [16.x, 18.x, 20.x]            # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+                node-version: [16.x, 17.x, 18.x]           # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
                 mongodb-version: ["4.2", "4.4", "5.0"]
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v2
 
             # mongodb setup
             - name: Start MongoDB
@@ -41,7 +41,7 @@ jobs:
 
             # node.js setup
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v2
               with:
                   node-version: ${{ matrix.node-version }}
                   cache: "npm"
@@ -49,3 +49,4 @@ jobs:
             - run: npm run build --if-present
             - run: npm run lint
             - run: npm test
+            
