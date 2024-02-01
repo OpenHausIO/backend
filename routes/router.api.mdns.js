@@ -59,6 +59,8 @@ module.exports = (app, router) => {
 
         // listen for websockt clients
         // keep sending new log entrys to client
+        // TODO: Move this outside the get handler
+        // see: #426
         wss.once("connection", (ws) => {
 
             C_MDNS.events.emit("connected", ws);
@@ -69,6 +71,7 @@ module.exports = (app, router) => {
 
 
             // QUERY LOCAL DNS
+            // TODO: Move this into the mdns component
             /*
             setInterval(() => {
 

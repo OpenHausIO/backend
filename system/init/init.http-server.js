@@ -52,7 +52,7 @@ module.exports = (logger) => {
                         // and pass/move the request handler here
                         // thus prevents to create 2 express apps for each server
                         // "routes/index.js" should export the express app
-                        require("../../routes/index.js")(server);
+                        //require("../../routes/index.js")(server);
 
                         // bind/start http server
                         server.listen(Number(process.env.HTTP_PORT), process.env.HTTP_ADDRESS);
@@ -102,7 +102,7 @@ module.exports = (logger) => {
                         // and pass/move the request handler here
                         // thus prevents to create 2 express apps for each server
                         // "routes/index.js" should export the express app
-                        require("../../routes/index.js")(server);
+                        //require("../../routes/index.js")(server);
 
                         try {
 
@@ -131,16 +131,45 @@ module.exports = (logger) => {
 
             Promise.all(servers).then((servers) => {
 
-                process.once("SIGINT", () => {
+                // require express main router
+                let app = require("../../routes/index.js");
 
-                    // see #345
-                    // close all active http sockets/requests
-                    for (const socket of sockets.values()) {
-                        socket.destroy();
-                    }
+                // fix #435
+                ["SIGINT", /*"SIGTERM", "SIGQUIT"*/].forEach((signal) => {
+                    process.once(signal, () => {
 
-                    servers.forEach((server) => {
-                        server.close();
+                        // see #345
+                        // close all active http sockets/requests
+                        for (const socket of sockets.values()) {
+                            socket.destroy();
+                        }
+
+                        servers.forEach((server) => {
+                            server.close();
+                        });
+
+                    });
+                });
+
+                servers.forEach((server) => {
+
+                    // use express request handler
+                    server.on("request", app);
+
+                    // fix #408, see:
+                    // https://github.com/OpenHausIO/connector/issues/38
+                    // https://github.com/websockets/ws/issues/2193
+                    server.on("upgrade", (req, socket) => {
+
+                        let res = new http.ServerResponse(req);
+                        res.assignSocket(socket);
+
+                        res.on("finish", () => {
+                            res.socket.destroy();
+                        });
+
+                        app(req, res);
+
                     });
 
                 });
