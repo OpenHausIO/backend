@@ -134,7 +134,8 @@ module.exports = (logger) => {
                 // require express main router
                 let app = require("../../routes/index.js");
 
-                ["SIGINT", "SIGTERM", "SIGQUIT"].forEach((signal) => {
+                // fix #435
+                ["SIGINT", /*"SIGTERM", "SIGQUIT"*/].forEach((signal) => {
                     process.once(signal, () => {
 
                         // see #345

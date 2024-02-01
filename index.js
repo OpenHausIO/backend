@@ -266,7 +266,8 @@ const starter = new Promise((resolve) => {
 
     logger.info("Startup complete");
 
-    ["SIGINT", "SIGTERM", "SIGQUIT"].forEach((signal) => {
+    // fix #435
+    ["SIGINT", /*"SIGTERM", "SIGQUIT"*/].forEach((signal) => {
         process.once(signal, () => {
 
             logger.warn("Shuting down...");
