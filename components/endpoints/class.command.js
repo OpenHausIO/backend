@@ -234,6 +234,7 @@ module.exports = class Command {
         if (!valid) {
             let err = new Error(`Invalid parameter`);
             err.code = "INVALID_PARAMETER";
+            // TODO: Should not be as second argument passed "false"?!
             return cb(err);
         }
 
