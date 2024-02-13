@@ -85,6 +85,7 @@ module.exports = class Vault extends Item {
             }),
             name: Joi.string().required(),
             identifier: Joi.string().required(),
+            description: Joi.string().allow(null).default(null),
             secrets: Joi.array().items(Secret.schema()).default([])
         });
     }
