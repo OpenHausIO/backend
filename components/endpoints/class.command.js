@@ -5,6 +5,7 @@ const _timeout = require("../../helper/timeout.js");
 const { interfaces } = require("../../system/shared.js");
 
 const Param = require("./class.param.js");
+const Params = require("./class.params.js");
 
 /**
  * @description
@@ -248,7 +249,7 @@ module.exports = class Command {
 
         // handle timeout stuff here?
         // when so, timeout applys to custom functions too!
-        worker.call(this, this, iface, params, timer);
+        worker.call(this, this, iface, new Params(...params), timer);
 
     }
 
