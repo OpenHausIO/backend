@@ -212,6 +212,10 @@ module.exports = class Command {
                 return param.key === key;
             });
 
+            if (!param) {
+                return false;
+            }
+
             // auto convert "123" to 123
             if (param.type === "number") {
                 value = Number(value);
@@ -228,8 +232,8 @@ module.exports = class Command {
         }
 
         if (!valid) {
-            let err = new Error(`Invalid params type`);
-            err.code = "INVALID_PARAMETER_TYPE";
+            let err = new Error(`Invalid parameter`);
+            err.code = "INVALID_PARAMETER";
             return cb(err);
         }
 
