@@ -37,7 +37,12 @@ module.exports = (app, router) => {
 
         } else {
 
-
+            // TODO: This should be moved into the device component
+            // A websocket server should be created in the class.interface.js file
+            // Static method can return them e.g. Interface.servers() = returns array of wss
+            // Goal should be:
+            // - to eliminate the need of "shared.js"
+            // - handle in router.get only ws handshake: "wss.handleUpgrade(...)"
             if (!interfaceServer.has(req.params._iid)) {
 
                 let wss = new WebSocket.Server({
