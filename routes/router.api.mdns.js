@@ -46,6 +46,43 @@ module.exports = (app, router) => {
     });
 
 
+    // listen for websockt clients
+    // keep sending new log entrys to client
+    wss.once("connection", (ws) => {
+
+        C_MDNS.events.emit("connected", ws);
+
+        ws.on("message", (msg) => {
+            C_MDNS.events.emit("message", decode(msg), msg);
+        });
+
+
+        // QUERY LOCAL DNS
+        // TODO: Move this into the mdns component
+        /*
+        setInterval(() => {
+
+            console.log("Query for HTTP Server");
+
+            let msg = encode({
+                type: "query",
+                id: 1,
+                flags: RECURSION_DESIRED,
+                questions: [{
+                    type: "A",
+                    //name: '_http._tcp.local'
+                    name: "*"
+                }]
+            });
+
+            ws.send(msg);
+
+        }, 30_000);
+        */
+
+    });
+
+
     // http route handler
     // TODO: Reformat to match router.api.mdns.js code style/if-else
     router.get("/", (req, res, next) => {
@@ -56,44 +93,6 @@ module.exports = (app, router) => {
             next(); // let the rest-handler.js do its job
             return;
         }
-
-        // listen for websockt clients
-        // keep sending new log entrys to client
-        // TODO: Move this outside the get handler
-        // see: #426
-        wss.once("connection", (ws) => {
-
-            C_MDNS.events.emit("connected", ws);
-
-            ws.on("message", (msg) => {
-                C_MDNS.events.emit("message", decode(msg), msg);
-            });
-
-
-            // QUERY LOCAL DNS
-            // TODO: Move this into the mdns component
-            /*
-            setInterval(() => {
-
-                console.log("Query for HTTP Server");
-
-                let msg = encode({
-                    type: "query",
-                    id: 1,
-                    flags: RECURSION_DESIRED,
-                    questions: [{
-                        type: "A",
-                        //name: '_http._tcp.local'
-                        name: "*"
-                    }]
-                });
-
-                ws.send(msg);
-
-            }, 30_000);
-            */
-
-        });
 
         // handle request as websocket
         // perform websocket handshake 
