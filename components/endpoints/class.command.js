@@ -5,6 +5,7 @@ const _timeout = require("../../helper/timeout.js");
 const { interfaces } = require("../../system/shared.js");
 
 const Param = require("./class.param.js");
+const Params = require("./class.params.js");
 
 /**
  * @description
@@ -211,6 +212,10 @@ module.exports = class Command {
                 return param.key === key;
             });
 
+            if (!param) {
+                return false;
+            }
+
             // auto convert "123" to 123
             if (param.type === "number") {
                 value = Number(value);
@@ -227,8 +232,9 @@ module.exports = class Command {
         }
 
         if (!valid) {
-            let err = new Error(`Invalid params type`);
-            err.code = "INVALID_PARAMETER_TYPE";
+            let err = new Error(`Invalid parameter`);
+            err.code = "INVALID_PARAMETER";
+            // TODO: Should not be as second argument passed "false"?!
             return cb(err);
         }
 
@@ -248,7 +254,7 @@ module.exports = class Command {
 
         // handle timeout stuff here?
         // when so, timeout applys to custom functions too!
-        worker.call(this, this, iface, params, timer);
+        worker.call(this, this, iface, new Params(...params), timer);
 
     }
 

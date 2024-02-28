@@ -58,6 +58,7 @@ function timeout(time, cb) {
         if (!called) {
 
             called = true;
+            // NOTE: Deconstructing/array recreating needed?!
             cb(false, Date.now() - start, [...args]);
 
         }
