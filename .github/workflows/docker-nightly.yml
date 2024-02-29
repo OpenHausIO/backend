@@ -1,8 +1,11 @@
 name: Publish Docker nightly image
 
 on:
-    pull_request:
-        branches: [dev]
+  pull_request:
+    types:
+      - closed
+    branches:
+      - dev
 
 jobs:
   push_to_registry:
