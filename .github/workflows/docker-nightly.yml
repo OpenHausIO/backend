@@ -1,14 +1,17 @@
 name: Publish Docker nightly image
 
 on:
-    push:
-        branches: [dev]
+  pull_request:
+    types:
+      - closed
+    branches:
+      - dev
 
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
-    if: github.repository == 'OpenHausIO/backend'
+    if: github.repository == 'OpenHausIO/backend' && github.event.pull_request.merged == true
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
