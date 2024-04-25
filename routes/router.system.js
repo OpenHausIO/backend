@@ -19,6 +19,7 @@ module.exports = (router) => {
     let infoRouter = Router();
     let eventsRouter = Router();
     let notificationsRouter = Router();
+    let logsRouter = Router();
 
     // http://127.0.0.1/api/system/info
     // FIXME: what does this work with "eventsRouter/notificationsRouter"?!
@@ -32,5 +33,9 @@ module.exports = (router) => {
     // http://127.0.0.1/api/system/notifications
     router.use("/notifications", notificationsRouter);
     //require("./router.system.notifications.js")(notificationsRouter);
+
+    // http://127.0.0.1/api/system/logs
+    router.use("/logs", logsRouter);
+    require("./router.system.logs.js")(logsRouter);
 
 };
