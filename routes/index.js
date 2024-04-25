@@ -97,6 +97,9 @@ require("./router.api.about.js")(app, about);
 //require("./router.system.js")(api);
 //require("./router.system.notifications.js")(app, system);
 
+[/*"events",*/ "about", "logs"].forEach((route) => {
+    logger.warn(`http://${process.env.HTTP_ADDRESS}:${process.env.HTTP_PORT}/api/${route} is derpecated and will be removed in v4`);
+});
 
 // ensure that all requests to /api are authenticated
 // req.user = User item from component user
