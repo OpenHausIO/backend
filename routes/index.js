@@ -92,9 +92,14 @@ require("./router.api.logs.js")(app, logs);
 api.use("/about", about);
 require("./router.api.about.js")(app, about);
 
+// mount /system under /api
 //app.use("/system", system);
+//require("./router.system.js")(api);
 //require("./router.system.notifications.js")(app, system);
 
+[/*"events",*/ "about", "logs"].forEach((route) => {
+    logger.warn(`http://${process.env.HTTP_ADDRESS}:${process.env.HTTP_PORT}/api/${route} is derpecated and will be removed in v4`);
+});
 
 // ensure that all requests to /api are authenticated
 // req.user = User item from component user
@@ -160,6 +165,7 @@ const usersRouter = express.Router();
 const webhooksRouter = express.Router();
 const mqttRouter = express.Router();
 const mdnsRouter = express.Router();
+const systemRouter = express.Router();
 
 // http://127.0.0.1/api/plugins
 api.use("/plugins", pluginsRouter);
@@ -223,6 +229,10 @@ require("./rest-handler.js")(C_MQTT, mqttRouter);
 api.use("/mdns", mdnsRouter);
 require("./router.api.mdns.js")(app, mdnsRouter);
 require("./rest-handler.js")(C_MDNS, mdnsRouter);
+
+// http://127.0.0.1/api/system
+api.use("/system", systemRouter);
+require("./router.system.js")(systemRouter);
 
 // NOTE: Drop this?!
 api.use((req, res) => {
