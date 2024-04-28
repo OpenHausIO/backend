@@ -32,7 +32,7 @@ module.exports = (router) => {
 
     // http://127.0.0.1/api/system/notifications
     router.use("/notifications", notificationsRouter);
-    //require("./router.system.notifications.js")(notificationsRouter);
+    require("./router.system.notifications.js")(notificationsRouter);
 
     // http://127.0.0.1/api/system/logs
     router.use("/logs", logsRouter);
