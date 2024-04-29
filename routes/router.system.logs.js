@@ -114,6 +114,7 @@ module.exports = (router) => {
                     input.destroy(); // destory readable
                 });
 
+                // https://gist.github.com/fkowal/3447400
                 fs.open(LOGFILE, "r", (err, fd) => {
 
                     if (err) {
