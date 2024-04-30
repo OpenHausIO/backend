@@ -5,7 +5,7 @@ const os = require("os");
 
 module.exports = (router) => {
 
-    router.get("/", (req, res) => {
+    router.get(["/versions", "/"], (req, res) => {
         Promise.all([
 
             // get npm version
@@ -115,6 +115,61 @@ module.exports = (router) => {
                     cpu,
                     ram
                 }
+            });
+
+        }).catch((err) => {
+
+            res.status(500).json({
+                error: err
+            });
+
+        });
+    });
+
+
+    router.get("/usage", (req, res) => {
+
+        Promise.all([
+
+            // calculate cpu usage
+            new Promise((resolve, reject) => {
+                try {
+
+                    const perc = os.cpus().map(cpu => cpu.times).reduce((acc, times) => {
+                        const totalCPUTime = Object.values(times).reduce((total, time) => total + time, 0);
+                        const idleCPUTime = times.idle;
+                        const cpuUsagePercentage = ((totalCPUTime - idleCPUTime) / totalCPUTime) * 100;
+                        return acc + cpuUsagePercentage;
+                    }, 0) / os.cpus().length;
+
+                    resolve(perc.toFixed(2));
+
+                } catch (err) {
+                    reject(err);
+                }
+            }),
+
+            // calculate ram usage
+            new Promise((resolve, reject) => {
+                try {
+
+                    let totalMemory = os.totalmem();
+                    let usedMemory = totalMemory - os.freemem();
+                    let perc = (usedMemory / totalMemory) * 100;
+
+                    process.nextTick(() => {
+                        resolve(perc.toFixed(2));
+                    });
+
+                } catch (err) {
+                    reject(err);
+                }
+            })
+        ]).then(([cpu, ram]) => {
+
+            res.json({
+                cpu,
+                ram
             });
 
         }).catch((err) => {
