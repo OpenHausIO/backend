@@ -2,7 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
 const { WebSocket } = require("ws");
-const { Readable } = require("stream");
+const { PassThrough } = require("stream");
 const { createInterface } = require("readline");
 
 const {
@@ -11,7 +11,9 @@ const {
 
 const LOGFILE = path.resolve(LOG_PATH, "combined.log");
 
-const logger = require("../system/logger");
+const logger = require("../system/logger/index.js");
+const Logger = require("../system/logger/class.logger.js");
+const exporter = Logger.exporter();
 
 // websocket server
 const wss = new WebSocket.Server({
@@ -90,114 +92,31 @@ module.exports = (router) => {
             // keep sending new log entrys to client
             wss.once("connection", (ws) => {
 
-                let controller = new AbortController(); // used to stop watcher
-                let { signal } = controller;
+                // a intermediate stream is needed, for cleanup and pipeing
+                // directly in createrInterface({input}), it does not work
+                let input = new PassThrough();
+                exporter.pipe(input);
 
-                let input = new Readable({
-                    read() { }
+                ws.once("close", () => {
+
+                    // prevent memeory/event emitter leak
+                    // wihtout unpipe, after 10 connections a memeory leak warning is printed
+                    exporter.unpipe(input);
+
+                    rl.close();
+
                 });
 
                 let rl = createInterface({
-                    input
+                    input: exporter
                 });
 
                 rl.on("line", (line) => {
                     ws.send(line);
                 });
 
-                // cleanup when ws connection is closed
-                // everything triggers ws.terminate();
-                // whitch results in emitting close
-                ws.once("close", () => {
-                    controller.abort(); // stop fs.watch()
-                    rl.close(); // stop readline
-                    input.destroy(); // destory readable
-                });
-
-                fs.open(LOGFILE, "r", (err, fd) => {
-
-                    if (err) {
-                        ws.terminate();
-                        return;
-                    }
-
-                    let position = 0;
-                    let prev_stats = null;
-
-                    fs.stat(LOGFILE, (err, stats) => {
-                        if (err) {
-
-                            console.error(err);
-                            ws.terminate();
-
-                        } else {
-
-                            // set position to end of file
-                            // receive only new messages
-                            prev_stats = stats;
-                            position = stats.size;
-
-                        }
-                    });
-
-                    let watcher = fs.watch(LOGFILE, {
-                        signal
-                    });
-
-                    watcher.once("error", () => {
-                        ws.terminate();
-                    });
-
-                    watcher.on("change", () => {
-
-                        // could be possible that changes  happens before stats are available
-                        // this would break and flood everything from the log file
-                        if (!prev_stats) {
-                            return;
-                        }
-
-                        fs.stat(LOGFILE, (err, stats) => {
-                            if (err) {
-
-                                console.error(err);
-                                ws.terminate();
-
-                            } else {
-
-                                if (prev_stats.size > stats.size) {
-                                    position = 0;
-                                }
-
-                                prev_stats = stats;
-
-                            }
-                        });
-
-                        fs.read(fd, {
-                            position,
-                            encoding: "utf8"
-                        }, (err, bytesRead, buffer) => {
-                            if (err) {
-
-                                console.error(err);
-                                ws.terminate();
-
-                            } else {
-
-                                position += bytesRead;
-                                input.push(buffer.slice(0, bytesRead));
-
-                            }
-                        });
-
-                    });
-
-                    // close event loop
-                    watcher.unref();
-
-                });
-
             });
+
 
             // handle request as websocket
             // perform websocket handshake 
@@ -214,6 +133,27 @@ module.exports = (router) => {
             });
 
         }
+    });
+
+    router.put("/", (req, res) => {
+
+        let {
+            level = "debug",
+            message = "Hello World"
+        } = req.body;
+
+        if (Object.hasOwnProperty.call(logger, level)) {
+
+            logger[level](message);
+            res.status(200).end();
+
+        } else {
+
+            // wrong logger level
+            res.status(400).end();
+
+        }
+
     });
 
     router.delete("/", (req, res) => {
