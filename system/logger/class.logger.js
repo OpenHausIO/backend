@@ -6,15 +6,19 @@ const { Transform } = require("stream");
 const exporter = new Transform({
     transform(chunk, encoding, cb) {
 
+        console.log("exporter stream is piped:", this._readableState.pipes.length > 0);
+
         // ignore & drop every message if no pipe/consumer
         // otherwise this jams up the stream
         // TODO: check if a event listener is used to consume data
+        // try with: this.listenerCount('data'|'readable')
         // if event listener is used, this approach drops the chunk
         if (this._readableState.pipes.length > 0) {
             this.push(chunk);
         }
 
-        cb();
+        //cb();
+        process.nextTick(cb);
 
     }
 });

@@ -15,6 +15,35 @@ const logger = require("../system/logger/index.js");
 const Logger = require("../system/logger/class.logger.js");
 const exporter = Logger.exporter();
 
+
+/*
+// works like charm with netcat
+// `nc open-haus.lan 8123`
+const { createServer } = require("net");
+const server = createServer();
+
+server.listen(8123, "0.0.0.0", () => {
+
+    console.log("Logfile tcp socket listening on tcp://0.0.0.0:8123")
+
+    server.on("connection", (socket) => {
+
+        console.log("net socket conneceted")
+        exporter.pipe(socket);
+
+        socket.once("close", () => {
+            console.log("net socket closed");
+            exporter.unpipe(socket);
+        });
+
+    });
+
+});
+*/
+
+
+
+
 // websocket server
 const wss = new WebSocket.Server({
     noServer: true
@@ -90,12 +119,22 @@ module.exports = (router) => {
 
             // listen for websockt clients
             // keep sending new log entrys to client
+            // NOTE: This websocket/stream/readline logging reporter is buggy
+            // when the exporter stream was directly used input, it worked only 5 min
+            // today using the intermediate stream, works like expected (like above over a tcp socket)
+            // when changing back to directly use "exporter" stream, the problem was not reproducable...
             wss.once("connection", (ws) => {
 
                 // a intermediate stream is needed, for cleanup and pipeing
-                // directly in createrInterface({input}), it does not work
+                // directly in createrInterface({input}) does not work
+                // jams up the output, event emitter leak
                 let input = new PassThrough();
                 exporter.pipe(input);
+
+                let rl = createInterface({
+                    input,
+                    terminal: false
+                });
 
                 ws.once("close", () => {
 
@@ -105,10 +144,6 @@ module.exports = (router) => {
 
                     rl.close();
 
-                });
-
-                let rl = createInterface({
-                    input: exporter
                 });
 
                 rl.on("line", (line) => {
