@@ -34,6 +34,7 @@ class C_PLUGINS extends COMPONENT {
         super("plugins", Plugin.schema(), module);
 
         this.hooks.post("add", (data, next) => {
+            // NOTE: use path to plugins set via env, see #432
             fs.mkdir(path.resolve(process.cwd(), "plugins", data.uuid), (err) => {
 
                 // ignore when folder exists
@@ -53,6 +54,7 @@ class C_PLUGINS extends COMPONENT {
         });
 
         this.hooks.post("remove", (item, result, _id, next) => {
+            // NOTE: use path to plugins set via env, see #432
             fs.rm(path.resolve(process.cwd(), "plugins", item.uuid), {
                 recursive: true
             }, (err) => {

@@ -3,6 +3,8 @@ const C_SCENES = require("../components/scenes");
 
 module.exports = (app, router) => {
 
+    // NOTE: Why is this needed?
+    // if _id is found, `req.item` should be allready set
     router.param("_id", (req, res, next, _id) => {
         C_WEBHOOKS.get(_id, (err, obj) => {
             if (err) {
