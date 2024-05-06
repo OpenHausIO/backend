@@ -1,6 +1,6 @@
 const WebSocket = require("ws");
 
-const Notification = require("../system/notifications/class.notifications.js");
+const { Notification } = require("../system/notifications/index.js");
 const events = Notification.events();
 
 module.exports = (router) => {
