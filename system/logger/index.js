@@ -60,7 +60,10 @@ const combined = createWriteStream(path.resolve(process.env.LOG_PATH, "combined.
     flags: "a"
 });
 
-[system, combined].forEach((stream) => {
+const exporter = Logger.exporter();
+
+
+[system, combined, exporter].forEach((stream) => {
     stream.on("error", (err) => {
         console.error(err);
         process.exit(1);
@@ -92,7 +95,8 @@ const options = {
     streams: [
         stdout,
         system,
-        combined
+        combined,
+        exporter
     ],
     level: process.env.LOG_LEVEL
 };
@@ -126,7 +130,8 @@ Object.defineProperty(logger, "create", {
             streams: [
                 stdout,
                 stream,
-                combined
+                combined,
+                exporter
             ]
         });
 

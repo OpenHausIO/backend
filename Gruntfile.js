@@ -100,7 +100,15 @@ module.exports = function (grunt) {
             stdio: "inherit"
         });
 
+        // remove build, use taggin. see: #451
+        /*
         cp.execSync(`docker build . -t openhaus/${pkg.name}:latest ${buildArgs}`, {
+            env: process.env,
+            stdio: "inherit"
+        });
+        */
+
+        cp.execSync(`docker image tag openhaus/${pkg.name}:${pkg.version} openhaus/${pkg.name}:latest`, {
             env: process.env,
             stdio: "inherit"
         });

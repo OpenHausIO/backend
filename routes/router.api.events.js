@@ -55,9 +55,19 @@ module.exports = (app, router) => {
 
             wss.clients.forEach((client) => {
                 // fix #403 "Implement named subscriptions"
-                if (client.intents.includes(event) && client.readyState === WebSocket.OPEN) {
+                // added component name intents
+                /*
+                if (client.intents.includes(event) /*&& client.components.includes(component)* && client.readyState === WebSocket.OPEN) {
                     client.send(obj);
                 }
+                */
+
+                let { readyState, filter } = client;
+
+                if (readyState === WebSocket.OPEN && filter.events.includes(event) && filter.components.includes(component)) {
+                    client.send(obj);
+                }
+
             });
 
         };
@@ -109,12 +119,27 @@ module.exports = (app, router) => {
                 // monkey patch intents for "named subscriptions"
                 // see #403; get default everyhting
                 // NOTE: remove the "default everything" part?
+                /*
                 ws.intents = req.query?.intents || [
                     "add",
                     "get",
                     "update",
                     "remove"
                 ];
+
+                // return all components on default
+                //ws.components = req.query?.components || componentNames;
+                */
+
+                ws.filter = {
+                    events: req.query.events || req.query.intents || [
+                        "add",
+                        "get",
+                        "update",
+                        "remove"
+                    ],
+                    components: req.query.components || componentNames
+                };
 
                 wss.emit("connection", ws, req);
 

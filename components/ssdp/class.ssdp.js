@@ -3,6 +3,9 @@ const mongodb = require("mongodb");
 
 const Item = require("../../system/component/class.item.js");
 
+// simple ssdp monitor:
+// nc -ulvv 239.255.255.250 1900
+// TODO: Add documentation for class
 module.exports = class SSDP extends Item {
 
     constructor(obj) {
