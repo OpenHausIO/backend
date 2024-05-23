@@ -14,6 +14,11 @@ const promisify = require("./promisify.js");
  */
 function perform(uri, options, cb) {
 
+    if(!options && !cb){
+        options = {};
+        cb = () => {};
+    }
+
     let { protocol } = new url.URL(uri);
 
     if (!["http:", "https:"].includes(protocol)) {
@@ -54,7 +59,8 @@ function perform(uri, options, cb) {
                 headers: res.headers,
                 status: res.statusCode,
                 body,
-                res
+                res,
+                req: request
             });
 
         });
