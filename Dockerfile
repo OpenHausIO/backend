@@ -2,7 +2,7 @@
 # https://medium.com/@kahana.hagai/docker-compose-with-node-js-and-mongodb-dbdadab5ce0a
 
 # The instructions for the first stage
-FROM node:16-alpine as builder
+FROM node:20-alpine as builder
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
@@ -22,7 +22,7 @@ RUN npm install
 
 
 # The instructions for second stage
-FROM node:16-alpine
+FROM node:20-alpine
 
 WORKDIR /opt/OpenHaus/backend
 COPY --from=builder node_modules node_modules
