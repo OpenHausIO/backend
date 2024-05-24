@@ -8,6 +8,7 @@ describe("Helper functions", function () {
     require("./test.extend.js");
     //require("./test.filter.js");          // todo or remove?! see #19
     require("./test.infinity.js");
+    require("./test.injectMethod.js");
     require("./test.iterate.js");
     require("./test.mixins.js");
     require("./test.observe.js");
