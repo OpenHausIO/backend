@@ -68,6 +68,7 @@ describe("helper/injectMethod", () => {
         });
 
         assert.deepEqual(item.ping(), item.pong());
+        assert.ok(item.ping() === item.pong());
 
         done();
 
