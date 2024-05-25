@@ -89,6 +89,9 @@ module.exports = (app, router) => {
                 component.events.on(method, reemit(method, name));
             });
 
+            // NOTE: handle also custom events like "socket" & ssdp/mqtt events?
+            //component.events.on("socket", reemit("socket", name));
+
         } catch (err) {
 
             console.error("Failure in events http api", err);
