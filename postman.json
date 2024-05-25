@@ -1674,7 +1674,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -1683,7 +1684,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1697,7 +1699,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806/files",
+									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806/files?install=true",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1708,6 +1710,13 @@
 										"plugins",
 										"658188e93cde9987c3228806",
 										"files"
+									],
+									"query": [
+										{
+											"key": "install",
+											"value": "true",
+											"description": "Install npm dependenys"
+										}
 									]
 								}
 							},
@@ -2741,6 +2750,293 @@
 						}
 					},
 					"response": []
+				}
+			]
+		},
+		{
+			"name": "System",
+			"item": [
+				{
+					"name": "Notifications",
+					"item": [
+						{
+							"name": "Create notification",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Title\",\n    \"message\": \"Hello World\",\n    \"uuid\": \"83d2087a-d901-4eb5-ac05-f7980893df64\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/notifications?publish=false",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"notifications"
+									],
+									"query": [
+										{
+											"key": "publish",
+											"value": "false",
+											"description": "Publish notifications instantly?"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Publish notification",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/notifications/83d2087a-d901-4eb5-ac05-f7980893df64/publish",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"notifications",
+										"83d2087a-d901-4eb5-ac05-f7980893df64",
+										"publish"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete notification",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Title\",\n    \"message\": \"Hello World\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/notifications/83d2087a-d901-4eb5-ac05-f7980893df64",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"notifications",
+										"83d2087a-d901-4eb5-ac05-f7980893df64"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Logging",
+					"item": [
+						{
+							"name": "Get log entrys",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/logs?offset=0&limit=10",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"logs"
+									],
+									"query": [
+										{
+											"key": "offset",
+											"value": "0"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create log entry",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"message\": \"Hello World\", \n    \"level\": \"error\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/logs",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"logs"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete/Truncate logs",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/logs?delete=false",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"logs"
+									],
+									"query": [
+										{
+											"key": "delete",
+											"value": "false",
+											"description": "Delete files or just truncate them?"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Export (Download) logfiles as tar.gz",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/logs/export",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"logs",
+										"export"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Information",
+					"item": [
+						{
+							"name": "Software versions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/info/versions",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"info",
+										"versions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "System usage",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/info/usage",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"info",
+										"usage"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		}
