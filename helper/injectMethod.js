@@ -14,13 +14,15 @@
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty#description
  */
 
-function injectMethod(obj, prop, value, options = {}){
+function injectMethod(obj, prop, value, options = {}) {
 
-    if(!(value instanceof Function)){
+    if (!(value instanceof Function)) {
         throw new TypeError(`Value must be a function, received ${typeof value}`);
     }
 
-    Object.defineProperty(Object.getPrototypeOf(obj), prop, {
+    // NOTE: Setting on prototype of given object, breaks iface.bridge()...
+    // Object.defineProperty(Object.getPrototypeOf(obj), prop, {
+    Object.defineProperty(obj, prop, {
         value,
         writable: true,
         enumerable: false,
