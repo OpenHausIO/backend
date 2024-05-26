@@ -2766,7 +2766,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"title\": \"Title\",\n    \"message\": \"Hello World\",\n    \"uuid\": \"83d2087a-d901-4eb5-ac05-f7980893df64\"\n}",
+									"raw": "{\n    \"title\": \"Title\",\n    \"message\": \"Hello World\",\n    \"type\": \"error\",\n    \"uuid\": \"83d2087a-d901-4eb5-ac05-f7980893df64\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2791,6 +2791,39 @@
 											"value": "false",
 											"description": "Publish notifications instantly?"
 										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get notifications",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Title\",\n    \"message\": \"Hello World\",\n    \"type\": \"error\",\n    \"uuid\": \"83d2087a-d901-4eb5-ac05-f7980893df64\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/notifications",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"notifications"
 									]
 								}
 							},
