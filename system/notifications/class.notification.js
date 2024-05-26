@@ -41,11 +41,13 @@ module.exports = class Notification {
         Object.assign(this, {
             timestamps: {
                 created: Date.now(),
-                published: false
+                published: null
             }
         }, value);
 
         // hidden property
+        // move into schema definition?
+        // why keep this secret?
         Object.defineProperty(this, "published", {
             value: false,
             writable: true
@@ -80,6 +82,16 @@ module.exports = class Notification {
             //}
 
         }
+    }
+
+    detain() {
+
+        let index = notifications.find(({ uuid }) => {
+            return this.uuid === uuid;
+        });
+
+        notifications.splice(index, 1);
+
     }
 
     static schema() {

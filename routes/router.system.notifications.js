@@ -40,6 +40,25 @@ module.exports = (router) => {
     });
 
 
+    router.param("uuid", (req, res, next, uid) => {
+
+        let notifications = Notification.notifications();
+
+        let notification = notifications.find(({ uuid }) => {
+            return uuid === uid;
+        });
+
+        if (!notification) {
+            return res.status(404).end();
+        }
+
+        req.item = notification;
+
+        next();
+
+    });
+
+
     router.get("/", (req, res) => {
         if ((!req.headers["upgrade"] || !req.headers["connection"])) {
 
@@ -73,6 +92,21 @@ module.exports = (router) => {
 
     });
 
+
+    router.post("/:uuid/publish", (req, res) => {
+
+        req.item.publish();
+        res.json(req.item);
+
+    });
+
+
+    router.delete("/:uuid", (req, res) => {
+
+        req.item.detain();
+        res.json(req.item);
+
+    });
 
     return router;
 
