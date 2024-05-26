@@ -63,10 +63,12 @@ module.exports = (router) => {
 
     router.put("/", (req, res) => {
 
-        let { title, message } = req.body;
-        let notification = new Notification(title, message);
+        let notification = new Notification(req.body);
 
-        notification.publish();
+        if (req.query?.publish === "true") {
+            notification.publish();
+        }
+
         res.json(notification);
 
     });

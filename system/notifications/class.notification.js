@@ -28,12 +28,9 @@ const notifications = new Proxy([], {
 
 module.exports = class Notification {
 
-    constructor(title, message) {
+    constructor(data) {
 
-        let { error, value } = Notification.validate({
-            title,
-            message
-        });
+        let { error, value } = Notification.validate(data);
 
         if (error) {
             throw error;
