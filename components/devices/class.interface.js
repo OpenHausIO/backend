@@ -2,6 +2,15 @@ const Joi = require("joi");
 const { Agent } = require("http");
 const mongodb = require("mongodb");
 const { Transform, Duplex } = require("stream");
+const { randomUUID } = require("crypto");
+//const path = require("path");
+
+//const Adapter = require("./class.adapter.js");
+
+
+const timeout = require("../../helper/timeout.js");
+const promisfy = require("../../helper/promisify.js");
+
 
 /**
  * @description
@@ -371,6 +380,76 @@ module.exports = class Interface {
 
     }
 
+
+    // bridge methods connects adapter with the underlaying network socket
+    // create a `.socket()` method that returns the palin websocket stream
+    static _bridge({ device, interface: iface, events }, cb) {
+        return promisfy((done) => {
+
+            console.log("Bridge request, iface", iface, device);
+
+            // create a random uuid
+            // used as identifier for responses
+            let uuid = randomUUID();
+            //let uuid = "4c6de542-f89f-42ac-a2b5-1c26f9e68d73";
+
+
+            // timeout after certain time
+            // no connector available, not mocks or whatever reaseon
+            let caller = timeout(5000, (timedout, duration, args) => {
+                if (timedout) {
+                    done(new Error("TIMEDOUT"));
+                } else {
+                    done(null, args[0]);
+                }
+            });
+
+
+            // socket response handler
+            // listen for uuid and compare it with generated
+            let handler = ({ stream, type, uuid: id, socket }) => {
+                if (uuid === id && type === "response" && socket) {
+
+                    console.log("adapter", iface.adapter);
+
+                    /*
+                    // create adapter stack here
+                    // pass adapter stack as caller argument
+                    //caller(stack);
+                    let stack = iface.adapter.map((name) => {
+                        try {
+                            return require(path.join(process.cwd(), "adapter", `${name}.js`))();
+                        } catch (err) {
+                            console.error(`Error in adapter "${name}" `, err);
+                        }
+                    });
+
+                    console.log("stack", stack);
+
+                    stream = new Adapter(stack, stream, {
+                        emitClose: false,
+                        end: false
+                    });
+
+                    console.log("stream", stream)
+                    */
+
+                    caller(stream);
+
+                }
+            };
+
+            events.on("socket", handler);
+
+            events.emit("socket", {
+                uuid,
+                device,
+                interface: iface._id,
+                type: "request"
+            });
+
+        }, cb);
+    }
 
 
 };

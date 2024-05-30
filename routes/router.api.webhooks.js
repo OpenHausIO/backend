@@ -49,7 +49,7 @@ module.exports = (app, router) => {
             req.item._trigger(req.body, req.query, req);
         }
 
-        res.status(202).end();
+        res.status(202).json(req.item);
 
     });
 

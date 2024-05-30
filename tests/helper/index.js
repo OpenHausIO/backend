@@ -8,6 +8,7 @@ describe("Helper functions", function () {
     require("./test.extend.js");
     //require("./test.filter.js");          // todo or remove?! see #19
     require("./test.infinity.js");
+    //require("./test.injectMethod.js"); // removed due to problems on `interface.bridge()`, see https://github.com/OpenHausIO/backend/issues/463#issuecomment-2131411981
     require("./test.iterate.js");
     require("./test.mixins.js");
     require("./test.observe.js");

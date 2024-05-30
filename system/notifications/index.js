@@ -1,4 +1,4 @@
-const Notification = require("./class.notifications.js");
+const Notification = require("./class.notification.js");
 
 
 module.exports = {

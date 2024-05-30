@@ -1,5 +1,6 @@
 const WebSocket = require("ws");
 const { finished } = require("stream");
+const C_DEVICES = require("../components/devices");
 
 //const iface_locked = new Map();
 
@@ -21,11 +22,12 @@ module.exports = (app, router) => {
             return String(iface._id) === String(req.params._iid);
         });
 
-        if (!iface) {
+        if (!iface && !req.query?.socket) {
             return res.status(404).end();
         }
 
-        if (iface.upstream) {
+        // allow multipel connections to new connection handling below
+        if (iface.upstream && !req.query?.socket) {
             return res.status(423).end();
         }
 
@@ -53,41 +55,50 @@ module.exports = (app, router) => {
 
                 // listen only once to connectoin event
                 // gets fired every time websocket client hit this url/route
-                wss.on("connection", (ws) => {
+                wss.on("connection", (ws, req) => {
+                    if (req.query?.uuid && req.query?.socket === "true" && req.query?.type === "response") {
 
-                    // set connection to "alive"
-                    // see #148
-                    ws.isAlive = true;
+                        // new bridge/connector practice
+                        // see https://github.com/OpenHausIO/backend/issues/460
 
-                    let upstream = WebSocket.createWebSocketStream(ws);
+                        let stream = WebSocket.createWebSocketStream(ws);
 
-                    // Cleanup: https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#streamfinishedstream-options-callback
-                    let cleanup = finished(upstream, () => {
-                        iface.detach(() => {
-                            cleanup();
+                        C_DEVICES.events.emit("socket", {
+                            uuid: req.query.uuid,
+                            type: "response",
+                            socket: true,
+                            stream
                         });
-                    });
 
+                    } else {
 
-                    iface.attach(upstream);
+                        // old/legacy connection mechanism
+                        // TODO: Remove this in future versions
 
+                        let upstream = WebSocket.createWebSocketStream(ws);
 
-                    //https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
-                    ["close", "error"].forEach((event) => {
-                        upstream.once(event, () => {
-
-                            upstream.destroy();
-                            iface.detach();
-
+                        // Cleanup: https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#streamfinishedstream-options-callback
+                        let cleanup = finished(upstream, () => {
+                            iface.detach(() => {
+                                cleanup();
+                            });
                         });
-                    });
 
-                    // detect broken connection
-                    ws.on("pong", () => {
-                        //console.log("pong", Date.now(), "\r\n\r\n")
-                        ws.isAlive = true;
-                    });
 
+                        iface.attach(upstream);
+
+
+                        //https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
+                        ["close", "error"].forEach((event) => {
+                            upstream.once(event, () => {
+
+                                upstream.destroy();
+                                iface.detach();
+
+                            });
+                        });
+
+                    }
                 });
 
 
@@ -119,7 +130,15 @@ module.exports = (app, router) => {
 
 
             wss.handleUpgrade(req, req.socket, req.headers, (ws) => {
+
+                ws.isAlive = true;
+
+                ws.on("pong", () => {
+                    ws.isAlive = true;
+                });
+
                 wss.emit("connection", ws, req);
+
             });
 
         }

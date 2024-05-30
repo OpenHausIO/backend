@@ -237,6 +237,7 @@ module.exports = (router) => {
         });
     });
 
+    // NOTE: switch to GET method?
     router.post("/export", (req, res) => {
         try {
 
@@ -255,6 +256,7 @@ module.exports = (router) => {
             }
 
             res.setHeader("content-type", "application/tar+gzip");
+            res.setHeader("Content-Disposition", 'attachment; filename="logfiles.tgz"');
 
             tar.once("exit", (code) => {
                 console.log("exit code", code);

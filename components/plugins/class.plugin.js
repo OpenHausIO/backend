@@ -116,6 +116,15 @@ module.exports = class Plugin extends Item {
                     let init = (dependencies, cb) => {
                         try {
 
+                            // NOTE: Monkey patch ready/abort method to init?
+                            // A plugin could siganlize if its ready or needs to be restarted
+                            /*
+                            let init = new Promise((resolve, reject) => {
+                                init.ready = resolve;
+                                init.abort = reject;
+                            });
+                            */
+
                             const granted = dependencies.every((c) => {
                                 if (this.intents.includes(c)) {
 
