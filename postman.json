@@ -2895,35 +2895,6 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"let IGNORE = {",
-							"    \"PUT\": [",
-							"        \"/api/plugins/658188e93cde9987c3228806/files\"",
-							"    ],",
-							"    \"POST\": [",
-							"        \"/api/plugins/658188e93cde9987c3228806/start\",",
-							"        \"/api/endpoints/658189336fa19198939caa21/commands/6581fc8ac20cb522e02868ff\"",
-							"    ]",
-							"};",
-							"",
-							"",
-							"console.log(\"Check ignore object\", pm.request.method, pm.request.url.toString());",
-							"",
-							"",
-							"if(Object.prototype.hasOwnProperty.call(IGNORE, pm.request.method)){",
-							"",
-							"    let skip = IGNORE[pm.request.method].some((url) => {",
-							"        return pm.request.url.toString().includes(url);",
-							"    });",
-							"",
-							"    console.log(\"Ignore\", pm.request.url.toString(), skip);",
-							"",
-							"    if(skip){",
-							"        return;",
-							"    }",
-							"",
-							"}",
-							"",
-							"",
 							"pm.test(\"Status code 200 || 202\", () => {",
 							"    pm.expect(pm.response.code).to.be.oneOf([",
 							"        200,",
@@ -3376,7 +3347,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/system/backup/export?encode=false",
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/backup/export",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -3416,7 +3387,8 @@
 										{
 											"key": "encode",
 											"value": "false",
-											"description": "Encode .env values as base64? (makes them not human readable, do this at least when you dont encrypt the backup)"
+											"description": "Encode .env values as base64? (makes them not human readable, do this at least when you dont encrypt the backup)",
+											"disabled": true
 										}
 									]
 								}
@@ -3491,6 +3463,28 @@
 						}
 					]
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"postman.setNextRequest()"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		}
 	],
@@ -3509,7 +3503,35 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					""
+					"let IGNORE = {",
+					"    \"PUT\": [",
+					"        \"/api/plugins/658188e93cde9987c3228806/files\"",
+					"    ],",
+					"    \"POST\": [",
+					"        \"/api/plugins/658188e93cde9987c3228806/start\",",
+					"        \"/api/endpoints/658189336fa19198939caa21/commands/6581fc8ac20cb522e02868ff\",",
+					"        \"/api/system\"",
+					"    ]",
+					"};",
+					"",
+					"",
+					"console.log(\"Check ignore object\", pm.request.method, pm.request.url.toString());",
+					"",
+					"",
+					"if(Object.prototype.hasOwnProperty.call(IGNORE, pm.request.method)){",
+					"",
+					"    let skip = IGNORE[pm.request.method].some((url) => {",
+					"        return pm.request.url.toString().includes(url);",
+					"    });",
+					"",
+					"    console.log(\"Ignore\", pm.request.url.toString(), skip);",
+					"",
+					"    if(skip){",
+					"        postman.setNextRequest(null);",
+					"        return;",
+					"    }",
+					"",
+					"}"
 				]
 			}
 		}
