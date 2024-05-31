@@ -4,6 +4,7 @@ const process = require("process");
 const pkg = require("./package.json");
 const { exec } = require("child_process");
 const uuid = require("uuid");
+const semver = require("semver");
 
 
 const env = require("dotenv").config({
@@ -117,6 +118,12 @@ const logger = require("./system/logger");
 
 if (process.env.NODE_ENV !== "production") {
     logger.warn("> OpenHaus runs not in production mode! (%s)", process.env.NODE_ENV);
+}
+
+
+// see #471
+if (!semver.satisfies(process.versions.node, pkg.engines.node)) {
+    logger.warn(`> OpenHaus runs not on supported node.js version! (got: "%s", needed: "%s")`, process.versions.node, pkg.engines.node);
 }
 
 
