@@ -20,6 +20,8 @@ module.exports = (router) => {
 
         const pack = tar.pack();
 
+        // NOTE: add error listener here?
+
         res.setHeader("content-type", "application/tar+gzip");
         res.setHeader("dontent-disposition", `attachment; filename="backend-${Date.now()}.tgz"`);
 
@@ -105,7 +107,7 @@ module.exports = (router) => {
 
         const extract = tar.extract();
 
-
+        // NOTE: switch to `.once`?
         extract.on("error", (err) => {
 
             res.status(500).json({
@@ -120,6 +122,7 @@ module.exports = (router) => {
         });
 
 
+        // NOTE: switch to `.once`?
         extract.on("finish", () => {
 
             console.log("tar-stream finished");
