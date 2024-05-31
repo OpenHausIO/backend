@@ -23,7 +23,7 @@
     "publish": "grunt publish"
   },
   "engines": {
-    "node": ">=0.16.0"
+    "node": ">=18.0.0"
   },
   "author": "Marc Stirner <marc.stirner@open-haus.io>",
   "license": "ISC",
