@@ -23,7 +23,7 @@ module.exports = (router) => {
         // NOTE: add error listener here?
 
         res.setHeader("content-type", "application/tar+gzip");
-        res.setHeader("dontent-disposition", `attachment; filename="backend-${Date.now()}.tgz"`);
+        res.setHeader("content-disposition", `attachment; filename="backend-${Date.now()}.tgz"`);
 
         if (req.query.encrypt == "true") {
 
