@@ -3366,6 +3366,130 @@
 							"response": []
 						}
 					]
+				},
+				{
+					"name": "Backup",
+					"item": [
+						{
+							"name": "Export Backup",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/backup/export?encode=false",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"backup",
+										"export"
+									],
+									"query": [
+										{
+											"key": "encrypt",
+											"value": "false",
+											"description": "Should the .tgz (.tar.gz) file be encrypted?",
+											"disabled": true
+										},
+										{
+											"key": "includes[]",
+											"value": "database",
+											"description": "Should include database dump?",
+											"disabled": true
+										},
+										{
+											"key": "includes[]",
+											"value": "plugins",
+											"description": "Should include plugins folder?",
+											"disabled": true
+										},
+										{
+											"key": "includes[]",
+											"value": "env",
+											"description": "Should indlude .env file?",
+											"disabled": true
+										},
+										{
+											"key": "encode",
+											"value": "false",
+											"description": "Encode .env values as base64? (makes them not human readable, do this at least when you dont encrypt the backup)"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Import Backup",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-ENCRYPTION-KEY",
+										"value": "1e3665f8a687da2d0869ff524c10e64ee1cb600df8228c6dfcc37fbec3359846",
+										"description": "Header value from export (If backup is encrpyted)",
+										"type": "text"
+									},
+									{
+										"key": "X-ENCRYPTION-IV",
+										"value": "186cfe92205c578a7f7199d3c973b8bd",
+										"description": "Header value from export (If backup is encrpyted)",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "file",
+									"file": {
+										"src": "/home/marc/projects/OpenHaus/tmp/backup-staging.tgz"
+									}
+								},
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/backup/import?truncate=true",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"backup",
+										"import"
+									],
+									"query": [
+										{
+											"key": "encrypt",
+											"value": "true",
+											"description": "Is the uploading file encrypted?",
+											"disabled": true
+										},
+										{
+											"key": "skipDuplicates",
+											"value": "true",
+											"description": "Skip same databse _id items",
+											"disabled": true
+										},
+										{
+											"key": "truncate",
+											"value": "true",
+											"description": "Truncate/clear database & plugin folder before restore"
+										},
+										{
+											"key": "decode",
+											"value": "true",
+											"description": "Decode base64 .env values",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		}
