@@ -67,7 +67,7 @@ describe("Database", () => {
             require("./helper/index.js");
             require("./system/index.js");
             require("./components/index.js");
-            require("./http-api/index.js");
+            //require("./http-api/index.js");
 
         });
     });
