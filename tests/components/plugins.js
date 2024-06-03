@@ -15,7 +15,7 @@ try {
         C_COMPONENT.add({
             _id,
             name: "Plugin #1",
-            version: 1,
+            version: "1.2.3",
             intents: ["devices", "endpoints", "plugins", "rooms", "ssdp", "store", "users", "vault"]
         }, (err, item) => {
             try {
@@ -59,13 +59,13 @@ try {
 
     workflow(C_COMPONENT, "update", (done) => {
         C_COMPONENT.update(_id, {
-            version: 2
+            version: "2.3.8"
         }, (err, item) => {
             try {
 
                 assert.ok(err === null);
                 assert.equal(item instanceof Plugin, true);
-                assert.equal(item.version, 2);
+                assert.equal(item.version, "2.3.8");
 
                 done(err);
 
@@ -83,7 +83,7 @@ try {
 
             // update call 1
             C_COMPONENT.update(_id, {
-                version: 3
+                version: "87.65.4321"
             }),
 
             // update call 2

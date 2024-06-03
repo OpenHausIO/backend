@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "efc273f1-779c-4fce-a23e-82c17555ff65",
+		"_postman_id": "af00c0a1-994e-4e2c-aac9-422c102b70f1",
 		"name": "OpenHaus",
 		"description": "SmartHome/IoT application",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -1571,7 +1571,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"_id\": \"658188e93cde9987c3228806\",\n    \"name\": \"Plugin Boilerplate Demo\",\n    \"uuid\": \"6951dee2-8541-4a69-bd3e-629fdadf093a\",\n    \"enabled\": true,\n    \"version\": 1,\n    \"intents\": [\n        \"devices\",\n        \"endpoints\",\n        \"plugins\",\n        \"rooms\",\n        \"ssdp\",\n        \"store\",\n        \"users\",\n        \"vault\"\n    ]\n}",
+									"raw": "{\n    \"_id\": \"658188e93cde9987c3228806\",\n    \"name\": \"Plugin Boilerplate Demo\",\n    \"uuid\": \"6951dee2-8541-4a69-bd3e-629fdadf093a\",\n    \"enabled\": true,\n    \"version\": \"1.0.0\",\n    \"intents\": [\n        \"devices\",\n        \"endpoints\",\n        \"plugins\",\n        \"rooms\",\n        \"ssdp\",\n        \"store\",\n        \"users\",\n        \"vault\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1642,7 +1642,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"New updated\",\n    \"enabled\": true,\n    \"autostart\": false,\n    \"labels\": [\n        \"worker_thread=false\",\n        \"my_custom_label={\\\"json\\\":true, \\\"number\\\":0815420}\"\n    ]\n}",
+									"raw": "{\n    \"name\": \"New updated\",\n    \"enabled\": true,\n    \"autostart\": false,\n     \"version\": \"9.2.5\",\n    \"labels\": [\n        \"worker_thread=false\",\n        \"my_custom_label={\\\"json\\\":true, \\\"number\\\":0815420}\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2895,32 +2895,7 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"pm.test(\"Status code 200 || 202\", () => {",
-							"    pm.expect(pm.response.code).to.be.oneOf([",
-							"        200,",
-							"        202",
-							"    ]);",
-							"});",
-							"",
-							"",
-							"pm.test(\"content-type = application/json\", () => {",
-							"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
-							"});",
-							"",
-							"",
-							"pm.test(\"Response has no error field\", () => {",
-							"",
-							"    let length = pm.response.headers.get(\"content-length\");",
-							"",
-							"    // ignore empty response/no body",
-							"    if(!length || Number(length) === 0){",
-							"        return;",
-							"    }",
-							"",
-							"    let json = pm.response.json();",
-							"    pm.expect(!json.error, true);",
-							"",
-							"});"
+							""
 						]
 					}
 				}
@@ -3494,7 +3469,12 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					""
+					"console.log(\"Check if /system route\", pm.request.url.toString().includes(\"/system\"), pm.request.url.toString().includes(\"/auth\"))",
+					"",
+					"if(pm.request.url.toString().includes(\"/system\") || pm.request.url.toString().includes(\"/auth\")){",
+					"    postman.setNextRequest(null);",
+					"    return;",
+					"}"
 				]
 			}
 		},
@@ -3509,29 +3489,67 @@
 					"    ],",
 					"    \"POST\": [",
 					"        \"/api/plugins/658188e93cde9987c3228806/start\",",
-					"        \"/api/endpoints/658189336fa19198939caa21/commands/6581fc8ac20cb522e02868ff\",",
-					"        \"/api/system\"",
+					"        \"/api/endpoints/658189336fa19198939caa21/commands/6581fc8ac20cb522e02868ff\"",
+					"    ],",
+					"    \"GET\": [",
+					"        \"/auth\"",
 					"    ]",
 					"};",
 					"",
+					"let URLS = [",
+					"    \"auth\",",
+					"    \"system\"",
+					"]",
 					"",
 					"console.log(\"Check ignore object\", pm.request.method, pm.request.url.toString());",
 					"",
 					"",
 					"if(Object.prototype.hasOwnProperty.call(IGNORE, pm.request.method)){",
 					"",
-					"    let skip = IGNORE[pm.request.method].some((url) => {",
+					"    let skip1 = IGNORE[pm.request.method].some((url) => {",
 					"        return pm.request.url.toString().includes(url);",
 					"    });",
 					"",
-					"    console.log(\"Ignore\", pm.request.url.toString(), skip);",
+					"    let skip2 = URLS.some((url) => {",
+					"        return pm.request.url.toString().includes(url);",
+					"    });",
 					"",
-					"    if(skip){",
-					"        postman.setNextRequest(null);",
+					"",
+					"    console.log(\"Ignore\", pm.request.url.toString(), skip1 || skip2);",
+					"",
+					"    if(skip1 || skip2){",
 					"        return;",
 					"    }",
 					"",
-					"}"
+					"}",
+					"",
+					"",
+					"pm.test(\"Status code 200 || 202\", () => {",
+					"    pm.expect(pm.response.code).to.be.oneOf([",
+					"        200,",
+					"        202",
+					"    ]);",
+					"});",
+					"",
+					"",
+					"pm.test(\"content-type = application/json\", () => {",
+					"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"});",
+					"",
+					"",
+					"pm.test(\"Response has no error field\", () => {",
+					"",
+					"    let length = pm.response.headers.get(\"content-length\");",
+					"",
+					"    // ignore empty response/no body",
+					"    if(!length || Number(length) === 0){",
+					"        return;",
+					"    }",
+					"",
+					"    let json = pm.response.json();",
+					"    pm.expect(!json.error, true);",
+					"",
+					"});"
 				]
 			}
 		}

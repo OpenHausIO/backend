@@ -61,7 +61,17 @@ module.exports = class Plugin extends Item {
             uuid: Joi.string().default(() => {
                 return uuid.v4();
             }),
-            version: Joi.number().required(),
+            version: Joi.string().required().messages({
+                "any.invalid": `{{#label}} needs to be a valid semver version`
+            }).custom((value, helpers) => {
+
+                if (semver.valid(value) === null) {
+                    return helpers.error("any.invalid");
+                }
+
+                return semver.clean(value);
+
+            }),
             //runlevel: Joi.number().min(0).max(2).default(0),
             autostart: Joi.boolean().default(true),
             enabled: Joi.boolean().default(true),
