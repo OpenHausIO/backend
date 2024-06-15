@@ -104,6 +104,9 @@ module.exports = class Plugin extends Item {
                     let content = fs.readFileSync(file);
                     json = JSON.parse(content);
 
+                    // check in further version:
+                    // json?.openhaus?.backend || json?.openhaus?.versions?.backend
+                    // when a plugin provides frontend stuff or store data about itself in openhaus.plugin/openhaus.intents
                     if (!semver.satisfies(pkg.version, json?.backend)) {
                         this.logger.warn(`Plugin "${this.name}" is incompatible. It may work not properly or break something!`);
                     }
