@@ -1,10 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 
-const Joi = require("joi");
-const mongodb = require("mongodb");
-const uuid = require("uuid");
-
 
 
 //const logger = require("../../system/logger").create("plugins");
@@ -35,22 +31,10 @@ class C_PLUGINS extends COMPONENT {
 
         // inject logger, collection and schema object
         // super(logger, mongodb.client.collection("plugins"), {
-        super("plugins", {
-            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectId());
-            }),
-            name: Joi.string().required(),
-            uuid: Joi.string().default(() => {
-                return uuid.v4();
-            }),
-            version: Joi.number().required(),
-            //runlevel: Joi.number().min(0).max(2).default(0),
-            autostart: Joi.boolean().default(true),
-            enabled: Joi.boolean().default(true),
-            intents: Joi.array().items("devices", "endpoints", "plugins", "rooms", "ssdp", "store", "users", "vault", "mqtt", "mdns", "webhooks").required()
-        }, module);
+        super("plugins", Plugin.schema(), module);
 
         this.hooks.post("add", (data, next) => {
+            // NOTE: use path to plugins set via env, see #432
             fs.mkdir(path.resolve(process.cwd(), "plugins", data.uuid), (err) => {
 
                 // ignore when folder exists
@@ -70,6 +54,7 @@ class C_PLUGINS extends COMPONENT {
         });
 
         this.hooks.post("remove", (item, result, _id, next) => {
+            // NOTE: use path to plugins set via env, see #432
             fs.rm(path.resolve(process.cwd(), "plugins", item.uuid), {
                 recursive: true
             }, (err) => {

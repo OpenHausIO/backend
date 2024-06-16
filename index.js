@@ -1,12 +1,10 @@
 const path = require("path");
-const http = require("http");
-const fs = require("fs");
 const readline = require("readline");
 const process = require("process");
-const mongodb = require("mongodb");
 const pkg = require("./package.json");
 const { exec } = require("child_process");
 const uuid = require("uuid");
+const semver = require("semver");
 
 
 const env = require("dotenv").config({
@@ -57,7 +55,7 @@ process.env = Object.assign({
     USERS_BCRYPT_SALT_ROUNDS: "12",
     USERS_JWT_SECRET: "",
     USERS_JWT_ALGORITHM: "HS384",
-    MQTT_BROKER_VERSION: "3",
+    MQTT_BROKER_VERSION: "4",
     MQTT_CLIENT_ID: "OpenHaus",
     MQTT_PING_INTERVAL: "5000"
 }, env.parsed, process.env);
@@ -123,6 +121,12 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 
+// see #471
+if (!semver.satisfies(process.versions.node, pkg.engines.node)) {
+    logger.warn(`> OpenHaus runs not on supported node.js version! (got: "%s", needed: "%s")`, process.versions.node, pkg.engines.node);
+}
+
+
 if (process.env.GC_INTERVAL !== null && global.gc) {
     setInterval(() => {
         try {
@@ -140,234 +144,14 @@ if (process.env.GC_INTERVAL !== null && global.gc) {
 }
 
 
-const init_db = () => {
-    return new Promise((resolve, reject) => {
+const init_db = require("./system/init/init.database.js")(logger);
+const init_components = require("./system/init/init.components.js")(logger);
+const init_http = require("./system/init/init.http-server.js")(logger);
 
-        logger.debug("Init Database...");
-        let constr = process.env.DATABASE_URL;
 
-        if (!process.env.DATABASE_URL) {
-            constr = `mongodb://${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`;
-        }
-
-        // feedback
-        logger.verbose(`Connecting to "%s"...`, process.env.DATABASE_URL || constr);
-
-
-        mongodb.MongoClient.connect(constr, {
-            useUnifiedTopology: true,
-            useNewUrlParser: true,
-            //connectTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000, // #9
-            //socketTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000 // #9
-        }, (err, client) => {
-
-            if (err) {
-                logger.error(err, "Could not connect to database");
-                return reject(err);
-            }
-
-            // monky patch db instance
-            // use this instance in other files
-            //mongodb.client = client.db(process.env.DATABASE_NAME);
-            mongodb.connection = client;
-            mongodb.client = client.db();
-
-            // feedback
-            logger.info(`Connected to "%s"`, constr);
-
-            resolve();
-
-            client.on("error", (err) => {
-                logger.error(err, "Could not connecto to databse: %s", err.message);
-            });
-
-            client.on("close", () => {
-                process.exit(1000);
-            });
-
-
-        });
-
-    });
-};
-
-
-const init_components = () => {
-    return new Promise((resolve) => {
-
-        logger.debug("Init components...");
-
-        const componentNames = [
-            "devices",
-            "endpoints",
-            "plugins",
-            "rooms",
-            "ssdp",
-            "store",
-            "users",
-            "vault",
-            "webhooks",
-            "mqtt",
-            "mdns",
-            "scenes"
-        ].sort(() => {
-
-            // pseudo randomize start/init of components
-            // https://stackoverflow.com/a/18650169/5781499
-            return 0.5 - Math.random();
-
-        });
-
-        let componentConter = 0;
-        //let counter = componentNames.length;
-
-
-        // map over array
-        // create from each promise
-        // use Promise.all() ?
-        // better/quicker start?
-        componentNames.forEach((name) => {
-            try {
-
-                // this should be trace method
-                logger.verbose(`Starting component "${name}"`);
-
-                let component = require(`./components/${name}/index.js`);
-
-                component.events.on("ready", () => {
-
-                    componentConter += 1;
-
-                    logger.debug(`Component "${name}" ready to use. (${componentConter}/${componentNames.length})`);
-
-                    if (componentConter === componentNames.length) {
-                        logger.info(`All ${componentNames.length} Components ready`);
-                        resolve();
-                    }
-
-                });
-
-                // see issue #53, this should fire:
-                // the procces should not exit with a "unhandled execption"
-                // the try/catch block is for unhandled exception, not for startup errors
-                component.events.on("error", (err) => {
-                    logger.error(err, `Component "${name}" error!`);
-                    process.exit(1); // fix #53
-                });
-
-            } catch (err) {
-
-                console.error(err, "Component error");
-                process.exit(800);
-
-            }
-        });
-
-    });
-};
-
-
-const init_http = () => {
-    return new Promise((resolve, reject) => {
-
-        logger.debug("Init http server...");
-
-        const servers = [
-
-            // http server for ip/port
-            new Promise((resolve, reject) => {
-                if (process.env.HTTP_ADDRESS !== "") {
-
-                    let server = http.createServer();
-
-                    server.on("error", (err) => {
-                        logger.error(err, `Could not start http server: ${err.message}`);
-                        reject(err);
-                    });
-
-                    server.on("listening", () => {
-
-                        let addr = server.address();
-                        logger.info(`HTTP Server listening on http://${addr.address}:${addr.port}`);
-
-                        resolve(server);
-
-                    });
-
-                    require("./routes")(server);
-
-                    // bind/start http server
-                    server.listen(Number(process.env.HTTP_PORT), process.env.HTTP_ADDRESS);
-
-                } else {
-                    resolve();
-                }
-            }),
-
-            // http server fo unix socket
-            new Promise((resolve, reject) => {
-                if (process.env.HTTP_SOCKET !== "") {
-
-                    let server = http.createServer();
-
-                    server.on("error", (err) => {
-
-                        logger.error(err, `Could not start http server: ${err.message}`);
-                        reject(err);
-
-                    });
-
-                    server.on("listening", () => {
-
-                        logger.info(`HTTP Server listening on ${process.env.HTTP_SOCKET}`);
-
-                        resolve(server);
-
-                    });
-
-                    require("./routes")(server);
-
-                    try {
-
-                        // cleanup 
-                        fs.unlinkSync(process.env.HTTP_SOCKET);
-
-                    } catch (err) {
-                        if (err.code !== "ENOENT") {
-
-                            reject(err);
-
-                        }
-                    } finally {
-
-                        // bind/start http server
-                        server.listen(process.env.HTTP_SOCKET);
-
-                    }
-
-                } else {
-                    resolve();
-                }
-            })
-
-        ];
-
-        Promise.all(servers).then(() => {
-
-            resolve();
-
-        }).catch((err) => {
-
-            logger.error(err, "Could not start http server(s)", err);
-
-            reject(err);
-
-        });
-
-    });
-};
-
-
+// NOTE: Could/should be removed
+// was only used in the early state of developing without the plugin component/system
+/*
 const kickstart = () => {
     try {
 
@@ -389,6 +173,7 @@ const kickstart = () => {
 
     }
 };
+*/
 
 
 const starter = new Promise((resolve) => {
@@ -426,7 +211,7 @@ const starter = new Promise((resolve) => {
     init_db,            // phase 1
     init_components,    // phase 2
     init_http,          // phase 3
-    kickstart
+    //kickstart
 ].reduce((cur, prev, i) => {
     return cur.then(prev).catch((err) => {
 
@@ -475,7 +260,7 @@ const starter = new Promise((resolve) => {
 
         } catch (err) {
 
-            logger.warn(`Could not boot plugin "${plugin.name}" (${plugin.uuid})`);
+            logger.error(err, `Could not boot plugin "${plugin.name}" (${plugin.uuid})`);
 
         }
     });
@@ -487,5 +272,14 @@ const starter = new Promise((resolve) => {
     }
 
     logger.info("Startup complete");
+
+    // fix #435
+    ["SIGINT", /*"SIGTERM", "SIGQUIT"*/].forEach((signal) => {
+        process.once(signal, () => {
+
+            logger.warn("Shuting down...");
+
+        });
+    });
 
 });

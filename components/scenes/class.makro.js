@@ -1,8 +1,9 @@
 const Joi = require("joi");
 const mongodb = require("mongodb");
 
-const dispatcher = require("../../system/dispatcher");
+//const dispatcher = require("../../system/dispatcher");
 //const C_ENDPOINTS = require("../endpoints");
+const types = require("./makro-types.js");
 
 /**
  * @description
@@ -44,6 +45,14 @@ module.exports = class Makro {
      * @returns 
      */
     execute(result, signal) {
+
+        if (types[this.type]) {
+            return types[this.type](this, result, signal);
+        } else {
+            throw new Error(`Type ${this.type} handler not found`);
+        }
+
+        /*
         return new Promise((resolve, reject) => {
             try {
                 if (this.type === "timer") {
@@ -89,6 +98,8 @@ module.exports = class Makro {
 
             }
         });
+        */
+
     }
 
 
@@ -108,6 +119,7 @@ module.exports = class Makro {
                 return String(new mongodb.ObjectId());
             }),
             type: Joi.string().valid("command", "timer", "scene"/*, "state"*/).required(),
+            enabled: Joi.boolean().default(true),
             timestamps: Joi.object({
                 created: Joi.number().allow(null),
                 updated: Joi.number().allow(null)

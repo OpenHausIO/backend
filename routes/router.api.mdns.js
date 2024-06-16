@@ -12,6 +12,17 @@ module.exports = (app, router) => {
         noServer: true
     });
 
+
+    /*
+    C_MDNS.events.on("query", (query) => {        
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(query);
+            }
+        });        
+    });
+    */
+
     // detect broken connections
     let interval = setInterval(() => {
         wss.clients.forEach((ws) => {
@@ -35,10 +46,46 @@ module.exports = (app, router) => {
     });
 
 
-    // http route handler
-    router.get("/", (req, res, next) => {
+    // listen for websockt clients
+    // keep sending new log entrys to client
+    wss.once("connection", (ws) => {
 
-        console.log("Request to /api/mdns");
+        C_MDNS.events.emit("connected", ws);
+
+        ws.on("message", (msg) => {
+            C_MDNS.events.emit("message", decode(msg), msg);
+        });
+
+
+        // QUERY LOCAL DNS
+        // TODO: Move this into the mdns component
+        /*
+        setInterval(() => {
+
+            console.log("Query for HTTP Server");
+
+            let msg = encode({
+                type: "query",
+                id: 1,
+                flags: RECURSION_DESIRED,
+                questions: [{
+                    type: "A",
+                    //name: '_http._tcp.local'
+                    name: "*"
+                }]
+            });
+
+            ws.send(msg);
+
+        }, 30_000);
+        */
+
+    });
+
+
+    // http route handler
+    // TODO: Reformat to match router.api.mdns.js code style/if-else
+    router.get("/", (req, res, next) => {
 
         // check if connection is a simple get request or ws client
         if ((!req.headers["upgrade"] || !req.headers["connection"])) {
@@ -46,47 +93,6 @@ module.exports = (app, router) => {
             next(); // let the rest-handler.js do its job
             return;
         }
-
-        // listen for websockt clients
-        // keep sending new log entrys to client
-        wss.once("connection", (ws) => {
-
-            console.log("Clien connected to mdns");
-
-            C_MDNS.events.emit("connected", ws);
-
-            ws.on("message", (msg) => {
-                C_MDNS.events.emit("message", decode(msg), msg);
-            });
-
-            ws.on("close", () => {
-                console.log("Client disconnected disolaskjdflaskjfdasdf");
-            });
-
-
-            // QUERY LOCAL DNS
-            /*
-            setInterval(() => {
-
-                console.log("Query for HTTP Server");
-
-                let msg = encode({
-                    type: "query",
-                    id: 1,
-                    flags: RECURSION_DESIRED,
-                    questions: [{
-                        type: "A",
-                        //name: '_http._tcp.local'
-                        name: "*"
-                    }]
-                });
-
-                ws.send(msg);
-
-            }, 30_000);
-            */
-
-        });
 
         // handle request as websocket
         // perform websocket handshake 

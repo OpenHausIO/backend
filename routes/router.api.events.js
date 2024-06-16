@@ -1,4 +1,6 @@
 const WebSocket = require("ws");
+const path = require("path");
+const fs = require("fs");
 
 module.exports = (app, router) => {
 
@@ -25,7 +27,7 @@ module.exports = (app, router) => {
         clearInterval(interval);
     });
 
-
+    /*
     const componentNames = [
         "devices",
         "endpoints",
@@ -35,6 +37,10 @@ module.exports = (app, router) => {
         "store",
         "vault"
     ];
+    */
+
+    // fix #403 "Add missing components"
+    let componentNames = fs.readdirSync(path.resolve(process.cwd(), "components"));
 
 
     function reemit(event, component) {
@@ -48,9 +54,20 @@ module.exports = (app, router) => {
             });
 
             wss.clients.forEach((client) => {
-                if (client.readyState === WebSocket.OPEN) {
+                // fix #403 "Implement named subscriptions"
+                // added component name intents
+                /*
+                if (client.intents.includes(event) /*&& client.components.includes(component)* && client.readyState === WebSocket.OPEN) {
                     client.send(obj);
                 }
+                */
+
+                let { readyState, filter } = client;
+
+                if (readyState === WebSocket.OPEN && filter.events.includes(event) && filter.components.includes(component)) {
+                    client.send(obj);
+                }
+
             });
 
         };
@@ -71,6 +88,9 @@ module.exports = (app, router) => {
             }).forEach((method) => {
                 component.events.on(method, reemit(method, name));
             });
+
+            // NOTE: handle also custom events like "socket" & ssdp/mqtt events?
+            //component.events.on("socket", reemit("socket", name));
 
         } catch (err) {
 
@@ -98,6 +118,31 @@ module.exports = (app, router) => {
                 ws.on("pong", () => {
                     ws.isAlive = true;
                 });
+
+                // monkey patch intents for "named subscriptions"
+                // see #403; get default everyhting
+                // NOTE: remove the "default everything" part?
+                /*
+                ws.intents = req.query?.intents || [
+                    "add",
+                    "get",
+                    "update",
+                    "remove"
+                ];
+
+                // return all components on default
+                //ws.components = req.query?.components || componentNames;
+                */
+
+                ws.filter = {
+                    events: req.query.events || req.query.intents || [
+                        "add",
+                        "get",
+                        "update",
+                        "remove"
+                    ],
+                    components: req.query.components || componentNames
+                };
 
                 wss.emit("connection", ws, req);
 

@@ -44,9 +44,30 @@ describe("helper/request", () => {
         });
     });
 
-    it("- returns a http request object", () => {
+    it("- returns a promise if no callback provided", () => {
 
-        let req = request("http://127.0.0.1/");
+        let rtrn = request("http://127.0.0.1/");
+
+        assert(rtrn instanceof Promise);
+
+    });
+
+    it("- returns undefined if a callback is provided", (done) => {
+
+        let rtrn = request("http://127.0.0.1/", (err) => {
+            assert(rtrn === undefined);
+            done(err);
+        });
+
+    });
+
+    it('- should have a ".perform" method patched', () => {
+        assert(request.perform instanceof Function);
+    });
+
+    it("- perform method should return instanceof ClientRequest", () => {
+
+        let req = request.perform("http://127.0.0.1");
 
         assert(req instanceof ClientRequest);
 

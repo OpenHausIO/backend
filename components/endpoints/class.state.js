@@ -22,8 +22,7 @@ const mongodb = require("mongodb");
  */
 module.exports = class State {
 
-
-    constructor(obj) {
+    constructor(obj, changed = () => { }) {
 
         Object.assign(this, obj);
         this._id = String(obj._id);
@@ -44,19 +43,34 @@ module.exports = class State {
             },
             set: (value) => {
 
+                if (this.type === "number" && this.invert && value < 0) {
+                    value = value * -1;
+                }
+
                 // check for value type, but allow null value
                 if (((typeof value) !== this.type) && (value !== null)) {
+                    // TODO: uncomment & make active
+                    //throw new TypeError(`Invalid type "${typeof (value)}"`);
                     return;
                 }
 
                 // fix #251
                 if (this.type === "number" && !(value >= this.min && value <= this.max)) {
+                    // TODO: uncomment & make active
+                    //throw new RangeError(`Invalid value "${value}"`);
+                    return;
+                }
+
+                // prevent useles set/update
+                if (value === obj.value) {
                     return;
                 }
 
                 obj.value = value;
 
                 this.timestamps.updated = Date.now();
+
+                process.nextTick(changed, this);
 
             },
             configurable: false,
@@ -96,7 +110,8 @@ module.exports = class State {
                 then: Joi.object({
                     value: Joi.number().default(null).allow(null),
                     min: Joi.number().default(0),
-                    max: Joi.number().default(100)
+                    max: Joi.number().default(100),
+                    invert: Joi.boolean().default(false)
                 })
             }, {
                 is: "string",

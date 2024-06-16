@@ -1,10 +1,11 @@
 const mongodb = require("mongodb");
-const Joi = require("joi");
+//const Joi = require("joi");
 
 const _extend = require("../../helper/extend");
 const _merge = require("../../helper/merge");
 
 const COMMON = require("./class.common.js");
+const Item = require("./class.item.js");
 
 const PENDING_CHANGE_EVENTS = new Set();
 
@@ -47,7 +48,7 @@ module.exports = class COMPONENT extends COMMON {
     constructor(name, schema, parent) {
 
         if (parent) {
-            require("../prevent_cross_load")(parent);
+            //require("../prevent_cross_load")(parent);
         }
 
         super(require("../../system/logger").create(name));
@@ -94,18 +95,39 @@ module.exports = class COMPONENT extends COMMON {
         });
 
         this.collection = mongodb.client.collection(name);
+        this.schema = Item.schema().concat(schema);
 
-        this.schema = Joi.object({
-            ...schema,
+        /*
+        let baseSchema = Joi.object({
             //labels: Joi.array().items(Joi.string().regex(/^[a-zA-Z0-9]+=[a-zA-Z0-9]+$/)).default([])
             //labels: Joi.array().items(Joi.string().regex(/^[a-z0-9\.]+=[a-z0-9]+$/)).default([]),
-            labels: Joi.array().items(Joi.string().regex(/^[a-z0-9]+=[a-z0-9]+$/)).default([]),
+            //labels: Joi.array().items(Joi.string().regex(/^.+?=.+|.+=.+$/i)).default([]),
+            labels: Joi.array().items(Joi.alternatives().try(
+                Joi.string().regex(/^.+?=.+|.+=.+$/i),
+                Joi.object().custom((value, helpers) => {
+                    if (value instanceof Label) {
+
+                        // convert to string
+                        // otherwise the serialized object is saved into the database
+                        return value.toString();
+
+                    } else {
+
+                        return helpers.error("any.custom");
+
+                    }
+                }, "Instance of class.label.js")
+            )).default([]),
             timestamps: Joi.object({
                 ...schema?.timestamps,
                 created: Joi.number().allow(null).default(null),
                 updated: Joi.number().allow(null).default(null)
             })
         });
+
+        // concat base schema with component specific
+        this.schema = baseSchema.concat(schema);
+        */
 
         if (process.env.DATABASE_WATCH_CHANGES === "true") {
             try {
@@ -318,8 +340,17 @@ module.exports = class COMPONENT extends COMMON {
 
                                 let item = this.items.find((item) => {
 
+                                    // NOTE: rename value to key
                                     return Object.keys(err.keyValue).every((value) => {
+
+                                        // fixing "Duplicate unique key/index in database, but no matching item"
+                                        // see #367
+                                        if (err.keyValue[value] instanceof mongodb.ObjectId) {
+                                            return item[value] === err.keyValue[value].toString();
+                                        }
+
                                         return item[value] === err.keyValue[value];
+
                                     });
 
                                     /*
@@ -605,6 +636,12 @@ module.exports = class COMPONENT extends COMMON {
                         let loop = (target, filter) => {
                             return Object.keys(filter).every((key) => {
 
+                                if (key === "labels" && Array.isArray(filter[key])) {
+                                    return filter[key].every((label) => {
+                                        return item.labels.includes(label);
+                                    });
+                                }
+
                                 if (target[key] instanceof Object) {
                                     return loop(target[key], filter[key]);
                                 } else {
@@ -653,6 +690,20 @@ module.exports = class COMPONENT extends COMMON {
 
             let loop = (filter, target) => {
                 for (let key in filter) {
+
+                    // fix for #351
+                    // NOTE: use later labels method to match more "effecive". e.g. for wildcards
+                    if (key === "labels" && Array.isArray(filter[key]) && Array.isArray(target[key])) {
+
+                        found = filter[key].every((label) => {
+                            // fix #381
+                            // target[key] is a instance if class.labels.js and not of plain string.
+                            // convert it to a array wiht plain strings, so that .includes works.
+                            return target[key]?.toString().includes(label);
+                        });
+
+                        return;
+                    }
 
                     if (typeof filter[key] === "object") {
                         loop(filter[key], target[key]);
@@ -725,7 +776,7 @@ module.exports = class COMPONENT extends COMMON {
             handler(filter, item);
         };
 
-        // TODO: Ensure to no create a memory leak
+        // TODO: Ensure to not create a memory leak
         // E.g. When used in ssdp with "update" event
         // And the announcement timestamp gets updated
         // the function is triggerd again. How to prevent that?
@@ -745,7 +796,7 @@ module.exports = class COMPONENT extends COMMON {
 
     /**
     * @function _labels
-    * Checks if filter array contains matching labels
+    * Checks if filter array contains matching labels on items.labels array
     * 
     * @param {Array} arr Array with item labels to check with filter
     * @param {Array} filter Filter array
@@ -754,7 +805,13 @@ module.exports = class COMPONENT extends COMMON {
     */
     _labels(arr, filter) {
         return filter.every((filter) => {
-            if (arr.includes(filter)) {
+            if (arr.map((label) => {
+
+                // convert back to string array
+                // so the .include can do its job
+                return label.toString();
+
+            }).includes(filter)) {
 
                 return true;
 
@@ -764,14 +821,12 @@ module.exports = class COMPONENT extends COMMON {
 
                 return arr.some((label) => {
 
-                    let [k, v] = label.split("=");
-
                     if (value === "*") {
-                        return key === k;
+                        return key === label.key;
                     }
 
                     if (key === "*") {
-                        return value === v;
+                        return value === label.value;
                     }
 
                     return false;

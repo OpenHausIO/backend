@@ -18,6 +18,10 @@ const C_MDNS = require("../components/mdns");
 //const { encode } = require("../helper/sanitize");
 //const iterate = require("../helper/iterate");
 
+// add logger for http, fix #409
+const logger = require("../system/logger/index.js");
+const log = logger.create("http");
+
 // copied from https://github.com/vkarpov15/mongo-sanitize
 function sanitize(v) {
     if (v instanceof Object) {
@@ -32,186 +36,214 @@ function sanitize(v) {
     return v;
 }
 
-module.exports = (server) => {
 
-    const app = express();
-    const auth = express.Router();
-    const api = express.Router();
-    const logs = express.Router();
-    const about = express.Router();
+const app = express();
+const auth = express.Router();
+const api = express.Router();
+const logs = express.Router();
+const about = express.Router();
+//const system = express.Router();
 
-    // https://expressjs.com/en/guide/behind-proxies.html
-    app.set("trust proxy", [
-        "loopback",
-        "linklocal",
-        "uniquelocal"
-    ]);
+// https://expressjs.com/en/guide/behind-proxies.html
+app.set("trust proxy", [
+    "loopback",
+    "linklocal",
+    "uniquelocal"
+]);
 
-    app.use(bodyParser.json({
-        limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
+// fix #409
+// add logging for http requests
+app.use((req, res, next) => {
+
+    // log basic http requests, do not reveal any senstive information
+    // thats why "req.path" is used instead of "req.url"
+    log.debug(`${req.ip} - [${req.method}] ${req.path}`);
+
+    // log verbose requests
+    // this may reveal senstive informations like tokens or cookies
+    log.verbose(JSON.stringify({
+        query: req.query,
+        params: req.params,
+        headers: req.headers
     }));
 
-    // mount api router    
-    app.use("/api", api);
+    next();
 
-    // mount auth router
-    app.use("/auth", auth);
-    require("./router.auth.js")(app, auth);
+});
 
-    // mount logs router under /api
-    api.use("/logs", logs);
-    require("./router.api.logs.js")(app, logs);
+app.use(bodyParser.json({
+    limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
+}));
 
-    // mount logs router under /api
-    api.use("/about", about);
-    require("./router.api.about.js")(app, about);
+// mount api router    
+app.use("/api", api);
 
-    // /api routes
-    (() => {
+// mount auth router
+app.use("/auth", auth);
+require("./router.auth.js")(app, auth);
 
-        // ensure that all requests to /api are authenticated
-        // req.user = User item from component user
-        require("./auth-handler.js")(C_USERS, api);
+// mount logs router under /api
+// TODO move to /system/logs
+api.use("/logs", logs);
+require("./router.api.logs.js")(app, logs);
 
-        // serailize api input fields
-        api.use((req, res, next) => {
+// mount logs router under /api
+// TODO remove
+api.use("/about", about);
+require("./router.api.about.js")(app, about);
 
-            /*            
-            // HTTP header should be set only for PUT and POST requests. So it can be ignored completly?!
-            if (!req.headers["content-type"]?.includes("application/json")) {
-                return res.status(415).end();
-            }
-            */
+// mount /system under /api
+//app.use("/system", system);
+//require("./router.system.js")(api);
+//require("./router.system.notifications.js")(app, system);
 
-            // strip out any keys that start with "$"
-            req.body = sanitize(req.body);
+[/*"events",*/ "about", "logs"].forEach((route) => {
+    logger.warn(`http://${process.env.HTTP_ADDRESS}:${process.env.HTTP_PORT}/api/${route} is derpecated and will be removed in v4`);
+});
 
-            // sanitze api input fields?
-            /*
-            // removed, breaks endpoints command payload
-            // see #273
-            if (!(process.env.API_SANITIZE_INPUT === "true" && req.body)) {
-                return next();
-            }
-            */
+// ensure that all requests to /api are authenticated
+// req.user = User item from component user
+require("./auth-handler.js")(C_USERS, api);
 
-            // patch/override sanitized object
-            /*
-            // removed, breaks endpoints command payload
-            // see #273
-            req.body = iterate(req.body, (key, value, type) => {
-                // ignore device key in settings
-                // see #127, currently i have no petter idea
-                // be sure that we only ignore the device properety in the settings object
-                if (type === "string" && !(key === "device" && req.body?.interfaces?.some(o => o?.settings?.device === value))) {
-                    return encode(value);
-                } else {
-                    return value;
-                }
-            });
-            */
+// serailize api input fields
+api.use((req, res, next) => {
 
-            next();
+    /*            
+    // HTTP header should be set only for PUT and POST requests. So it can be ignored completly?!
+    if (!req.headers["content-type"]?.includes("application/json")) {
+        return res.status(415).end();
+    }
+    */
 
-        });
+    // strip out any keys that start with "$"
+    req.body = sanitize(req.body);
 
+    // sanitze api input fields?
+    /*
+    // removed, breaks endpoints command payload
+    // see #273
+    if (!(process.env.API_SANITIZE_INPUT === "true" && req.body)) {
+        return next();
+    }
+    */
 
-        // https://learning.postman.com/docs/writing-scripts/test-scripts/
+    // patch/override sanitized object
+    /*
+    // removed, breaks endpoints command payload
+    // see #273
+    req.body = iterate(req.body, (key, value, type) => {
+        // ignore device key in settings
+        // see #127, currently i have no petter idea
+        // be sure that we only ignore the device properety in the settings object
+        if (type === "string" && !(key === "device" && req.body?.interfaces?.some(o => o?.settings?.device === value))) {
+            return encode(value);
+        } else {
+            return value;
+        }
+    });
+    */
 
+    next();
 
-        // define sub router for api/component routes
-        const pluginsRouter = express.Router();
-        const roomsRouter = express.Router();
-        const devicesRouter = express.Router();
-        const endpointsRouter = express.Router();
-        const vaultRouter = express.Router();
-        const scenesRouter = express.Router();
-        const eventsRouter = express.Router();
-        const ssdpRouter = express.Router();
-        const storeRouter = express.Router();
-        const usersRouter = express.Router();
-        const webhooksRouter = express.Router();
-        const mqttRouter = express.Router();
-        const mdnsRouter = express.Router();
-
-        // http://127.0.0.1/api/plugins
-        api.use("/plugins", pluginsRouter);
-        require("./rest-handler.js")(C_PLUGINS, pluginsRouter);
-        require("./router.api.plugins.js")(app, pluginsRouter);
-
-        // http://127.0.0.1/api/rooms
-        api.use("/rooms", roomsRouter);
-        require("./rest-handler.js")(C_ROOMS, roomsRouter);
-
-        // http://127.0.0.1/api/devices
-        api.use("/devices", devicesRouter);
-        require("./rest-handler.js")(C_DEVICES, devicesRouter);
-        require("./router.api.devices.js")(app, devicesRouter);
-
-        // http://127.0.0.1/api/endpoints
-        api.use("/endpoints", endpointsRouter);
-        require("./rest-handler.js")(C_ENDPOINTS, endpointsRouter);
-        require("./router.api.endpoints.js")(app, endpointsRouter);
-
-        // http://127.0.0.1/api/vaults
-        api.use("/vault", vaultRouter);
-        require("./rest-handler.js")(C_VAULT, vaultRouter);
-        require("./router.api.vault.js")(app, vaultRouter);
-
-        // http://127.0.0.1/api/scenes
-        api.use("/scenes", scenesRouter);
-        require("./rest-handler.js")(C_SCENES, scenesRouter);
-        require("./router.api.scenes.js")(app, scenesRouter);
-
-        // http://127.0.0.1/api/events
-        api.use("/events", eventsRouter);
-        require("./router.api.events.js")(app, eventsRouter);
-
-        // http://127.0.0.1/api/ssdp
-        api.use("/ssdp", ssdpRouter);
-        require("./router.api.ssdp.js")(app, ssdpRouter);
-        require("./rest-handler.js")(C_SSDP, ssdpRouter);
-
-        // http://127.0.0.1/api/store
-        api.use("/store", storeRouter);
-        require("./rest-handler.js")(C_STORE, storeRouter);
-        require("./router.api.store.js")(app, storeRouter);
-
-        // http://127.0.0.1/api/users
-        api.use("/users", usersRouter);
-        require("./rest-handler.js")(C_USERS, usersRouter);
-        //require("./router.api.users.js")(app, vaultRouter);
-
-        // http://127.0.0.1/api/webhooks
-        api.use("/webhooks", webhooksRouter);
-        require("./router.api.webhooks.js")(app, webhooksRouter);
-        require("./rest-handler.js")(C_WEBHOOKS, webhooksRouter);
-
-        // http://127.0.0.1/api/mqtt
-        api.use("/mqtt", mqttRouter);
-        require("./router.api.mqtt.js")(app, mqttRouter);
-        require("./rest-handler.js")(C_MQTT, mqttRouter);
-
-        // http://127.0.0.1/api/mdns
-        api.use("/mdns", mdnsRouter);
-        require("./router.api.mdns.js")(app, mdnsRouter);
-        require("./rest-handler.js")(C_MDNS, mdnsRouter);
-
-        // NOTE: Drop this?!
-        api.use((req, res) => {
-            res.status(404).end();
-            /*
-            res.status(404).json({
-                error: "Hmm... :/ This looks not right.",
-                message: `Url/endpoint "${req.url}" not found"`
-            });
-            */
-        });
+});
 
 
-    })();
+// https://learning.postman.com/docs/writing-scripts/test-scripts/
 
-    // use express request handler
-    server.on("request", app);
 
-};
+// define sub router for api/component routes
+const pluginsRouter = express.Router();
+const roomsRouter = express.Router();
+const devicesRouter = express.Router();
+const endpointsRouter = express.Router();
+const vaultRouter = express.Router();
+const scenesRouter = express.Router();
+const eventsRouter = express.Router();
+const ssdpRouter = express.Router();
+const storeRouter = express.Router();
+const usersRouter = express.Router();
+const webhooksRouter = express.Router();
+const mqttRouter = express.Router();
+const mdnsRouter = express.Router();
+const systemRouter = express.Router();
+
+// http://127.0.0.1/api/plugins
+api.use("/plugins", pluginsRouter);
+require("./rest-handler.js")(C_PLUGINS, pluginsRouter);
+require("./router.api.plugins.js")(app, pluginsRouter);
+
+// http://127.0.0.1/api/rooms
+api.use("/rooms", roomsRouter);
+require("./rest-handler.js")(C_ROOMS, roomsRouter);
+
+// http://127.0.0.1/api/devices
+api.use("/devices", devicesRouter);
+require("./rest-handler.js")(C_DEVICES, devicesRouter);
+require("./router.api.devices.js")(app, devicesRouter);
+
+// http://127.0.0.1/api/endpoints
+api.use("/endpoints", endpointsRouter);
+require("./rest-handler.js")(C_ENDPOINTS, endpointsRouter);
+require("./router.api.endpoints.js")(app, endpointsRouter);
+
+// http://127.0.0.1/api/vaults
+api.use("/vault", vaultRouter);
+require("./rest-handler.js")(C_VAULT, vaultRouter);
+require("./router.api.vault.js")(app, vaultRouter);
+
+// http://127.0.0.1/api/scenes
+api.use("/scenes", scenesRouter);
+require("./rest-handler.js")(C_SCENES, scenesRouter);
+require("./router.api.scenes.js")(app, scenesRouter);
+
+// http://127.0.0.1/api/events
+api.use("/events", eventsRouter);
+require("./router.api.events.js")(app, eventsRouter);
+
+// http://127.0.0.1/api/ssdp
+api.use("/ssdp", ssdpRouter);
+require("./router.api.ssdp.js")(app, ssdpRouter);
+require("./rest-handler.js")(C_SSDP, ssdpRouter);
+
+// http://127.0.0.1/api/store
+api.use("/store", storeRouter);
+require("./rest-handler.js")(C_STORE, storeRouter);
+require("./router.api.store.js")(app, storeRouter);
+
+// http://127.0.0.1/api/users
+api.use("/users", usersRouter);
+require("./rest-handler.js")(C_USERS, usersRouter);
+//require("./router.api.users.js")(app, vaultRouter);
+
+// http://127.0.0.1/api/webhooks
+api.use("/webhooks", webhooksRouter);
+require("./router.api.webhooks.js")(app, webhooksRouter);
+require("./rest-handler.js")(C_WEBHOOKS, webhooksRouter);
+
+// http://127.0.0.1/api/mqtt
+api.use("/mqtt", mqttRouter);
+require("./router.api.mqtt.js")(app, mqttRouter);
+require("./rest-handler.js")(C_MQTT, mqttRouter);
+
+// http://127.0.0.1/api/mdns
+api.use("/mdns", mdnsRouter);
+require("./router.api.mdns.js")(app, mdnsRouter);
+require("./rest-handler.js")(C_MDNS, mdnsRouter);
+
+// http://127.0.0.1/api/system
+api.use("/system", systemRouter);
+require("./router.system.js")(systemRouter);
+
+// NOTE: Drop this?!
+api.use((req, res) => {
+    res.status(404).end();
+    /*
+    res.status(404).json({
+        error: "Hmm... :/ This looks not right.",
+        message: `Url/endpoint "${req.url}" not found"`
+    });
+    */
+});
+
+
+module.exports = app;

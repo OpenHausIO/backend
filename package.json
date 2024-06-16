@@ -1,14 +1,15 @@
 {
   "name": "backend",
   "private": true,
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/.bin/mocha ./tests/index.js",
     "test:helper": "NODE_ENV=test ./node_modules/.bin/mocha ./tests/helper/index.js",
     "test:newman": "newman run postman.json",
-    "dev": "./node_modules/.bin/nodemon -w . -w .env index.js",
+    "dev": "./node_modules/.bin/nodemon -i plugins -w . -w .env index.js",
+    "dev:plugin": "./node_modules/.bin/nodemon -w plugins -w . -w .env index.js",
     "lint": "./node_modules/.bin/eslint .",
     "lint:fix": "./node_modules/.bin/eslint --fix .",
     "mocha": "./node_modules/.bin/mocha ./tests/index.js",
@@ -22,7 +23,7 @@
     "publish": "grunt publish"
   },
   "engines": {
-    "node": ">=0.16.0"
+    "node": ">=18.0.0"
   },
   "author": "Marc Stirner <marc.stirner@open-haus.io>",
   "license": "ISC",
@@ -38,6 +39,8 @@
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^4.11.0",
     "mqtt-packet": "^8.1.2",
+    "semver": "^7.5.4",
+    "tar-stream": "^3.1.7",
     "uuid": "^9.0.0",
     "ws": "^8.10.0"
   },
@@ -48,11 +51,12 @@
     "grunt-contrib-uglify": "^5.0.1",
     "grunt-env": "^1.0.1",
     "grunt-run": "^0.8.1",
+    "husky": "^8.0.3",
     "minimist": "^1.2.6",
     "mocha": "^9.2.2",
     "mocha.parallel": "^0.15.6",
-    "newman": "^5.3.2",
-    "nodemon": "^2.0.19",
+    "newman": "^6.0.0",
+    "nodemon": "^3.0.1",
     "sinon": "^14.0.2"
   }
 }

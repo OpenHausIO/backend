@@ -1,7 +1,14 @@
+const Joi = require("joi");
+const mongodb = require("mongodb");
+
 const InterfaceStream = require("./class.interfaceStream.js");
 const Interface = require("./class.interface.js");
+const Item = require("../../system/component/class.item.js");
 
 const mixins = require("../../helper/mixins.js");
+const injectMethod = require("../../helper/injectMethod.js");
+
+//const { parse, calculateChecksum } = require("./net-helper.js");
 
 /**
  * @description
@@ -20,17 +27,25 @@ const mixins = require("../../helper/mixins.js");
  * @see interface components/devices/class.interface.js
  * @see interfaceStream components/devices/class.interfaceStream.js
  */
-module.exports = class Device {
-    constructor(props) {
+module.exports = class Device extends Item {
+    constructor(props, scope) {
 
+        super(props);
+
+        // removed for #356
         // set properties from db
-        Object.assign(this, props);
-        this._id = String(props._id);
+        //Object.assign(this, props);
+        //this._id = String(props._id);
 
         // create for each interface a interface class instance
         // for each interface class, create a interface stream
         this.interfaces = props.interfaces.map((obj) => {
 
+
+            // NOTE: refactor interfaceStream in v4
+            // move .bridge method there and pass device instance?
+            // > Would this also create a ciruclar reference in Interface class 
+            // > since its stored via `Object.defineProperty(this, "stream",...);`
             let stream = new InterfaceStream({
                 // duplex stream options
                 emitClose: false
@@ -41,6 +56,21 @@ module.exports = class Device {
             //stream._id = obj._id;
 
             let iface = new Interface(obj, stream);
+
+
+            // inject bridge method into interface instance
+            // passing deivce instance into Interface class, creates a ciruclar reference
+            // TODO: Move this into "interfaceStream" (needs to be refactored)
+            // NOTE: remove "device" for bridging requests (only needed in connector)? 
+            // > See: https://github.com/OpenHausIO/connector/issues/54
+            // > When done, "device" property can be removed, and the `.bridge()` method can be moved into Interface class
+            injectMethod(iface, "bridge", (cb) => {
+                return Interface._bridge({
+                    events: scope.events,
+                    interface: iface,
+                    device: this._id
+                }, cb);
+            });
 
 
             // "hide" stream behind iface object
@@ -61,4 +91,29 @@ module.exports = class Device {
         });
 
     }
+
+    static schema() {
+        return Joi.object({
+            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
+                return String(new mongodb.ObjectId());
+            }),
+            name: Joi.string().required(),
+            room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
+            enabled: Joi.boolean().default(true),
+            //interfaces: Joi.array().items(Interface.schema()).min(1).required()
+            interfaces: Joi.array().items(Interface.schema()).default([]),
+            meta: {
+                manufacturer: Joi.string().allow(null).default(null),
+                model: Joi.string().allow(null).default(null),
+                revision: Joi.number().allow(null).default(null),
+                serial: Joi.string().allow(null).default(null)
+            },
+            icon: Joi.string().allow(null).default(null)
+        });
+    }
+
+    static validate(data) {
+        return Device.schema().validate(data);
+    }
+
 };

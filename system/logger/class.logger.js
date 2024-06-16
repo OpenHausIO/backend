@@ -1,6 +1,23 @@
 const { EOL } = require("os");
 const util = require("util");
 
+const { Transform } = require("stream");
+//const exporter = new PassThrough();
+const exporter = new Transform({
+    transform(chunk, encoding, cb) {
+
+        // ignore & drop every message if no pipe/consumer. Otherwise this jams up the stream
+        // TODO: check with this.listenerCount('data'|'readable')?
+        if (this._readableState.pipes.length > 0 || this._events.data instanceof Function) {
+            this.push(chunk);
+        }
+
+        //cb();
+        process.nextTick(cb);
+
+    }
+});
+
 const levels = require("./levels");
 
 /**
@@ -55,12 +72,29 @@ module.exports = class Logger {
 
                         let err = args.shift();
 
+                        // NOTE: `Object.getOwnPropertyNames(err)` makes no sense here
+                        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
                         obj.error = JSON.stringify(err, Object.getOwnPropertyNames(err));
                         obj.message = util.format(...args);
 
                         //obj.fields = args;
 
                     } else {
+
+                        // fix #331
+                        // NOTE: here could be a level specific options
+                        // e.g. for "verbose", set "showProxy" or "getters"
+                        // https://nodejs.org/docs/latest/api/util.html#utilinspectobject-showhidden-depth-colors
+                        // optinal configurable with environment variable like "LOGGER_INSPECT_OPTIONS" or so...
+                        /*
+                        args = args.map((arg) => {
+                            //return JSON.stringify(arg, null, 2);
+                            return util.inspect(arg, {
+                                depth: null,
+                                colors: true,
+                            });
+                        });
+                        */
 
                         //obj.message = args.shift();
                         obj.message = util.format(...args);
@@ -134,6 +168,10 @@ module.exports = class Logger {
             }
         };
 
+    }
+
+    static exporter() {
+        return exporter;
     }
 
 };

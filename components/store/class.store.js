@@ -1,6 +1,10 @@
 const { EventEmitter } = require("events");
+const Joi = require("joi");
+const mongodb = require("mongodb");
 const Value = require("./class.value.js");
+const uuid = require("uuid");
 
+const Item = require("../../system/component/class.item.js");
 
 /**
  * @description
@@ -17,18 +21,21 @@ const Value = require("./class.value.js");
  * 
  * @see value components/store/class.value.js
  */
-class Store {
+module.exports = class Store extends Item {
 
     #privates = new Map();
 
     constructor(obj, scope) {
 
+        super(obj);
+
+        // removed for #356
+        //Object.assign(this, obj);
+        //this._id = String(obj._id);
+
         // create event emitter for lean object
         let events = new EventEmitter();
         this.#privates.set("events", events);
-
-        Object.assign(this, obj);
-        this._id = String(obj._id);
 
         this.config = obj.config.map((data) => {
             return new Value(data, async () => {
@@ -55,6 +62,24 @@ class Store {
 
     }
 
+    static schema() {
+        return Joi.object({
+            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
+                return String(new mongodb.ObjectId());
+            }),
+            name: Joi.string().required(),
+            description: Joi.string().allow(null).default(null),
+            config: Joi.array().min(1).items(Value.schema()).required(),
+            //item: Joi.string().allow(null).default(null),
+            uuid: Joi.string().default(() => {
+                return uuid.v4();
+            })
+        });
+    }
+
+    static validate(data) {
+        return Store.schema().validate(data);
+    }
 
     /**
      * @function changes
@@ -112,6 +137,4 @@ class Store {
         }, {});
     }
 
-}
-
-module.exports = Store;
+};

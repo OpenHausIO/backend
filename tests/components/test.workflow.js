@@ -4,6 +4,9 @@ const sinon = require("sinon");
 
 const _iterate = require("../../helper/iterate.js");
 
+const Item = require("../../system/component/class.item.js");
+const Label = require("../../system/component/class.label.js");
+
 module.exports = (C_COMPONENT, method, desc, worker) => {
 
     if (!worker && desc instanceof Function) {
@@ -51,6 +54,28 @@ module.exports = (C_COMPONENT, method, desc, worker) => {
             done();
         });
 
+        it("Component item should be instance of item class", (done) => {
+            assert.ok(C_COMPONENT.items[0] instanceof Item);
+            done();
+        });
+
+        it("Item .labels array should contain only class.label.js instances", () => {
+
+            let valid = C_COMPONENT.items.map(({ labels }) => {
+                return labels;
+            }).flat().every((label) => {
+                return label instanceof Label;
+            });
+
+            assert.ok(valid);
+
+        });
+
+        it("Component item _id property should be a string, not a ObjectId instance", (done) => {
+            assert.ok(typeof (C_COMPONENT.items[0]._id) === "string");
+            done();
+        });
+
         it(`Every array in item should have a _id property ${desc ? "(" + desc + ")" : ""}`, (done) => {
             try {
 
@@ -59,11 +84,15 @@ module.exports = (C_COMPONENT, method, desc, worker) => {
                     if (type === "array") {
 
                         let result = value.every((entry) => {
-                            if (entry instanceof Object) {
+
+                            // check if only "plain" objects have _id property
+                            // otherwise this check fails on the .labels array items
+                            if (entry instanceof Object && Object.getPrototypeOf(entry) === null) {
                                 return Object.hasOwnProperty.call(entry, "_id");
                             } else {
                                 return true;
                             }
+
                         });
 
                         assert.ok(result === true);

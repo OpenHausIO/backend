@@ -1,12 +1,10 @@
-const mongodb = require("mongodb");
-const Joi = require("joi");
-
 //const logger = require("../../system/logger").create("rooms");
 //const COMMON_COMPONENT = require("../../system/component/common.js");
 const COMPONENT = require("../../system/component/class.component.js");
 
 const Scene = require("./class.scene.js");
 const Makro = require("./class.makro.js");
+const Trigger = require("./class.trigger.js");
 
 /**
  * @description
@@ -20,16 +18,31 @@ class C_SCENES extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("scenes", {
-            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectId());
-            }),
-            name: Joi.string().required(),
-            makros: Joi.array().items(Makro.schema()).default([])
-        }, module);
+        super("scenes", Scene.schema(), module);
 
         this.hooks.post("add", (data, next) => {
             next(null, new Scene(data));
+        });
+
+        // handle change makro array
+        // see #364
+        this.hooks.post("update", (data, next) => {
+
+            data.makros.forEach((makro, i, arr) => {
+                if (!(makro instanceof Makro)) {
+                    arr[i] = new Makro(makro);
+                }
+            });
+
+            // fix #390
+            data.triggers.forEach((trigger, i, arr) => {
+                if (!(trigger instanceof Trigger)) {
+                    arr[i] = new Trigger(trigger);
+                }
+            });
+
+            next();
+
         });
 
     }

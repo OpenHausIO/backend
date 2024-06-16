@@ -28,7 +28,27 @@ module.exports = function dispatch({ component, item, method, args }) {
         let C_COMPONENT = require(`../components/${component}`);
 
         return C_COMPONENT.get(item).then((item) => {
-            return Reflect.apply(item[method], item, args);
+            if (item && item[method] && item[method] instanceof Function) {
+
+                let result = Reflect.apply(item[method], item, args);
+
+                /*
+                // draft for component/scene
+                // "example" for trigger that allow to check when a scene is executed
+                this.emit(component, {
+                    item,
+                    method,
+                    args
+                });
+                */
+
+                return result;
+
+            } else {
+
+                return Promise.resolve();
+
+            }
         }).catch((err) => {
             return Promise.reject(err);
         });

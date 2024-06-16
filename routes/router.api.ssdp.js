@@ -15,6 +15,9 @@ const C_SSDP = require("../components/ssdp");
 // Error: unknown ssdp message type cache-control: max-age=100
 // Seems like the line handling works not perfect
 
+// simple ssdp monitor
+// nc -ulvv 239.255.255.250 1900
+
 
 async function parseMessage(msg) {
 

@@ -1,5 +1,7 @@
 const url = require("url");
 
+const promisify = require("./promisify.js");
+
 /**
  * Does a http request
  * @param {*} uri 
@@ -11,6 +13,11 @@ const url = require("url");
  * @returns {http.ClientRequest} https://nodejs.org/dist/latest-v16.x/docs/api/http.html#class-httpclientrequest
  */
 function perform(uri, options, cb) {
+
+    if(!options && !cb){
+        options = {};
+        cb = () => {};
+    }
 
     let { protocol } = new url.URL(uri);
 
@@ -51,7 +58,9 @@ function perform(uri, options, cb) {
             cb(null, {
                 headers: res.headers,
                 status: res.statusCode,
-                body
+                body,
+                res,
+                req: request
             });
 
         });
@@ -84,15 +93,11 @@ function perform(uri, options, cb) {
 
  * @returns {http.ClientRequest} https://nodejs.org/dist/latest-v16.x/docs/api/http.html#class-httpclientrequest
  */
-module.exports = function request(uri, options, cb) {
+function request(uri, options, cb) {
 
     if (!cb && options instanceof Function) {
         cb = options;
         options = {};
-    }
-
-    if (!cb) {
-        cb = () => { };
     }
 
     options = Object.assign({
@@ -103,25 +108,26 @@ module.exports = function request(uri, options, cb) {
         setKeepAliveHeader: true
     }, options);
 
+    return promisify((done) => {
+        perform(uri, options, (err, result) => {
+            if (err) {
 
-    return perform(uri, options, (err, result) => {
-        if (err) {
-
-            cb(err);
-
-        } else {
-
-            if (options.followRedirects && result.status >= 300 && result.status < 400) {
-
-                perform(result.headers.location, options, cb);
+                done(err);
 
             } else {
 
-                cb(null, result);
+                if (options.followRedirects && result.status >= 300 && result.status < 400 && result.headers?.location) {
+                    perform(result.headers.location, options, done);
+                } else {
+                    done(null, result);
+                }
 
             }
+        });
+    }, cb);
 
-        }
-    });
+}
 
-};
+module.exports = Object.assign(request, {
+    perform
+});

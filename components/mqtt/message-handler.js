@@ -2,111 +2,90 @@ const crypto = require("crypto");
 const mqtt = require("mqtt-packet");
 
 const VERSION = Number(process.env.MQTT_BROKER_VERSION);
+const exitCodes = require("./exit-codes.js")(VERSION);
 
 const parser = mqtt.parser({
     protocolVersion: VERSION
 });
 
-const exitCodes = require("./exit-codes.js")(VERSION);
-
 module.exports = (scope) => {
-    scope._ready(({ logger, events }) => {
+    scope._ready(({ logger, events, items }) => {
 
-        // ping timer
+        // ping setTimeout timer
         let interval = null;
 
-        events.on("publish", (packet) => {
-            scope.items.forEach(({ topic, _subscriber }) => {
 
+        // listen for published topics
+        // call publish handler on each mqtt item
+        events.on("publish", (packet) => {
+
+            // feedback
+            logger.trace(`Published: ${packet.topic}=${packet.payload}`);
+
+            items.forEach(({ topic, _subscriber }) => {
                 if (String(packet.topic).startsWith(topic) || packet.topic === topic) {
+
                     _subscriber.forEach((cb) => {
                         cb(packet.payload, packet);
                     });
-                }
 
+                }
             });
+
         });
 
 
-        events.on("connected", (ws) => {
+        // "connected" fires every time a websocket connection is made, e.g. from a connector. 
+        // So we need to react and create a new connection to the browker
+        events.on("connected", async (ws) => {
+            try {
 
-            logger.debug("TCP socket connected to broker");
+                // connecto to broker
+                // TODO: Add here credentials for authentication
+                await new Promise((resolve, reject) => {
 
-            events.once("disconnected", () => {
-                clearInterval(interval);
-                logger.trace("Ping interval cleared");
-            });
+                    logger.verbose("Connect to broker...");
 
-            // TODO make this object configurable
-            let data = mqtt.generate({
-                cmd: "connect",
-                protocolId: "MQTT", // Or "MQIsdp" in MQTT 3.1 and 5.0
-                protocolVersion: VERSION, // Or 3 in MQTT 3.1, or 5 in MQTT 5.0
-                clean: true, // Can also be false
-                clientId: process.env.MQTT_CLIENT_ID,
-                keepalive: 10, // Seconds which can be any positive number, with 0 as the default setting
-                /*
-                will: {
-                    topic: "mydevice/test",
-                    payload: Buffer.from("2134f"), // Payloads are buffers
-    
-                }
-                */
-            });
-
-            ws.send(data);
-
-            events.once("connack", (packet) => {
-                if (packet.returnCode === 0) {
-
-                    events.once("suback", () => {
-
-                        logger.debug("Subscribed to topic #");
-
-                        let ping = mqtt.generate({
-                            cmd: "pingreq"
-                        });
-
-                        interval = setInterval(() => {
-                            ws.send(ping);
-                        }, Number(process.env.MQTT_PING_INTERVAL));
-
-                        // monkey patch publisher function
-                        scope.items.forEach((item) => {
-                            item._publisher = (payload) => {
-
-                                scope.logger.verbose(`Publish on topic ${item.topic}`, payload);
-
-                                let pub = mqtt.generate({
-                                    cmd: "publish",
-                                    messageId: crypto.randomInt(0, 65535),
-                                    qos: 0,
-                                    dup: false,
-                                    topic: item.topic,
-                                    payload: Buffer.from(`${payload}`),
-                                    retain: false
-                                });
-
-                                ws.send(pub);
-
-                            };
-                        });
-
+                    let data = mqtt.generate({
+                        cmd: "connect",
+                        protocolId: "MQTT",
+                        protocolVersion: VERSION,
+                        clean: true,
+                        clientId: process.env.MQTT_CLIENT_ID,
+                        keepalive: 10,
                     });
 
-                    let sub = mqtt.generate({
+                    ws.send(data, () => {
+                        parser.once("packet", ({ cmd, returnCode }) => {
+                            if (cmd === "connack" && returnCode === 0) {
+
+                                // feedback
+                                logger.debug("Connected to broker");
+
+                                resolve();
+
+                            } else {
+                                reject(new Error(exitCodes[returnCode]));
+                            }
+                        });
+                    });
+
+                });
+
+
+                // subscribe to # topic
+                // so we can handle all topics
+                await new Promise((resolve, reject) => {
+
+                    // feedback
+                    logger.verbose("[MQTT] Subscribe to # topic...");
+
+                    let data = mqtt.generate({
                         cmd: "subscribe",
                         messageId: crypto.randomInt(0, 65535),
-                        /*
-                        properties: { // MQTT 5.0 properties
-                            subscriptionIdentifier: 145,
-                            userProperties: {
-                                test: "shellies"
-                            }
-                        },
-                        */
                         subscriptions: [{
                             topic: "#",
+                            //topic: "#",
                             qos: 0,
                             nl: false, // no Local MQTT 5.0 flag
                             rap: true, // Retain as Published MQTT 5.0 flag
@@ -114,37 +93,102 @@ module.exports = (scope) => {
                         }]
                     });
 
-                    ws.send(sub);
+                    ws.send(data, () => {
+                        parser.once("packet", ({ cmd, granted }) => {
+                            if (cmd === "suback" && granted[0] === 0) {
 
-                }
-            });
+                                // feedback
+                                logger.debug("Subscribed to # topic");
 
-        });
+                                resolve();
+
+                            } else {
+                                reject(new Error("Subscription not granted"));
+                            }
+                        });
+                    });
+
+                });
 
 
-        parser.on("packet", (packet) => {
+                // monkey patch/override publisher function
+                // on mqtt item topics with current connection
+                await new Promise((resolve) => {
 
-            logger.verbose("Packet received", packet);
+                    items.forEach((item) => {
+                        item._publisher = (payload, options = {}) => {
 
-            if (packet.cmd === "connack") {
-                if (packet.returnCode == 0) {
+                            // feedback
+                            logger.verbose(`Publish on topic ${item.topic}`, payload);
 
-                    logger.debug("Connected to broker");
+                            let pub = mqtt.generate({
+                                cmd: "publish",
+                                messageId: crypto.randomInt(0, 65535),
+                                qos: 0,
+                                dup: false,
+                                topic: item.topic,
+                                payload: Buffer.from(payload),
+                                retain: false,
+                                ...options
+                            });
 
-                } else {
+                            ws.send(pub, () => {
 
-                    logger.warn(`Could not connecto to broker: "${exitCodes[packet.returnCode]}"`);
+                                // feedback
+                                // log self send published messages for debugging
+                                logger.trace(`Send publish: ${item.topic}=${payload}`);
 
-                }
+                            });
+
+                        };
+                    });
+
+                    resolve();
+
+                });
+
+
+                // listen for publishes and other packates
+                // send ping requests regulary to broker
+                await new Promise((resolve) => {
+
+                    let ping = mqtt.generate({
+                        cmd: "pingreq"
+                    });
+
+                    interval = setInterval(() => {
+                        ws.send(ping);
+                    }, Number(process.env.MQTT_PING_INTERVAL));
+
+                    resolve();
+
+                });
+
+            } catch (err) {
+
+                // feedback
+                logger.error(err, "Could not setup MQTT broker handling");
+
             }
-
-            events.emit(packet.cmd, packet);
-
         });
 
 
-        events.on("message", (message) => {
-            parser.parse(message);
+        // listen for disconnects from the connector
+        // clear the ping requests intveral, cant reach broker
+        events.once("disconnected", () => {
+            clearInterval(interval);
+        });
+
+
+        // re-emit events on component scope/events
+        parser.on("packet", (packet) => {
+            scope.events.emit(packet.cmd, packet);
+        });
+
+
+        // handle messages from the websockt as mqtt packets
+        events.on("message", (msg) => {
+            parser.parse(msg);
         });
 
     });

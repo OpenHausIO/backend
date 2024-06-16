@@ -8,7 +8,7 @@ module.exports = (options = {}) => {
     // https://github.com/OpenHausIO/backend/issues/315
     let cr = Buffer.from("\r");
     let lf = Buffer.from("\n");
-    //let eol = Buffer.from("\x1A");
+    //let eof = Buffer.from("\x1A");
     let nl = Buffer.concat([
         cr,
         lf
@@ -25,6 +25,7 @@ module.exports = (options = {}) => {
     let decode = new Transform({
         transform(chunk, encoding, cb) {
             log.trace("[encode] (%s) %j", encoding, chunk);
+            // NOTE (mstirner) is this right?
             cb(null, chunk.subarray(0, nl.length));
         },
         ...options

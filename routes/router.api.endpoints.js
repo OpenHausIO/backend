@@ -39,12 +39,26 @@ module.exports = (app, router) => {
     router.post("/:_id/commands/:_cid", (req, res) => {
         if (req.cmd) {
 
-            req.cmd.trigger(req.body, (success) => {
+            req.cmd.trigger(req.body, (err, success) => {
+                if (err) {
 
-                res.json({
-                    success
-                });
+                    if (err.code === "NO_INTERFACE") {
+                        res.status(424).json({
+                            error: err.message
+                        });
+                    } else {
+                        res.status(500).json({
+                            error: err.message
+                        });
+                    }
 
+                } else {
+
+                    res.json({
+                        success
+                    });
+
+                }
             });
 
         } else {

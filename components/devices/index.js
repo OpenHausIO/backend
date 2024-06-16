@@ -1,5 +1,4 @@
 const mongodb = require("mongodb");
-const Joi = require("joi");
 
 
 // for development its usefull if we detect 
@@ -17,7 +16,6 @@ const COMPONENT = require("../../system/component/class.component.js");
 //require("./class.interface.js");
 //require("./class.interfaceStream");
 
-const Interface = require("./class.interface.js");
 const Device = require("./class.device.js");
 
 /**
@@ -144,23 +142,7 @@ class C_DEVICES extends COMPONENT {
 
         // inject logger, collection and schema object
         // https://stackoverflow.com/a/37746388/5781499
-        super("devices", {
-            _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
-                return String(new mongodb.ObjectId());
-            }),
-            name: Joi.string().required(),
-            room: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).allow(null).default(null),
-            enabled: Joi.boolean().default(true),
-            //interfaces: Joi.array().items(Interface.schema()).min(1).required()
-            interfaces: Joi.array().min(1).items(Interface.schema()).required(),
-            meta: {
-                manufacturer: Joi.string().allow(null).default(null),
-                model: Joi.string().allow(null).default(null),
-                revision: Joi.number().allow(null).default(null),
-                serial: Joi.string().allow(null).default(null)
-            },
-            icon: Joi.string().allow(null).default(null)
-        }, module);
+        super("devices", Device.schema(), module);
 
 
         // create for new added device interfaces
