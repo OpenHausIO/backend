@@ -27,6 +27,11 @@ const messageHandler = require("./message-handler.js");
  * ```
  * 
  * @example
+ * ```sh
+ * nc -ulvv 239.255.255.250 1900
+ * ```
+ * 
+ * @example
  * ```json
  * {
  *  host: '239.255.255.250:1900',
