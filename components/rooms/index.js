@@ -48,7 +48,7 @@ class C_ROOMS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("rooms", Room.schema(), module);
+        super("rooms", Room.schema());
 
         this.hooks.post("add", (data, next) => {
             next(null, new Room(data));

@@ -142,7 +142,7 @@ class C_DEVICES extends COMPONENT {
 
         // inject logger, collection and schema object
         // https://stackoverflow.com/a/37746388/5781499
-        super("devices", Device.schema(), module);
+        super("devices", Device.schema());
 
 
         // create for new added device interfaces

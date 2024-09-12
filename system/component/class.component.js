@@ -45,11 +45,7 @@ const PENDING_CHANGE_EVENTS = new Set();
  */
 module.exports = class COMPONENT extends COMMON {
 
-    constructor(name, schema, parent) {
-
-        if (parent) {
-            //require("../prevent_cross_load")(parent);
-        }
+    constructor(name, schema) {
 
         super(require("../../system/logger").create(name));
 

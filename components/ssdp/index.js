@@ -50,7 +50,7 @@ class C_SSDP extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("ssdp", SSDP.schema(), module);
+        super("ssdp", SSDP.schema());
 
         this.hooks.post("add", (data, next) => {
             next(null, new SSDP(data));

@@ -46,7 +46,7 @@ class C_MQTT extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("mqtt", MQTT.schema(), module);
+        super("mqtt", MQTT.schema());
 
         this.hooks.post("add", (data, next) => {
             next(null, new MQTT(data));

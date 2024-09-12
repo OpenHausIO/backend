@@ -31,7 +31,7 @@ class C_PLUGINS extends COMPONENT {
 
         // inject logger, collection and schema object
         // super(logger, mongodb.client.collection("plugins"), {
-        super("plugins", Plugin.schema(), module);
+        super("plugins", Plugin.schema());
 
         this.hooks.post("add", (data, next) => {
             // NOTE: use path to plugins set via env, see #432
