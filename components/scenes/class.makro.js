@@ -120,6 +120,7 @@ module.exports = class Makro {
             }),
             type: Joi.string().valid("command", "timer", "scene"/*, "state"*/).required(),
             enabled: Joi.boolean().default(true),
+            // comment: Joi.string().allow(null).default(null)
             timestamps: Joi.object({
                 created: Joi.number().allow(null),
                 updated: Joi.number().allow(null)
