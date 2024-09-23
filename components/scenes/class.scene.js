@@ -94,6 +94,14 @@ module.exports = class Scene extends Item {
         let ac = new AbortController();
         this._ac = ac;
 
+        // wrap this in a custom method
+        // that returns the state?
+        // `getStates()` or so...
+        this.running = true;
+        this.aborted = false;
+        this.finished = false;
+        this.index = 0;
+
         let init = this.makros.filter(({
 
             // enabled is per default "true"
@@ -124,6 +132,9 @@ module.exports = class Scene extends Item {
                         // But the general idea of this is not bad
                         await setTimeout(Number(process.env.SCENES_MAKRO_DELAY));
 
+                        // represents the current index of makro
+                        // e.g. timer takes 90min to finish,
+                        // index = timer makro in `makros` array
                         this.index = i;
 
                         return cur(r, this._ac.signal);
@@ -135,11 +146,6 @@ module.exports = class Scene extends Item {
                 });
             };
         });
-
-        this.running = true;
-        this.aborted = false;
-        this.finished = false;
-        this.index = 0;
 
         return init(true, this._ac).then((result) => {
             console.log("Makro stack done", result);
