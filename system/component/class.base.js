@@ -1,7 +1,7 @@
 const process = require("process");
 const events = require("events");
 
-const Hooks = require("../hooks.js");
+const Hooks = require("../class.hooks.js");
 
 /**
  * @description
