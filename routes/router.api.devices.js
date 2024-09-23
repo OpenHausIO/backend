@@ -65,6 +65,7 @@ module.exports = (app, router) => {
 
                         C_DEVICES.events.emit("socket", {
                             uuid: req.query.uuid,
+                            iface: req.params._iid,
                             type: "response",
                             socket: true,
                             stream
