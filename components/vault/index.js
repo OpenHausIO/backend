@@ -31,7 +31,9 @@ class C_VAULT extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("vault", Vault.schema(), module);
+        super("vault", Vault.schema(), [
+            Vault
+        ]);
 
         this.hooks.pre("add", (data, next) => {
             try {
@@ -56,7 +58,7 @@ class C_VAULT extends COMPONENT {
         });
 
         this.hooks.post("add", (data, next) => {
-            next(null, new Vault(data, this));
+            next(null, new Vault(data));
         });
 
         /*
@@ -107,7 +109,7 @@ instance.init((scope, ready) => {
         } else {
 
             data = data.map((obj) => {
-                return new Vault(obj, scope);
+                return new Vault(obj);
             });
 
             scope.items.push(...data);

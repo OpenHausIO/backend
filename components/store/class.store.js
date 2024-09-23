@@ -25,7 +25,7 @@ module.exports = class Store extends Item {
 
     #privates = new Map();
 
-    constructor(obj, scope) {
+    constructor(obj) {
 
         super(obj);
 
@@ -35,6 +35,7 @@ module.exports = class Store extends Item {
 
         // create event emitter for lean object
         let events = new EventEmitter();
+        let { logger, update } = Store.scope;
         this.#privates.set("events", events);
 
         this.config = obj.config.map((data) => {
@@ -42,14 +43,14 @@ module.exports = class Store extends Item {
                 try {
 
                     // feedback
-                    scope.logger.debug(`Value in store "${this._id}" changed: ${data.key}=${data.value}`);
+                    logger.debug(`Value in store "${this._id}" changed: ${data.key}=${data.value}`);
 
                     // update item in database
-                    await scope.update(this._id, this);
+                    await update(this._id, this);
 
                 } catch (err) {
 
-                    scope.logger.warn(err, `Could not update item value in database. (${obj._id}) ${data.key}=${data.value}`);
+                    logger.warn(err, `Could not update item value in database. (${obj._id}) ${data.key}=${data.value}`);
 
                 } finally {
 

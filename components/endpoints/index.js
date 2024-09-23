@@ -41,11 +41,13 @@ class C_ENDPOINTS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("endpoints", Endpoint.schema(), module);
+        super("endpoints", Endpoint.schema(), [
+            Endpoint
+        ]);
 
 
         this.hooks.post("add", (data, next) => {
-            next(null, new Endpoint(data, this));
+            next(null, new Endpoint(data));
         });
 
 
@@ -132,7 +134,7 @@ instance.init((scope, ready) => {
         } else {
 
             data = data.map((item) => {
-                return new Endpoint(item, scope);
+                return new Endpoint(item);
             });
 
             scope.items.push(...data);

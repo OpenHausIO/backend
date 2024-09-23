@@ -34,10 +34,12 @@ class C_STORE extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("store", Store.schema(), module);
+        super("store", Store.schema(), [
+            Store
+        ]);
 
         this.hooks.post("add", (data, next) => {
-            next(null, new Store(data, this));
+            next(null, new Store(data));
         });
 
         // fix #406
@@ -79,7 +81,7 @@ instance.init((scope, ready) => {
         } else {
 
             data = data.map((obj) => {
-                return new Store(obj, scope);
+                return new Store(obj);
             });
 
             scope.items.push(...data);
