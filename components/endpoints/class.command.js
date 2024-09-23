@@ -97,21 +97,23 @@ module.exports = class Command {
         this.#privates.set("timeout", Number(process.env.COMMAND_RESPONSE_TIMEOUT));
 
         // set default command handler worker function
-        this.#privates.set("handler", (cmd, iface, params, done) => {
+        this.#privates.set("handler", (cmd, { stream }, params, done) => {
 
             if (!cmd.payload) {
                 done(new Error("NO_PAYLOAD_DEFINED"));
                 return;
             }
 
-            iface.write(cmd.payload, (err) => {
+            // switched to `iface.stream.write`
+            // `.stream` should implement the needed adapter stack
+            stream.write(cmd.payload, (err) => {
                 if (err) {
 
                     done(err);
 
                 } else {
 
-                    iface.once("data", (chunk) => {
+                    stream.once("data", (chunk) => {
 
                         // read chunk
                         //let chunk = iface.read();
