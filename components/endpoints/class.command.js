@@ -113,6 +113,11 @@ module.exports = class Command {
 
                 } else {
 
+
+                    // NOTE: define timeout here
+                    // timeout sould only apply when the data was written
+                    // not when `.trigger()` was called, see #500
+
                     stream.once("data", (chunk) => {
 
                         // read chunk
