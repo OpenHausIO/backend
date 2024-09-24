@@ -1,5 +1,7 @@
 const Joi = require("joi");
 const { Agent } = require("http");
+const https = require("https");
+const tls = require("tls");
 const mongodb = require("mongodb");
 const { Duplex, PassThrough } = require("stream");
 const { randomUUID } = require("crypto");
@@ -436,6 +438,33 @@ module.exports = class Interface {
 
         agent.createConnection = () => {
             return this.bridge();
+        };
+
+        return agent;
+
+    }
+
+    httpsAgent(options = {}) {
+
+        options = Object.assign({
+            keepAlive: true,
+            maxSockets: 1,
+        }, options);
+
+        let agent = new https.Agent(options);
+
+        agent.createConnection = () => {
+
+            let socket = this.bridge();
+            let { host, port } = this.settings;
+
+            return tls.connect({
+                socket,
+                host,
+                port,
+                ...options
+            });
+
         };
 
         return agent;
