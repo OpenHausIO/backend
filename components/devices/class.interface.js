@@ -587,9 +587,11 @@ module.exports = class Interface {
 
             // timeout after certain time
             // no connector available, not mocks or whatever reaseon
-            // TODO: Make Socket time configurable
-            let caller = timeout(5000, (timedout, duration, args) => {
+            let caller = timeout(Number(process.env.CONNECT_TIMEOUT), (timedout, duration, args) => {
                 if (timedout) {
+
+                    let { logger } = Interface.scope;
+                    logger.warn(`Connection attempt timedout for interface "${iface}"`);
 
                     // removes pending event listnener
                     // which may never triggers
