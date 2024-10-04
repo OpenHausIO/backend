@@ -47,7 +47,7 @@ module.exports = class COMPONENT extends COMMON {
 
     constructor(name, schema, classes = []) {
 
-        super(require("../../system/logger").create(name));
+        super(name);
 
         classes.forEach((cls) => {
             Object.defineProperty(cls, "scope", {

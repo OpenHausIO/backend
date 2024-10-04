@@ -2,6 +2,8 @@ const WebSocket = require("ws");
 const path = require("path");
 const fs = require("fs");
 
+const { emitter, emitted } = require("../system/component/class.events.js");
+
 module.exports = (app, router) => {
 
     let wss = new WebSocket.Server({
@@ -39,10 +41,23 @@ module.exports = (app, router) => {
     ];
     */
 
+    emitter.on(emitted, (obj) => {
+        wss.clients.forEach((client) => {
+
+            let { readyState, filter } = client;
+            let { event, component } = obj;
+
+            if (readyState === WebSocket.OPEN && filter.events.includes(event) && filter.components.includes(component)) {
+                client.send(JSON.stringify(obj));
+            }
+
+        });
+    });
+
     // fix #403 "Add missing components"
     let componentNames = fs.readdirSync(path.resolve(process.cwd(), "components"));
 
-
+    /*
     function reemit(event, component) {
         return (...args) => {
 
@@ -60,7 +75,7 @@ module.exports = (app, router) => {
                 if (client.intents.includes(event) /*&& client.components.includes(component)* && client.readyState === WebSocket.OPEN) {
                     client.send(obj);
                 }
-                */
+                *
 
                 let { readyState, filter } = client;
 
@@ -72,6 +87,7 @@ module.exports = (app, router) => {
 
         };
     }
+
 
     // create reemit more automaticly
     // TODO: loop over events defined in .events
@@ -101,6 +117,7 @@ module.exports = (app, router) => {
 
         }
     });
+    */
 
 
     router.get("/", (req, res) => {
