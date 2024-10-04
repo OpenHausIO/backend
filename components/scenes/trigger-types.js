@@ -1,6 +1,8 @@
 const { Cron } = require("../../system/cronjob");
 const cron = new Cron();
 
+const { emitter, emitted } = require("../../system/component/class.events.js");
+
 module.exports = {
 
     "cronjob": (trigger, params) => {
@@ -9,15 +11,36 @@ module.exports = {
         });
     },
 
-    /*
-    "state": (trigger, { params }) => {
+    "state": (trigger, params) => {
+
         // this should check for state changes of endpoints
         // requires a "eventbus" and some additionl code in endpoints
         // params.endpoint = endpoint object id
         // params.state = endpoint state object id
         // check if greater/lower than threshold or how to react?
+
+        emitter.on(emitted, (obj) => {
+            if (obj.event === "state") {
+
+                let match = 1;
+
+                match &= obj.component === "endpoints";
+                match &= obj.args[0]._id === params._id;
+
+                if (params.lower) {
+                    match &= obj.args[0].value <= params.threshold;
+                } else {
+                    match &= obj.args[0].value >= params.threshold;
+                }
+
+                if (match) {
+                    trigger.fire();
+                }
+
+            }
+        });
+
     }
-    */
 
     /*
     "webhook": (trigger, { param }) => {
