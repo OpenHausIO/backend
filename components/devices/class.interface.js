@@ -474,6 +474,9 @@ module.exports = class Interface {
 
     bridge() {
 
+        let { logger } = Interface.scope;
+        let { host, port, socket: proto } = this.settings;
+
         let readable = new PassThrough();
         let writable = new PassThrough();
 
@@ -495,7 +498,7 @@ module.exports = class Interface {
 
         // stream = WebSocket.createWebSocketStream
         // see routes/router.api.device.js
-        Interface.socket(this._id, (err, stream) => {
+        Interface.socket(this._id, (err, stream, { uuid }) => {
             if (err) {
 
                 socket.emit("error", err);
@@ -504,31 +507,30 @@ module.exports = class Interface {
 
                 if (process.env.NODE_ENV === "development") {
 
-                    let { logger } = Interface.scope;
-                    let { host, port, socket: proto } = this.settings;
-
                     socket.once("open", () => {
-                        logger.debug(`Bridge open: iface ${this._id} <-> ${proto}://${host}:${port}`);
+                        logger.debug(`Bridge open: iface ${this._id} <-> ${proto}://${host}:${port} (${uuid})`);
                     });
 
                     socket.once("close", () => {
-                        logger.debug(`Bridge closed: iface ${this._id} <-> ${proto}://${host}:${port}`);
+                        logger.debug(`Bridge closed: iface ${this._id} <-> ${proto}://${host}:${port} (${uuid})`);
                     });
 
                 }
 
+                stream.once("close", () => {
+
+                    // feedback
+                    logger.debug(`Bridge closed, destroy everything: iface ${this._id} <-> ${proto}://${host}:${port} (${uuid})`);
+
+                    // destroy everything
+                    socket.destroy();
+                    readable.destroy();
+                    writable.destroy();
+
+                });
+
                 writable.pipe(stream);
                 stream.pipe(readable);
-
-                socket.destroy = () => {
-                    stream.destroy();
-                };
-
-                socket.emit("open", stream);
-
-                stream.once("close", () => {
-                    socket.emit("close");
-                });
 
             }
         });
@@ -612,6 +614,7 @@ module.exports = class Interface {
     static socket(iface, cb) {
         return promisfy((done) => {
 
+            let { logger } = Interface.scope;
             let cleanup = () => { };
 
             // timeout after certain time
@@ -619,7 +622,7 @@ module.exports = class Interface {
             let caller = timeout(Number(process.env.CONNECT_TIMEOUT), (timedout, duration, args) => {
                 if (timedout) {
 
-                    let { logger } = Interface.scope;
+                    // feedback
                     logger.warn(`Connection attempt timedout for interface "${iface}"`);
 
                     // removes pending event listnener
@@ -631,8 +634,11 @@ module.exports = class Interface {
 
                 } else {
 
+                    // feedback
+                    logger.debug(`Bridge created for interface "${iface}" (${args[1].uuid})`);
+
                     // resolve with socket
-                    done(null, args[0]);
+                    done(null, ...args);
 
                 }
             });
@@ -674,7 +680,7 @@ module.exports = class Interface {
 
         let handler = Interface.parseBridgeRequest(request, (socket) => {
             events.off("socket", handler);
-            process.nextTick(cb, socket);
+            process.nextTick(cb, socket, request);
         });
 
         events.emit("socket", request);
