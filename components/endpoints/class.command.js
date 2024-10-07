@@ -125,7 +125,7 @@ module.exports = class Command {
                         let regex = new RegExp(/success|ok|1|true/, "gimu");
 
                         // compare respond with command payload
-                        if ((chunk && chunk === cmd.payload) || regex.test(chunk)) {
+                        if ((chunk && chunk === cmd.payload) || regex.test(chunk?.toString())) {
 
                             done(null, true);
 
