@@ -498,7 +498,7 @@ module.exports = class Interface {
 
         // stream = WebSocket.createWebSocketStream
         // see routes/router.api.device.js
-        Interface.socket(this._id, (err, stream, { uuid }) => {
+        Interface.socket(this._id, (err, stream, request) => {
             if (err) {
 
                 socket.emit("error", err);
@@ -508,11 +508,11 @@ module.exports = class Interface {
                 if (process.env.NODE_ENV === "development") {
 
                     socket.once("open", () => {
-                        logger.debug(`Bridge open: iface ${this._id} <-> ${proto}://${host}:${port} (${uuid})`);
+                        logger.debug(`Bridge open: iface ${this._id} <-> ${proto}://${host}:${port} (${request.uuid})`);
                     });
 
                     socket.once("close", () => {
-                        logger.debug(`Bridge closed: iface ${this._id} <-> ${proto}://${host}:${port} (${uuid})`);
+                        logger.debug(`Bridge closed: iface ${this._id} <-> ${proto}://${host}:${port} (${request.uuid})`);
                     });
 
                 }
@@ -520,7 +520,7 @@ module.exports = class Interface {
                 stream.once("close", () => {
 
                     // feedback
-                    logger.debug(`Bridge closed, destroy everything: iface ${this._id} <-> ${proto}://${host}:${port} (${uuid})`);
+                    logger.debug(`Bridge closed, destroy everything: iface ${this._id} <-> ${proto}://${host}:${port} (${request.uuid})`);
 
                     // destroy everything
                     socket.destroy();
