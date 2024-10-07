@@ -105,6 +105,16 @@ module.exports = (router) => {
 
     router.post("/import", async (req, res) => {
 
+        // NOTE: this also deletes .gitkeep
+        if (req.query?.truncate === "true") {
+            for (let file of await fs.promises.readdir(BASE_PATH)) {
+                await fs.promises.rm(path.join(BASE_PATH, file), {
+                    recursive: true,
+                    force: true
+                });
+            }
+        }
+
         const extract = tar.extract();
 
         // NOTE: switch to `.once`?
@@ -165,7 +175,7 @@ module.exports = (router) => {
         extract.on("entry", async (header, stream, next) => {
             if (header.name.startsWith("database/")) {
 
-                console.log("restartoe database collection", header);
+                console.log("restartoe database collection", header.name, header.size);
 
                 let chunks = [];
                 let name = header.name.replace("database/", "");
@@ -191,7 +201,7 @@ module.exports = (router) => {
                         return;
                     }
 
-                    console.log("collection name", path.basename(name, ".json"));
+                    //console.log("collection name", path.basename(name, ".json"));
 
                     let collection = client.collection(path.basename(name, ".json"));
 
@@ -213,17 +223,7 @@ module.exports = (router) => {
 
             } else if (header.name.startsWith("plugins/")) {
 
-                console.log("restroe plugin file", header);
-
-                // NOTE: this also deletes .gitkeep
-                if (req.query?.truncate === "true") {
-                    for (let file of await fs.promises.readdir(BASE_PATH)) {
-                        await fs.promises.rm(path.join(BASE_PATH, file), {
-                            recursive: true,
-                            force: true
-                        });
-                    }
-                }
+                console.log("restroe plugin file", header.name, header.size);
 
                 let name = header.name.replace("plugins/", "");
 
