@@ -19,26 +19,65 @@ module.exports = {
         // params.state = endpoint state object id
         // check if greater/lower than threshold or how to react?
 
+        let locked = false;
+
         emitter.on(emitted, (obj) => {
-            if (obj.event === "state") {
+            if (obj.event === "state" && obj.args[0].type === "number") {
 
                 let match = 1;
 
                 match &= obj.component === "endpoints";
                 match &= obj.args[0]._id === params._id;
 
-                if (params.lower) {
-                    match &= obj.args[0].value <= params.threshold;
-                } else {
-                    match &= obj.args[0].value >= params.threshold;
+                let a = obj.args[0].value;
+                let b = params.threshold;
+
+                // a = state value
+                // b = threshold
+                switch (params.operator) {
+                    case "<":
+                        match &= a < b;
+                        break;
+                    case ">":
+                        match &= a > b;
+                        break;
+                    case "<=":
+                        match &= a <= b;
+                        break;
+                    case ">=":
+                        match &= a >= b;
+                        break;
+                    case "==":
+                        match &= a == b;
+                        break;
+                    default:
+                        match = 0;
                 }
 
-                if (match) {
+                // trigger & lock 
+                if (match && !locked) {
+                    locked = true;
                     trigger.fire();
+                }
+
+                // reset lock based on operator
+                if (params.operator === "<" || params.operator === "<=") {
+                    if (a > b) {
+                        locked = false;
+                    }
+                } else if (params.operator === ">" || params.operator === ">=") {
+                    if (a < b) {
+                        locked = false;
+                    }
+                } else if (params.operator === "==") {
+                    if (a !== b) {
+                        locked = false;
+                    }
                 }
 
             }
         });
+
 
     }
 

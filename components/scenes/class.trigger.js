@@ -85,8 +85,15 @@ module.exports = class Trigger {
                 then: Joi.object({
                     params: Joi.object({
                         _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
-                        threshold: Joi.alternatives(Joi.number(), Joi.string(), Joi.boolean()).required(),
-                        lower: Joi.boolean().default(false)
+                        threshold: Joi.number().required(),
+                        operator: Joi.string().valid(">", "<", ">=", "<=", "==").required()
+                        // a = state value
+                        // b = threshold
+                        // a > b
+                        // a < b
+                        // a >= b
+                        // a <= b
+                        // a == b
                     })
                 })
             }/*,{
