@@ -1,4 +1,5 @@
 const C_DEVICES = require("../components/devices");
+const { PENDING_BRIDGES } = require("../components/devices/class.interface.js");
 
 // external modules
 const WebSocket = require("ws");
@@ -30,6 +31,16 @@ module.exports = (router) => {
     // clear the interval
     wss.on("close", () => {
         clearInterval(interval);
+    });
+
+
+    wss.on("connection", (ws) => {
+        if (PENDING_BRIDGES.size > 0 && ws.readyState === WebSocket.OPEN) {
+
+            PENDING_BRIDGES.forEach((bridge) => {
+                ws.send(JSON.stringify(bridge));
+            });
+        }
     });
 
 

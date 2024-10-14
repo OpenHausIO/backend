@@ -13,6 +13,7 @@ const { randomUUID } = require("crypto");
 const timeout = require("../../helper/timeout.js");
 const promisfy = require("../../helper/promisify.js");
 
+const PENDING_BRIDGES = new Set();
 
 /**
  * @description
@@ -611,6 +612,8 @@ module.exports = class Interface {
     }
         */
 
+    static PENDING_BRIDGES = PENDING_BRIDGES;
+
     static socket(iface, cb) {
         return promisfy((done) => {
 
@@ -636,6 +639,10 @@ module.exports = class Interface {
 
                     // feedback
                     logger.debug(`Bridge created for interface "${iface}" (${args[1].uuid})`);
+
+                    // remove event handler
+                    // remove pending bridge from set
+                    cleanup();
 
                     // resolve with socket
                     done(null, ...args);
@@ -678,8 +685,14 @@ module.exports = class Interface {
         let { events } = Interface.scope;
         let request = Interface.createBridgeRequest(iface);
 
+        PENDING_BRIDGES.add(request);
+
         let handler = Interface.parseBridgeRequest(request, (socket) => {
-            events.off("socket", handler);
+            // moved below into `removeHandler()`
+            // removeHandler now gets called for:
+            // scuccess & error situations like timeout
+            // see `socket()` above
+            //events.off("socket", handler);
             process.nextTick(cb, socket, request);
         });
 
@@ -695,6 +708,8 @@ module.exports = class Interface {
             // remove handler, which is never "resolves"
             // Interface.parseBridgeRequest cb is never fired
             events.off("socket", handler);
+
+            PENDING_BRIDGES.delete(request);
 
         };
 
