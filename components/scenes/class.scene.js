@@ -2,6 +2,7 @@ const Joi = require("joi");
 const mongodb = require("mongodb");
 
 const { setTimeout } = require("timers/promises");
+const debounce = require("../../helper/debounce.js");
 
 const Makro = require("./class.makro.js");
 const Trigger = require("./class.trigger.js");
@@ -55,6 +56,29 @@ module.exports = class Scene extends Item {
         });
 
 
+        // like in state updated
+        // see components/endpoints/class.state.js
+        let updater = debounce((prop, value) => {
+
+            let { update, logger } = Scene.scope;
+
+            update(this._id, this, (err) => {
+                if (err) {
+
+                    // feedback
+                    logger.warn(err, `Could not save timestamp ${prop}=${value}`);
+
+                } else {
+
+                    // feedback
+                    logger.debug(`Updated timestamps in database: ${prop}=${value}`);
+
+                }
+            });
+
+        }, 100);
+
+
         // wrap timestamps in proxy set trap
         // update item in database when the timestamps
         // "started", "finished" or "aborted" set
@@ -62,30 +86,15 @@ module.exports = class Scene extends Item {
         this.timestamps = new Proxy(obj.timestamps, {
             set: (target, prop, value, receiver) => {
 
-                let { update, logger } = Scene.scope;
+                let { logger } = Scene.scope;
 
                 if (["started", "finished", "aborted"].includes(prop) && value !== target[prop]) {
 
                     // feedback
-                    logger.trace(`Update timestamp: ${prop}=${value}`);
+                    logger.debug(`Update timestamp: ${prop}=${value}`);
 
-                    // cant use `async update()` here
-                    // no clue why, if used, "started", "aborted", "finished"
-                    // timestamps are not set correctly, only "updated" is set to current time
-                    // Maybe because its affect the reflect synchron `Reflect.set(...)` below
-                    update(this._id, this, (err) => {
-                        if (err) {
-
-                            // feedback
-                            logger.warn(err, `Could not save timestamp ${prop}=${value}`);
-
-                        } else {
-
-                            // feedback
-                            logger.debug(`Updated timestamps in database: ${prop}=${value}`);
-
-                        }
-                    });
+                    // call debounced `.update()`
+                    updater(prop, value);
 
                 }
 
