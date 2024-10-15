@@ -11,17 +11,11 @@ module.exports = (app, router) => {
     });
 
     router.get("/:_id/state", ({ item: {
-        running,
-        aborted,
-        index,
-        finished,
+        states,
         timestamps
     } }, res) => {
         res.json({
-            running,
-            aborted,
-            finished,
-            index,
+            ...states,
             timestamps
         });
     });

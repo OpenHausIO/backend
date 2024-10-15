@@ -35,29 +35,13 @@ module.exports = class Scene extends Item {
 
         });
 
-        Object.defineProperty(this, "running", {
-            value: false,
-            enumerable: false,
-            configurable: false,
-            writable: true
-        });
-
-        Object.defineProperty(this, "aborted", {
-            value: false,
-            enumerable: false,
-            configurable: false,
-            writable: true
-        });
-
-        Object.defineProperty(this, "index", {
-            value: 0,
-            enumerable: false,
-            configurable: false,
-            writable: true
-        });
-
-        Object.defineProperty(this, "finished", {
-            value: false,
+        Object.defineProperty(this, "states", {
+            value: {
+                running: false,
+                aborted: false,
+                finished: false,
+                index: 0
+            },
             enumerable: false,
             configurable: false,
             writable: true
@@ -138,7 +122,7 @@ module.exports = class Scene extends Item {
 
         // fix #507
         // stop previous running scene
-        if (this.running && this._ac) {
+        if (this.states.running && this._ac) {
             this._ac.abort();
         }
 
@@ -149,10 +133,10 @@ module.exports = class Scene extends Item {
         // wrap this in a custom method
         // that returns the state?
         // `getStates()` or so...
-        this.running = true;
-        this.aborted = false;
-        this.finished = false;
-        this.index = 0;
+        this.states.running = true;
+        this.states.aborted = false;
+        this.states.finished = false;
+        this.states.index = 0;
 
         let init = this.makros.filter(({
 
@@ -174,7 +158,7 @@ module.exports = class Scene extends Item {
         }).reduce((acc, cur, i) => {
             return (result) => {
                 return acc(result, this._ac.signal).then(async (r) => {
-                    if (this.aborted) {
+                    if (this.states.aborted) {
 
                         return Promise.reject("Aborted!");
 
@@ -188,7 +172,7 @@ module.exports = class Scene extends Item {
                         // represents the current index of makro
                         // e.g. timer takes 90min to finish,
                         // index = timer makro in `makros` array
-                        this.index = i;
+                        this.states.index = i;
 
                         return cur(r, this._ac.signal);
 
@@ -203,13 +187,13 @@ module.exports = class Scene extends Item {
         return init(true, this._ac).then((result) => {
             console.log("Makro stack done", result);
             this.timestamps.finished = Date.now();
-            this.finished = true;
+            this.states.finished = true;
         }).catch((err) => {
             console.log("Makro stack aborted", err);
-            this.finished = false;
+            this.states.finished = false;
         }).finally(() => {
             console.log("Finaly");
-            this.running = false;
+            this.states.running = false;
         });
 
     }
@@ -218,13 +202,13 @@ module.exports = class Scene extends Item {
     abort() {
 
         // fix #507
-        if (this.running && this._ac) {
+        if (this.states.running && this._ac) {
             this._ac.abort();
         }
 
-        this.running = false;
-        this.aborted = true;
-        this.finished = false;
+        this.states.running = false;
+        this.states.aborted = true;
+        this.states.finished = false;
 
         this.timestamps.aborted = Date.now();
 
