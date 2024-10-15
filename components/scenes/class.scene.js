@@ -136,6 +136,12 @@ module.exports = class Scene extends Item {
 
     trigger() {
 
+        // fix #507
+        // stop previous running scene
+        if (this.running && this._ac) {
+            this._ac.abort();
+        }
+
         this.timestamps.started = Date.now();
         let ac = new AbortController();
         this._ac = ac;
@@ -211,13 +217,16 @@ module.exports = class Scene extends Item {
 
     abort() {
 
-        console.log("Aborted called");
-        this.timestamps.aborted = Date.now();
+        // fix #507
+        if (this.running && this._ac) {
+            this._ac.abort();
+        }
 
-        this._ac.abort();
         this.running = false;
         this.aborted = true;
         this.finished = false;
+
+        this.timestamps.aborted = Date.now();
 
     }
 
