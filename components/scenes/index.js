@@ -18,7 +18,9 @@ class C_SCENES extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("scenes", Scene.schema());
+        super("scenes", Scene.schema(), [
+            Scene
+        ]);
 
         this.hooks.post("add", (data, next) => {
             next(null, new Scene(data));

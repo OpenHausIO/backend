@@ -70,6 +70,46 @@ module.exports = class Scene extends Item {
             writable: true
         });
 
+
+        // wrap timestamps in proxy set trap
+        // update item in database when the timestamps
+        // "started", "finished" or "aborted" set
+        // this ensures that theay are not `null` after a restart
+        this.timestamps = new Proxy(obj.timestamps, {
+            set: (target, prop, value, receiver) => {
+
+                let { update, logger } = Scene.scope;
+
+                if (["started", "finished", "aborted"].includes(prop) && value !== target[prop]) {
+
+                    // feedback
+                    logger.trace(`Update timestamp: ${prop}=${value}`);
+
+                    // cant use `async update()` here
+                    // no clue why, if used, "started", "aborted", "finished"
+                    // timestamps are not set correctly, only "updated" is set to current time
+                    // Maybe because its affect the reflect synchron `Reflect.set(...)` below
+                    update(this._id, this, (err) => {
+                        if (err) {
+
+                            // feedback
+                            logger.warn(err, `Could not save timestamp ${prop}=${value}`);
+
+                        } else {
+
+                            // feedback
+                            logger.debug(`Updated timestamps in database: ${prop}=${value}`);
+
+                        }
+                    });
+
+                }
+
+                return Reflect.set(target, prop, value, receiver);
+
+            }
+        });
+
     }
 
     static schema() {
@@ -81,7 +121,12 @@ module.exports = class Scene extends Item {
             makros: Joi.array().items(Makro.schema()).default([]),
             triggers: Joi.array().items(Trigger.schema()).default([]),
             visible: Joi.boolean().default(true),
-            icon: Joi.string().allow(null).default(null)
+            icon: Joi.string().allow(null).default(null),
+            timestamps: {
+                started: Joi.number().allow(null).default(null),
+                aborted: Joi.number().allow(null).default(null),
+                finished: Joi.number().allow(null).default(null)
+            }
         });
     }
 
@@ -91,6 +136,7 @@ module.exports = class Scene extends Item {
 
     trigger() {
 
+        this.timestamps.started = Date.now();
         let ac = new AbortController();
         this._ac = ac;
 
@@ -130,6 +176,7 @@ module.exports = class Scene extends Item {
 
                         // NOTE: Intended to be a workaround for #329 & #312
                         // But the general idea of this is not bad
+                        // TODO: Add abort signal
                         await setTimeout(Number(process.env.SCENES_MAKRO_DELAY));
 
                         // represents the current index of makro
@@ -149,6 +196,7 @@ module.exports = class Scene extends Item {
 
         return init(true, this._ac).then((result) => {
             console.log("Makro stack done", result);
+            this.timestamps.finished = Date.now();
             this.finished = true;
         }).catch((err) => {
             console.log("Makro stack aborted", err);
@@ -164,6 +212,7 @@ module.exports = class Scene extends Item {
     abort() {
 
         console.log("Aborted called");
+        this.timestamps.aborted = Date.now();
 
         this._ac.abort();
         this.running = false;
