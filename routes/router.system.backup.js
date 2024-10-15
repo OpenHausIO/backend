@@ -5,6 +5,7 @@ const fs = require("fs");
 const { Writable, pipeline } = require("stream");
 const { createInterface } = require("readline");
 const { EOL } = require("os");
+const { ObjectId } = require("mongodb");
 
 const { client } = require("mongodb");
 const tar = require("tar-stream");
@@ -191,8 +192,12 @@ module.exports = (router) => {
 
                     // TODO: check/handle binary (serialized buffer objects)
                     // > endpoint commands payload
-                    // > _id's should be mongodb object id's
-                    let documents = JSON.parse(Buffer.concat(chunks).toString());
+                    // > _id's should be mongodb object id's                    
+                    let documents = JSON.parse(Buffer.concat(chunks).toString()).map((item) => {
+                        // NOTE: Hotfix for #506
+                        item._id = new ObjectId(item._id);
+                        return item;
+                    });
 
                     // prevents bulk write error
                     // MongoInvalidArgumentError: Invalid BulkOperation, Batch cannot be empty
