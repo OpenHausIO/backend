@@ -21,37 +21,34 @@ module.exports = {
 
         let locked = false;
 
-        emitter.on(emitted, (obj) => {
-            if (obj.event === "state" && obj.args[0].type === "number") {
+        // NOTE: why do i not use "state" event here?
+        emitter.on(emitted, ({ args, event, component }) => {
+            if (event === "state" && args[0].type === "number" && args[0]._id === params._id && component === "endpoints") {
 
-                let match = 1;
-
-                match &= obj.component === "endpoints";
-                match &= obj.args[0]._id === params._id;
-
-                let a = obj.args[0].value;
+                let match = false;
+                let a = args[0].value;
                 let b = params.threshold;
 
                 // a = state value
                 // b = threshold
                 switch (params.operator) {
                     case "<":
-                        match &= a < b;
+                        match = a < b;
                         break;
                     case ">":
-                        match &= a > b;
+                        match = a > b;
                         break;
                     case "<=":
-                        match &= a <= b;
+                        match = a <= b;
                         break;
                     case ">=":
-                        match &= a >= b;
+                        match = a >= b;
                         break;
                     case "==":
-                        match &= a == b;
+                        match = a == b;
                         break;
                     default:
-                        match = 0;
+                        match = false;
                 }
 
                 // trigger & lock 
@@ -62,15 +59,15 @@ module.exports = {
 
                 // reset lock based on operator
                 if (params.operator === "<" || params.operator === "<=") {
-                    if (a > b) {
+                    if (a > b && locked) {
                         locked = false;
                     }
                 } else if (params.operator === ">" || params.operator === ">=") {
-                    if (a < b) {
+                    if (a < b && locked) {
                         locked = false;
                     }
                 } else if (params.operator === "==") {
-                    if (a !== b) {
+                    if (a !== b && locked) {
                         locked = false;
                     }
                 }
