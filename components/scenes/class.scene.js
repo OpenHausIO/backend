@@ -2,6 +2,7 @@ const Joi = require("joi");
 const mongodb = require("mongodb");
 
 const { setTimeout } = require("timers/promises");
+const debounce = require("../../helper/debounce.js");
 
 const Makro = require("./class.makro.js");
 const Trigger = require("./class.trigger.js");
@@ -35,29 +36,13 @@ module.exports = class Scene extends Item {
 
         });
 
-        Object.defineProperty(this, "running", {
-            value: false,
-            enumerable: false,
-            configurable: false,
-            writable: true
-        });
-
-        Object.defineProperty(this, "aborted", {
-            value: false,
-            enumerable: false,
-            configurable: false,
-            writable: true
-        });
-
-        Object.defineProperty(this, "index", {
-            value: 0,
-            enumerable: false,
-            configurable: false,
-            writable: true
-        });
-
-        Object.defineProperty(this, "finished", {
-            value: false,
+        Object.defineProperty(this, "states", {
+            value: {
+                running: false,
+                aborted: false,
+                finished: false,
+                index: 0
+            },
             enumerable: false,
             configurable: false,
             writable: true
@@ -68,6 +53,54 @@ module.exports = class Scene extends Item {
             enumerable: false,
             configurable: false,
             writable: true
+        });
+
+
+        // like in state updated
+        // see components/endpoints/class.state.js
+        let updater = debounce((prop, value) => {
+
+            let { update, logger } = Scene.scope;
+
+            update(this._id, this, (err) => {
+                if (err) {
+
+                    // feedback
+                    logger.warn(err, `Could not save timestamp ${prop}=${value}`);
+
+                } else {
+
+                    // feedback
+                    logger.debug(`Updated timestamps in database: ${prop}=${value}`);
+
+                }
+            });
+
+        }, 100);
+
+
+        // wrap timestamps in proxy set trap
+        // update item in database when the timestamps
+        // "started", "finished" or "aborted" set
+        // this ensures that theay are not `null` after a restart
+        this.timestamps = new Proxy(obj.timestamps, {
+            set: (target, prop, value, receiver) => {
+
+                let { logger } = Scene.scope;
+
+                if (["started", "finished", "aborted"].includes(prop) && value !== target[prop]) {
+
+                    // feedback
+                    logger.debug(`Update timestamp: ${prop}=${value}`);
+
+                    // call debounced `.update()`
+                    updater(prop, value);
+
+                }
+
+                return Reflect.set(target, prop, value, receiver);
+
+            }
         });
 
     }
@@ -81,7 +114,12 @@ module.exports = class Scene extends Item {
             makros: Joi.array().items(Makro.schema()).default([]),
             triggers: Joi.array().items(Trigger.schema()).default([]),
             visible: Joi.boolean().default(true),
-            icon: Joi.string().allow(null).default(null)
+            icon: Joi.string().allow(null).default(null),
+            timestamps: {
+                started: Joi.number().allow(null).default(null),
+                aborted: Joi.number().allow(null).default(null),
+                finished: Joi.number().allow(null).default(null)
+            }
         });
     }
 
@@ -91,8 +129,23 @@ module.exports = class Scene extends Item {
 
     trigger() {
 
+        // fix #507
+        // stop previous running scene
+        if (this.states.running && this._ac) {
+            this._ac.abort();
+        }
+
+        this.timestamps.started = Date.now();
         let ac = new AbortController();
         this._ac = ac;
+
+        // wrap this in a custom method
+        // that returns the state?
+        // `getStates()` or so...
+        this.states.running = true;
+        this.states.aborted = false;
+        this.states.finished = false;
+        this.states.index = 0;
 
         let init = this.makros.filter(({
 
@@ -114,7 +167,7 @@ module.exports = class Scene extends Item {
         }).reduce((acc, cur, i) => {
             return (result) => {
                 return acc(result, this._ac.signal).then(async (r) => {
-                    if (this.aborted) {
+                    if (this.states.aborted) {
 
                         return Promise.reject("Aborted!");
 
@@ -122,9 +175,13 @@ module.exports = class Scene extends Item {
 
                         // NOTE: Intended to be a workaround for #329 & #312
                         // But the general idea of this is not bad
+                        // TODO: Add abort signal
                         await setTimeout(Number(process.env.SCENES_MAKRO_DELAY));
 
-                        this.index = i;
+                        // represents the current index of makro
+                        // e.g. timer takes 90min to finish,
+                        // index = timer makro in `makros` array
+                        this.states.index = i;
 
                         return cur(r, this._ac.signal);
 
@@ -136,20 +193,16 @@ module.exports = class Scene extends Item {
             };
         });
 
-        this.running = true;
-        this.aborted = false;
-        this.finished = false;
-        this.index = 0;
-
         return init(true, this._ac).then((result) => {
             console.log("Makro stack done", result);
-            this.finished = true;
+            this.timestamps.finished = Date.now();
+            this.states.finished = true;
         }).catch((err) => {
             console.log("Makro stack aborted", err);
-            this.finished = false;
+            this.states.finished = false;
         }).finally(() => {
             console.log("Finaly");
-            this.running = false;
+            this.states.running = false;
         });
 
     }
@@ -157,12 +210,16 @@ module.exports = class Scene extends Item {
 
     abort() {
 
-        console.log("Aborted called");
+        // fix #507
+        if (this.states.running && this._ac) {
+            this._ac.abort();
+        }
 
-        this._ac.abort();
-        this.running = false;
-        this.aborted = true;
-        this.finished = false;
+        this.states.running = false;
+        this.states.aborted = true;
+        this.states.finished = false;
+
+        this.timestamps.aborted = Date.now();
 
     }
 

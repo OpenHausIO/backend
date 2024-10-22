@@ -2,6 +2,7 @@ const _expose = require("../../helper/expose.js");
 
 const BASE = require("./class.base.js");
 
+const Logger = require("../../system/logger");
 const promisify = require("../../helper/promisify");
 
 /**
@@ -20,11 +21,11 @@ const promisify = require("../../helper/promisify");
  */
 module.exports = class COMMON extends BASE {
 
-    constructor(logger) {
+    constructor(name) {
 
-        super();
+        super(name);
 
-        this.logger = logger;
+        this.logger = Logger.create(name);
 
     }
 

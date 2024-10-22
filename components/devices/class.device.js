@@ -6,7 +6,7 @@ const Interface = require("./class.interface.js");
 const Item = require("../../system/component/class.item.js");
 
 const mixins = require("../../helper/mixins.js");
-const injectMethod = require("../../helper/injectMethod.js");
+//const injectMethod = require("../../helper/injectMethod.js");
 
 //const { parse, calculateChecksum } = require("./net-helper.js");
 
@@ -28,7 +28,7 @@ const injectMethod = require("../../helper/injectMethod.js");
  * @see interfaceStream components/devices/class.interfaceStream.js
  */
 module.exports = class Device extends Item {
-    constructor(props, scope) {
+    constructor(props) {
 
         super(props);
 
@@ -64,6 +64,7 @@ module.exports = class Device extends Item {
             // NOTE: remove "device" for bridging requests (only needed in connector)? 
             // > See: https://github.com/OpenHausIO/connector/issues/54
             // > When done, "device" property can be removed, and the `.bridge()` method can be moved into Interface class
+            /*
             injectMethod(iface, "bridge", (cb) => {
                 return Interface._bridge({
                     events: scope.events,
@@ -71,6 +72,7 @@ module.exports = class Device extends Item {
                     device: this._id
                 }, cb);
             });
+            */
 
 
             // "hide" stream behind iface object

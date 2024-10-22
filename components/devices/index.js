@@ -17,6 +17,8 @@ const COMPONENT = require("../../system/component/class.component.js");
 //require("./class.interfaceStream");
 
 const Device = require("./class.device.js");
+const Interface = require("./class.interface.js");
+const InterfaceStream = require("./class.interfaceStream.js");
 
 /**
  * @description
@@ -142,7 +144,11 @@ class C_DEVICES extends COMPONENT {
 
         // inject logger, collection and schema object
         // https://stackoverflow.com/a/37746388/5781499
-        super("devices", Device.schema(), module);
+        super("devices", Device.schema(), [
+            Device,
+            Interface,
+            InterfaceStream
+        ]);
 
 
         // create for new added device interfaces
@@ -153,7 +159,7 @@ class C_DEVICES extends COMPONENT {
                 return next();
             }
 
-            // NOTE Needed if defined in schema?!
+            // NOTE: Needed if defined in schema?!
             data.interfaces.forEach((iface) => {
                 iface._id = String(new mongodb.ObjectId());
             });
@@ -166,7 +172,7 @@ class C_DEVICES extends COMPONENT {
         // create after db manipulation a new device instace
         // use ["add", "update"]?!
         this.hooks.post("add", (data, next) => {
-            next(null, new Device(data, this));
+            next(null, new Device(data));
         });
 
         /*
@@ -219,7 +225,7 @@ instance.init((scope, ready) => {
 
 
             data = data.map((item) => {
-                return new Device(item, scope);
+                return new Device(item);
             });
 
 

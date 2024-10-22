@@ -1,7 +1,8 @@
 const process = require("process");
-const events = require("events");
+//const events = require("events");
 
-const Hooks = require("../hooks.js");
+const Hooks = require("../class.hooks.js");
+const Events = require("./class.events.js");
 
 /**
  * @description
@@ -22,10 +23,11 @@ const Hooks = require("../hooks.js");
  */
 module.exports = class BASE {
 
-    constructor() {
+    constructor(name) {
         this.ready = false;
-        this.events = new events();
+        this.events = new Events(name);
         this.hooks = new Hooks();
+        // this.logger = ...?
     }
 
     // NOTE improve/change function name

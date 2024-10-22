@@ -27,7 +27,7 @@ class C_MDNS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("mdns", MDNS.schema(), module);
+        super("mdns", MDNS.schema());
 
         this.hooks.post("add", (data, next) => {
             next(null, new MDNS(data));

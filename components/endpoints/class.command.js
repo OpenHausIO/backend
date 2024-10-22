@@ -97,28 +97,35 @@ module.exports = class Command {
         this.#privates.set("timeout", Number(process.env.COMMAND_RESPONSE_TIMEOUT));
 
         // set default command handler worker function
-        this.#privates.set("handler", (cmd, iface, params, done) => {
+        this.#privates.set("handler", (cmd, { stream }, params, done) => {
 
             if (!cmd.payload) {
                 done(new Error("NO_PAYLOAD_DEFINED"));
                 return;
             }
 
-            iface.write(cmd.payload, (err) => {
+            // switched to `iface.stream.write`
+            // `.stream` should implement the needed adapter stack
+            stream.write(cmd.payload, (err) => {
                 if (err) {
 
                     done(err);
 
                 } else {
 
-                    iface.once("data", (chunk) => {
+
+                    // NOTE: define timeout here
+                    // timeout sould only apply when the data was written
+                    // not when `.trigger()` was called, see #500
+
+                    stream.once("data", (chunk) => {
 
                         // read chunk
                         //let chunk = iface.read();
                         let regex = new RegExp(/success|ok|1|true/, "gimu");
 
                         // compare respond with command payload
-                        if ((chunk && chunk === cmd.payload) || regex.test(chunk)) {
+                        if ((chunk && chunk === cmd.payload) || regex.test(chunk?.toString())) {
 
                             done(null, true);
 

@@ -1,7 +1,9 @@
 const Joi = require("joi");
 const { Agent } = require("http");
+const https = require("https");
+const tls = require("tls");
 const mongodb = require("mongodb");
-const { Transform, Duplex } = require("stream");
+const { Duplex, PassThrough } = require("stream");
 const { randomUUID } = require("crypto");
 //const path = require("path");
 
@@ -11,6 +13,7 @@ const { randomUUID } = require("crypto");
 const timeout = require("../../helper/timeout.js");
 const promisfy = require("../../helper/promisify.js");
 
+const PENDING_BRIDGES = new Set();
 
 /**
  * @description
@@ -40,6 +43,7 @@ module.exports = class Interface {
         // hide stream object on interface
         Object.defineProperty(this, "stream", {
             value: stream
+            //value: new InterfaceStream(this)
         });
 
         // share/set interface stream
@@ -49,12 +53,14 @@ module.exports = class Interface {
         interfaceStreams.set(this._id, stream);
 
         // hot fix for #350
+        /*
         Object.defineProperty(this, "cachedAgent", {
             value: null,
             enumerable: false,
             configurable: false,
             writable: true
         });
+        */
 
     }
 
@@ -214,6 +220,7 @@ module.exports = class Interface {
 
 
     // NEW VERSION, fix for #329
+    /*
     httpAgent(options = {}) {
 
         if (this.cachedAgent) {
@@ -242,7 +249,7 @@ module.exports = class Interface {
         agent.reuseSocket = (socket, request) => {
             console.log("agent.reuseSocket called");
         };
-        */
+        *
 
         agent.createConnection = ({ headers = {} }) => {
 
@@ -262,7 +269,7 @@ module.exports = class Interface {
                 throw new Error(msg);
 
             }
-            */
+            *
 
             //let readable = new PassThrough();
             //let writable = new PassThrough();
@@ -336,7 +343,7 @@ module.exports = class Interface {
 
                 }
             });
-            */
+            *
 
 
             let stream = new Duplex.from({
@@ -375,14 +382,167 @@ module.exports = class Interface {
 
         };
 
+        /*
+        agent.createConnection = () => {
+
+            let readable = new PassThrough();
+            let writable = new PassThrough();
+
+            let stream = new Duplex.from({
+                readable,
+                writable
+            });
+
+            stream.destroy = () => { };
+            stream.ref = () => { };
+            stream.unref = () => { };
+            stream.setKeepAlive = () => { };
+            stream.setTimeout = () => { };
+            stream.setNoDelay = () => { };
+
+            Interface.socket({
+                iface: this,
+                events: this.scope.events
+            }, (err, socket) => {
+                if (err) {
+
+                    stream.emit("error", err);
+
+                } else {
+
+                    writable.pipe(socket)
+                    socket.pipe(readable);
+
+                }
+            });
+
+            return stream;
+
+        };
+        *
+
         this.cachedAgent = agent;
+        return agent;
+
+    }
+    */
+
+
+    httpAgent(options = {}) {
+
+        options = Object.assign({
+            keepAlive: true,
+            maxSockets: 1,
+        }, options);
+
+        let agent = new Agent(options);
+
+        agent.createConnection = () => {
+            return this.bridge();
+        };
+
+        return agent;
+
+    }
+
+    httpsAgent(options = {}) {
+
+        options = Object.assign({
+            keepAlive: true,
+            maxSockets: 1,
+        }, options);
+
+        let agent = new https.Agent(options);
+
+        agent.createConnection = () => {
+
+            let socket = this.bridge();
+            let { host, port } = this.settings;
+
+            return tls.connect({
+                socket,
+                host,
+                port,
+                ...options
+            });
+
+        };
+
         return agent;
 
     }
 
 
+    bridge() {
+
+        let { logger } = Interface.scope;
+        let { host, port, socket: proto } = this.settings;
+
+        let readable = new PassThrough();
+        let writable = new PassThrough();
+
+        let socket = new Duplex.from({
+            readable,
+            writable
+        });
+
+        // TODO: destroy ws stream here
+        //socket.destroy = () => { };
+        socket.ref = () => { };
+        socket.unref = () => { };
+
+        // forward calls here to connector
+        // like socket request/response, use a `type=settings`
+        socket.setKeepAlive = () => { };
+        socket.setTimeout = () => { };
+        socket.setNoDelay = () => { };
+
+        // stream = WebSocket.createWebSocketStream
+        // see routes/router.api.device.js
+        Interface.socket(this._id, (err, stream, request) => {
+            if (err) {
+
+                socket.emit("error", err);
+
+            } else {
+
+                if (process.env.NODE_ENV === "development") {
+
+                    socket.once("open", () => {
+                        logger.debug(`Bridge open: iface ${this._id} <-> ${proto}://${host}:${port} (${request.uuid})`);
+                    });
+
+                    socket.once("close", () => {
+                        logger.debug(`Bridge closed: iface ${this._id} <-> ${proto}://${host}:${port} (${request.uuid})`);
+                    });
+
+                }
+
+                stream.once("close", () => {
+
+                    // feedback
+                    logger.debug(`Bridge closed, destroy everything: iface ${this._id} <-> ${proto}://${host}:${port} (${request.uuid})`);
+
+                    // destroy everything
+                    socket.destroy();
+                    readable.destroy();
+                    writable.destroy();
+
+                });
+
+                writable.pipe(stream);
+                stream.pipe(readable);
+
+            }
+        });
+
+        return socket;
+
+    }
+
     // bridge methods connects adapter with the underlaying network socket
     // create a `.socket()` method that returns the palin websocket stream
+    /*
     static _bridge({ device, interface: iface, events }, cb) {
         return promisfy((done) => {
 
@@ -432,7 +592,7 @@ module.exports = class Interface {
                     });
 
                     console.log("stream", stream)
-                    */
+                    *
 
                     caller(stream);
 
@@ -449,6 +609,110 @@ module.exports = class Interface {
             });
 
         }, cb);
+    }
+        */
+
+    static PENDING_BRIDGES = PENDING_BRIDGES;
+
+    static socket(iface, cb) {
+        return promisfy((done) => {
+
+            let { logger } = Interface.scope;
+            let cleanup = () => { };
+
+            // timeout after certain time
+            // no connector available, not mocks or whatever reaseon
+            let caller = timeout(Number(process.env.CONNECT_TIMEOUT), (timedout, duration, args) => {
+                if (timedout) {
+
+                    // feedback
+                    logger.warn(`Connection attempt timedout for interface "${iface}"`);
+
+                    // removes pending event listnener
+                    // which may never triggers
+                    cleanup();
+
+                    // pass timeot error
+                    done(new Error("TIMEDOUT"));
+
+                } else {
+
+                    // feedback
+                    logger.debug(`Bridge created for interface "${iface}" (${args[1].uuid})`);
+
+                    // remove event handler
+                    // remove pending bridge from set
+                    cleanup();
+
+                    // resolve with socket
+                    done(null, ...args);
+
+                }
+            });
+
+            // returns removeHandler function
+            // cleanup registered event handler
+            // otherwise "MaxListenersExceededWarning: Possible EventEmitter memory leak"
+            cleanup = Interface.createBridge(iface, caller);
+
+        }, cb);
+    }
+
+
+    static createBridgeRequest(iface) {
+        return {
+            iface,
+            type: "request",
+            uuid: randomUUID(),
+            socket: true // TODO: remove, unecessary
+            // NOTE: add a "options" object for net/udp options?
+        };
+    }
+
+    static parseBridgeRequest(request, cb) {
+        return ({ uuid, iface, type, socket, stream }) => {
+            // TODO: remove `socket` property
+            if (uuid === request.uuid && iface === request.iface && type === "response" && socket) {
+
+                cb(stream);
+
+            }
+        };
+    }
+
+    static createBridge(iface, cb) {
+
+        let { events } = Interface.scope;
+        let request = Interface.createBridgeRequest(iface);
+
+        PENDING_BRIDGES.add(request);
+
+        let handler = Interface.parseBridgeRequest(request, (socket) => {
+            // moved below into `removeHandler()`
+            // removeHandler now gets called for:
+            // scuccess & error situations like timeout
+            // see `socket()` above
+            //events.off("socket", handler);
+            process.nextTick(cb, socket, request);
+        });
+
+        events.emit("socket", request);
+        events.on("socket", handler);
+
+        return function removeHandler() {
+
+            // NOTE: 
+            // when pending sockets are somehwere stored
+            // here could they be removed, if needed
+
+            // remove handler, which is never "resolves"
+            // Interface.parseBridgeRequest cb is never fired
+            events.off("socket", handler);
+
+            PENDING_BRIDGES.delete(request);
+
+        };
+
     }
 
 

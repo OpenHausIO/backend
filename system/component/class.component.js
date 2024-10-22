@@ -45,13 +45,18 @@ const PENDING_CHANGE_EVENTS = new Set();
  */
 module.exports = class COMPONENT extends COMMON {
 
-    constructor(name, schema, parent) {
+    constructor(name, schema, classes = []) {
 
-        if (parent) {
-            //require("../prevent_cross_load")(parent);
-        }
+        super(name);
 
-        super(require("../../system/logger").create(name));
+        classes.forEach((cls) => {
+            Object.defineProperty(cls, "scope", {
+                value: this,
+                writable: false,
+                enumerable: false,
+                configurable: false
+            });
+        });
 
         // "secret" items array
         let items = [];

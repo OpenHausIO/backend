@@ -63,8 +63,15 @@ module.exports = (app, router) => {
 
                         let stream = WebSocket.createWebSocketStream(ws);
 
+                        ws.once("close", (...args) => {
+                            stream.emit("close", ...args);
+                            stream.destroy();
+                        });
+
+
                         C_DEVICES.events.emit("socket", {
                             uuid: req.query.uuid,
+                            iface: req.params._iid,
                             type: "response",
                             socket: true,
                             stream

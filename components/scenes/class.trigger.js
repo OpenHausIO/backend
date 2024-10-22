@@ -58,7 +58,7 @@ module.exports = class Trigger {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return String(new mongodb.ObjectId());
             }),
-            type: Joi.string().valid("cronjob", "webhook"/*, "state", "scene"*/).required(),
+            type: Joi.string().valid("cronjob", "webhook", "state", /*"scene"*/).required(),
             enabled: Joi.boolean().default(true),
             //params: Joi.object()....
             timestamps: Joi.object({
@@ -80,15 +80,23 @@ module.exports = class Trigger {
                         _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required()
                     })
                 })
-            }/*,{
+            }, {
                 is: "state",
                 then: Joi.object({
                     params: Joi.object({
                         _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
-                        threshold: Joi.alternatives(Joi.number(), Joi.string(), Joi.boolean()).required(),
+                        threshold: Joi.number().required(),
+                        operator: Joi.string().valid(">", "<", ">=", "<=", "==").required()
+                        // a = state value
+                        // b = threshold
+                        // a > b
+                        // a < b
+                        // a >= b
+                        // a <= b
+                        // a == b
                     })
                 })
-            },{
+            }/*,{
                 is: "scene",
                 then: Joi.object({
                     params: Joi.object({

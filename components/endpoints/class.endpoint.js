@@ -33,7 +33,7 @@ const _debounce = require("../../helper/debounce.js");
  * @see InterfaceStream components/devices/class.interfaceStream.js
  */
 module.exports = class Endpoint extends Item {
-    constructor(obj, scope) {
+    constructor(obj) {
 
         super(obj);
 
@@ -43,6 +43,7 @@ module.exports = class Endpoint extends Item {
 
         //this.commands = new Commands(obj.commands);
         //this.states = new States(obj.states);
+        let { events, logger, update } = Endpoint.scope;
 
         // see 407 & 420
         let updater = _debounce(async () => {
@@ -50,17 +51,17 @@ module.exports = class Endpoint extends Item {
 
                 // trigger update on endpoint item
                 // otherwise ui is not rendered/refreshed on state changed
-                await scope.update(this._id, this);
+                await update(this._id, this);
 
                 // feedback
-                scope.logger.verbose("Endpoint states updated", this.states);
+                logger.verbose("Endpoint states updated", this.states);
 
             } catch (err) {
 
-                scope.logger.warn(err, "Could not update item states after debouncing");
+                logger.warn(err, "Could not update item states after debouncing");
 
             }
-        }, 100);
+        }, 100); // TODO: remove time, or set to 1/0
 
         // see 407 & 420
         this.states = obj.states.map((item) => {
@@ -68,7 +69,10 @@ module.exports = class Endpoint extends Item {
                 try {
 
                     // feedback 
-                    scope.logger.verbose(`Value in endpoint ("${obj._id}") state ("${item._id}") changed: ${item.alias}=${item.value}`);
+                    logger.verbose(`Value in endpoint ("${obj._id}") state ("${item._id}") changed: ${item.alias}=${item.value}`);
+
+                    // notify event listener
+                    events.emit("state", item);
 
                     // update item in database 
                     //await scope.update(this._id, this); 
@@ -76,7 +80,7 @@ module.exports = class Endpoint extends Item {
 
                 } catch (err) {
 
-                    scope.logger.warn(err, `Could not update item (${obj._id}) state ("${item._id}") in database: ${item.alias}=${item.value}`);
+                    logger.warn(err, `Could not update item (${obj._id}) state ("${item._id}") in database: ${item.alias}=${item.value}`);
 
                 }
             });

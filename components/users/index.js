@@ -23,7 +23,7 @@ class C_USERS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("users", User.schema(), module);
+        super("users", User.schema());
 
         this.hooks.post("add", (data, next) => {
             next(null, new User(this, data));
