@@ -1,13 +1,45 @@
 const WebSocket = require("ws");
-const { finished } = require("stream");
+//const { finished } = require("stream");
 const C_DEVICES = require("../components/devices");
+const { WEBSOCKET_SERVER } = require("../components/devices/class.interface.js");
 
 //const iface_locked = new Map();
 
 // move that to "event bus"
 //const { interfaceServer, interfaceStreams } = global.sharedObjects;
-const { interfaceServer } = require("../system/shared.js");
+//const { interfaceServer } = require("../system/shared.js");
 
+
+// map os syscall codes to ws codes
+// https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
+const ERROR_CODE_MAPPINGS = {
+    4001: "ECONNREFUSED",       // -111
+    4002: "ECONNRESET",         // -104
+    4003: "EADDRINUSE",         // -98
+    4004: "EADDRNOTAVAIL",      // -99
+    4005: "ETIMEDOUT",          // -110
+    4006: "EHOSTUNREACH",       // -113
+    4007: "ENETUNREACH",        // -101
+    4008: "ENOTFOUND",          // -3008
+    4009: "EPERM",              // -1
+    4010: "EACCES",             // -13
+    4011: "EPIPE",              // -32
+    4012: "EINVAL",             // -22
+    4013: "ENOENT",             // -2
+    "ECONNREFUSED": -111,       // 4001
+    "ECONNRESET": -104,         // 4002
+    "EADDRINUSE": -98,          // 4003
+    "EADDRNOTAVAIL": -99,       // 4004
+    "ETIMEDOUT": -110,          // 4005
+    "EHOSTUNREACH": -113,       // 4006
+    "ENETUNREACH": -101,        // 4007
+    "ENOTFOUND": -3008,         // 4008
+    "EPERM": -1,                // 4009
+    "EACCES": -13,              // 4010
+    "EPIPE": -32,               // 4011
+    "EINVAL": -22,              // 4012
+    "ENOENT": -2                // 4013
+};
 
 
 module.exports = (app, router) => {
@@ -45,17 +77,18 @@ module.exports = (app, router) => {
             // Goal should be:
             // - to eliminate the need of "shared.js"
             // - handle in router.get only ws handshake: "wss.handleUpgrade(...)"
-            if (!interfaceServer.has(req.params._iid)) {
+            if (!WEBSOCKET_SERVER.has(req.params._iid)) {
 
                 let wss = new WebSocket.Server({
                     noServer: true
                 });
 
-                interfaceServer.set(req.params._iid, wss);
+                WEBSOCKET_SERVER.set(req.params._iid, wss);
 
                 // listen only once to connectoin event
                 // gets fired every time websocket client hit this url/route
                 wss.on("connection", (ws, req) => {
+                    // TODO: check for pending request, if not peding, terminate ws connection
                     if (req.query?.uuid && req.query?.socket === "true" && req.query?.type === "response") {
 
                         // new bridge/connector practice
@@ -63,9 +96,27 @@ module.exports = (app, router) => {
 
                         let stream = WebSocket.createWebSocketStream(ws);
 
-                        ws.once("close", (...args) => {
-                            stream.emit("close", ...args);
-                            stream.destroy();
+                        ws.once("close", (code) => {
+                            if (code >= 4000 && code <= 4999) {
+
+                                // error on connection attempt
+                                // underlaying os trhowed error
+                                // build custom connection error
+                                let err = new Error("Bridging failed");
+                                err.code = ERROR_CODE_MAPPINGS[code];
+                                err.errno = ERROR_CODE_MAPPINGS[err.code];
+                                err.syscall = "connect";
+
+                                stream.emit("error", err);
+
+                            } else {
+
+                                // no clue why closed, cleanup anyway
+                                // TODO: check code and decide if error or success closing
+                                //stream.emit("close"); // desotroy() emit close event(!|?)
+                                stream.destroy();
+
+                            }
                         });
 
 
@@ -81,7 +132,12 @@ module.exports = (app, router) => {
 
                         // old/legacy connection mechanism
                         // TODO: Remove this in future versions
+                        ws.close(1008, "LEGACY_CONNECTION_NOT_SUPPORTED_ANYMORE");
 
+                        // maybe this is needed later for things like serial port data transmission
+                        // how to forward data between a plugin and serialport, via CLI tool, like "socketize"?
+
+                        /*
                         let upstream = WebSocket.createWebSocketStream(ws);
 
                         // Cleanup: https://nodejs.org/dist/latest-v16.x/docs/api/stream.html#streamfinishedstream-options-callback
@@ -104,6 +160,7 @@ module.exports = (app, router) => {
 
                             });
                         });
+                        */
 
                     }
                 });
@@ -133,7 +190,7 @@ module.exports = (app, router) => {
             }
 
 
-            let wss = interfaceServer.get(req.params._iid);
+            let wss = WEBSOCKET_SERVER.get(req.params._iid);
 
 
             wss.handleUpgrade(req, req.socket, req.headers, (ws) => {

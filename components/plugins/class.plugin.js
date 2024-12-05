@@ -4,7 +4,7 @@ const Joi = require("joi");
 const mongodb = require("mongodb");
 const logger = require("../../system/logger/index.js");
 const semver = require("semver");
-const pkg = require("../../package.json");
+//const pkg = require("../../package.json");
 const uuid = require("uuid");
 
 const Item = require("../../system/component/class.item.js");
@@ -83,6 +83,60 @@ module.exports = class Plugin extends Item {
         return Plugin.schema().validate(data);
     }
 
+    static init(data, logger) {
+
+        let init = (dependencies, cb) => {
+            try {
+
+                // NOTE: Monkey patch ready/abort method to init?
+                // A plugin could siganlize if its ready or needs to be restarted
+                /*
+                let init = new Promise((resolve, reject) => {
+                    init.ready = resolve;
+                    init.abort = reject;
+                });
+                */
+
+                const granted = dependencies.every((c) => {
+                    if (data.intents.includes(c)) {
+
+                        return true;
+
+                    } else {
+
+                        logger.warn(`Plugin ${data.uuid} (${data.name}) wants to access not registerd intens "${c}"`);
+                        return false;
+
+                    }
+                });
+
+                if (granted) {
+
+                    let components = dependencies.map((name) => {
+                        return require(path.resolve(process.cwd(), `components/${name}`));
+                    });
+
+                    cb(data, components);
+                    return init;
+
+                } else {
+
+                    throw new Error(`Unregisterd intents access approach`);
+
+                }
+
+            } catch (err) {
+
+                logger.error(err, `Plugin could not initalize!`, err.message);
+                throw err;
+
+            }
+        };
+
+        return init;
+
+    }
+
     /**
      * @function start
      * Start installed plugin
@@ -94,11 +148,13 @@ module.exports = class Plugin extends Item {
                 // feedback
                 logger.debug(`Start plugin "${this.name}"...`);
 
-                let json = {};
+                //let json = {};
                 let plugin = path.resolve(process.cwd(), "plugins", this.uuid);
-                let file = path.resolve(plugin, "package.json");
+                //let file = path.resolve(plugin, "package.json");
 
                 // 1) check if plugin is compatible
+                // removed, see #511
+                /*                
                 try {
 
                     let content = fs.readFileSync(file);
@@ -122,10 +178,12 @@ module.exports = class Plugin extends Item {
                     }
 
                 }
+                    */
 
                 // 2) start plugin
                 if (fs.existsSync(plugin)) {
 
+                    /*
                     let init = (dependencies, cb) => {
                         try {
 
@@ -136,7 +194,7 @@ module.exports = class Plugin extends Item {
                                 init.ready = resolve;
                                 init.abort = reject;
                             });
-                            */
+                            *
 
                             const granted = dependencies.every((c) => {
                                 if (this.intents.includes(c)) {
@@ -173,27 +231,26 @@ module.exports = class Plugin extends Item {
 
                         }
                     };
-
-                    init[Symbol.for("uuid")] = this.uuid;
+                    */
 
                     try {
 
+                        let init = Plugin.init(this, this.logger);
+                        //init[Symbol.for("uuid")] = this.uuid;
+
                         let returns = require(path.resolve(plugin, "index.js"))(this, this.logger, init);
 
-                        if (!returns) {
-                            return;
-                        }
-
-                        if (returns[Symbol.for("uuid")] !== this.uuid) {
-                            logger.warn(`Plugin "${this.uuid}" (${this.name}) does not return the init function!`);
+                        if (returns !== init) {
                             throw new Error("Invalid init function returnd!");
                         }
 
                         this.started = true;
 
                     } catch (err) {
-                        logger.error(`Error in plugin "${this.name}": `, err);
+
+                        logger.error(err, `Error in plugin "${this.name}": `);
                         throw err;
+
                     }
 
                 } else {

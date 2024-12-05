@@ -38,8 +38,16 @@ module.exports = (router) => {
         if (PENDING_BRIDGES.size > 0 && ws.readyState === WebSocket.OPEN) {
 
             PENDING_BRIDGES.forEach((bridge) => {
-                ws.send(JSON.stringify(bridge));
+                ws.send(JSON.stringify(bridge), () => {
+
+                    // sometimes it happens that pending bridges are not build
+                    // but message is written to the connector
+                    //let { remotePort, remoteAddress } = req.socket;
+                    //console.log(err || `Writed to connector [${remoteAddress}:${remotePort}]: ${JSON.stringify(bridge)}`);
+
+                });
             });
+
         }
     });
 
