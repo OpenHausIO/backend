@@ -129,9 +129,13 @@ module.exports = class Scene extends Item {
 
     trigger() {
 
+        let { logger } = Scene.scope;
+        logger.info(`Trigger scene "${this.name}" (${this._id})`);
+
         // fix #507
         // stop previous running scene
         if (this.states.running && this._ac) {
+            logger.debug(`Abort previously running scene "${this.name}" (${this._id})`);
             this._ac.abort();
         }
 

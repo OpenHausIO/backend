@@ -4,7 +4,7 @@ const { Duplex, finished } = require("stream");
 const { interfaceStreams } = require("../../system/shared.js");
 
 const timeout = require("../../helper/timeout");
-const Adapter = require("./class.adapter.js");
+const Adapter = require("./!class.adapter.js");
 const kSource = Symbol("source");
 
 // https://www.programmersought.com/article/42661306247/

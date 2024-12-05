@@ -14,6 +14,7 @@ const timeout = require("../../helper/timeout.js");
 const promisfy = require("../../helper/promisify.js");
 
 const PENDING_BRIDGES = new Set();
+const WEBSOCKET_SERVER = new Map();
 
 /**
  * @description
@@ -35,11 +36,12 @@ const PENDING_BRIDGES = new Set();
  */
 module.exports = class Interface {
 
-    constructor(obj, stream) {
+    constructor(obj/*, stream*/) {
 
         Object.assign(this, obj);
         this._id = String(obj._id);
 
+        /*
         // hide stream object on interface
         Object.defineProperty(this, "stream", {
             value: stream
@@ -51,6 +53,7 @@ module.exports = class Interface {
         //let { interfaceStreams } = global.sharedObjects;
         let { interfaceStreams } = require("../../system/shared.js");
         interfaceStreams.set(this._id, stream);
+        */
 
         // hot fix for #350
         /*
@@ -523,6 +526,14 @@ module.exports = class Interface {
                     // feedback
                     logger.debug(`Bridge closed, destroy everything: iface ${this._id} <-> ${proto}://${host}:${port} (${request.uuid})`);
 
+                    // TODO: Improve error handling/forwarding/cleanup
+                    // socket.destroy() throws ABORT_ERR after emitting custom connection error
+                    // socket.end() does not throw, but is it enough to cleanup everything?
+                    // does it matter that 2 diffrent errors events are emitted?
+                    // 1) "ECONN*", 2) AbortError after calling socket.destroy()
+                    // The ABORT_ERR is not emitted as error, `// Unhandled 'error' event`...
+                    // on what instance is the error thrown?
+
                     // destroy everything
                     socket.destroy();
                     readable.destroy();
@@ -530,8 +541,20 @@ module.exports = class Interface {
 
                 });
 
-                writable.pipe(stream);
-                stream.pipe(readable);
+                // forward error on WebSocket.createWebSocketStream
+                // used for syscall errors forwarding from connector
+                stream.once("error", (...args) => {
+                    socket.emit("error", ...args);
+                });
+
+                process.nextTick(() => {
+
+                    stream.emit("open");
+
+                    writable.pipe(stream);
+                    stream.pipe(readable);
+
+                });
 
             }
         });
@@ -613,6 +636,7 @@ module.exports = class Interface {
         */
 
     static PENDING_BRIDGES = PENDING_BRIDGES;
+    static WEBSOCKET_SERVER = WEBSOCKET_SERVER;
 
     static socket(iface, cb) {
         return promisfy((done) => {
