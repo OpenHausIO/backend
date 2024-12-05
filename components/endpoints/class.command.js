@@ -97,8 +97,14 @@ module.exports = class Command {
         this.#privates.set("timeout", Number(process.env.COMMAND_RESPONSE_TIMEOUT));
 
         // set default command handler worker function
-        this.#privates.set("handler", (cmd, { stream }, params, done) => {
+        this.#privates.set("handler", (cmd, iface, params, done) => {
 
+            let err = new Error("DEFAULT_COMMAND_HANDLER_REMOVED");
+
+            done(err);
+            //throw err;
+
+            /*
             if (!cmd.payload) {
                 done(new Error("NO_PAYLOAD_DEFINED"));
                 return;
@@ -139,6 +145,7 @@ module.exports = class Command {
 
                 }
             });
+            */
 
         });
 
