@@ -1,12 +1,37 @@
 const { randomUUID } = require("crypto");
 const { EventEmitter } = require("events");
+const { BroadcastChannel } = require("worker_threads");
+
+const bc = new BroadcastChannel("eventbus/rpc");
 
 module.exports = class RPC extends EventEmitter {
 
     constructor() {
+
         super();
         this._rpcs = {};
         this._pending = {};
+
+        // NOTE: FIRST DRAFT, not tested!!!
+        if (process.env?.ENABLE_WORKER_THREADS_PLUGINS === "true") {
+            bc.onmessage = ({ data }) => {
+
+                if (data.type === "request" && this.rpcs[data.uri]) {
+                    this.call(data.uri, data.args, (...args) => {
+
+                        bc.postMessage({
+                            uri: data.uri,
+                            uuid: data.uuid,
+                            type: "response",
+                            args
+                        });
+
+                    });
+                }
+
+            };
+        }
+
     }
 
     /**

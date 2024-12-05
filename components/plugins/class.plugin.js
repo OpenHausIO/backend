@@ -6,6 +6,9 @@ const logger = require("../../system/logger/index.js");
 const semver = require("semver");
 //const pkg = require("../../package.json");
 const uuid = require("uuid");
+const { Worker, isMainThread } = require("worker_threads");
+const { pipeline } = require("stream");
+const stdio = require("../../system/plugin/stdio.js");
 
 const Item = require("../../system/component/class.item.js");
 
@@ -45,6 +48,13 @@ module.exports = class Plugin extends Item {
 
         Object.defineProperty(this, "started", {
             value: false,
+            configurable: false,
+            enumerable: false,
+            writable: true
+        });
+
+        Object.defineProperty(this, "worker", {
+            value: null,
             configurable: false,
             enumerable: false,
             writable: true
@@ -182,77 +192,81 @@ module.exports = class Plugin extends Item {
 
                 // 2) start plugin
                 if (fs.existsSync(plugin)) {
+                    if (process.env["ENABLE_WORKER_THREADS_PLUGINS"] === "true") {
+                        if (isMainThread) {
 
-                    /*
-                    let init = (dependencies, cb) => {
-                        try {
-
-                            // NOTE: Monkey patch ready/abort method to init?
-                            // A plugin could siganlize if its ready or needs to be restarted
-                            /*
-                            let init = new Promise((resolve, reject) => {
-                                init.ready = resolve;
-                                init.abort = reject;
-                            });
-                            *
-
-                            const granted = dependencies.every((c) => {
-                                if (this.intents.includes(c)) {
-
-                                    return true;
-
-                                } else {
-
-                                    logger.warn(`Plugin ${this.uuid} (${this.name}) wants to access not registerd intens "${c}"`);
-                                    return false;
-
+                            let worker = this.worker = new Worker(path.join(process.cwd(), "system/plugin/worker.js"), {
+                                workerData: {
+                                    plugin: this
+                                },
+                                stderr: process.env["WORKER_THREAD_REDIRECT_STDIO"] === "true",
+                                stdout: process.env["WORKER_THREAD_REDIRECT_STDIO"] === "true",
+                                env: {
+                                    //LOG_TARGET: `plugins/${this.uuid}`, DOES NOT WORK
+                                    ...process.env
+                                },
+                                resourceLimits: {
+                                    //stackSizeMb: 1,
+                                    //maxOldGenerationSizeMb: 15
                                 }
                             });
 
-                            if (granted) {
+                            if (process.env["WORKER_THREAD_REDIRECT_STDIO"] === "true") {
 
-                                let components = dependencies.map((name) => {
-                                    return require(path.resolve(process.cwd(), `components/${name}`));
+                                pipeline(worker.stdout, stdio(`plugins/${this.uuid}`), process.stdout, (err) => {
+                                    this.logger.warn(err, "worker stdout closed");
+                                    worker.terminate();
                                 });
 
-                                cb(this, components);
-                                return init;
-
-                            } else {
-
-                                throw new Error(`Unregisterd intents access approach`);
+                                pipeline(worker.stderr, stdio(`plugins/${this.uuid}`), process.stderr, (err) => {
+                                    this.logger.warn(err, "worker stderr closed");
+                                    worker.terminate();
+                                });
 
                             }
 
+                            worker.once("error", (err) => {
+                                console.log("worker error", err);
+                            });
+
+                            worker.once("online", () => {
+                                console.log("Worker online");
+                                this.started = true;
+                            });
+
+                            worker.once("exit", (code) => {
+                                console.log("Worker exited", code);
+                                this.started = false;
+                            });
+
+                        } else {
+
+                            // not main thread, we are in worker
+                            // prevent recursiv startings
+                            logger.error(`Cant start plugin, we are not in main thread!`);
+
+                        }
+                    } else {
+                        try {
+
+                            let init = Plugin.init(this, this.logger);
+                            //init[Symbol.for("uuid")] = this.uuid;
+
+                            let returns = require(path.resolve(plugin, "index.js"))(this, this.logger, init);
+
+                            if (returns !== init) {
+                                throw new Error("Invalid init function returnd!");
+                            }
+
+                            this.started = true;
+
                         } catch (err) {
 
-                            logger.error(err, `Plugin could not initalize!`, err.message);
+                            logger.error(err, `Error in plugin "${this.name}": `);
                             throw err;
 
                         }
-                    };
-                    */
-
-                    try {
-
-                        let init = Plugin.init(this, this.logger);
-                        //init[Symbol.for("uuid")] = this.uuid;
-
-                        let returns = require(path.resolve(plugin, "index.js"))(this, this.logger, init);
-
-                        if (returns !== init) {
-                            throw new Error("Invalid init function returnd!");
-                        }
-
-                        this.started = true;
-
-                    } catch (err) {
-
-                        logger.error(err, `Error in plugin "${this.name}": `);
-                        throw err;
-
                     }
-
                 } else {
 
                     logger.error(`Could not found plugin file/folder "${this.uuid}"`);

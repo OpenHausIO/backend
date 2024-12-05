@@ -1,12 +1,12 @@
 const path = require("path");
 
 module.exports = (logger) => {
-    return () => {
+    return (components) => {
         return new Promise((resolve) => {
 
             logger.debug("Init components...");
 
-            const componentNames = [
+            const componentNames = components || [
                 "devices",
                 "endpoints",
                 "plugins",

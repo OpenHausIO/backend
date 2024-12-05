@@ -1,4 +1,7 @@
 const { EventEmitter } = require("events");
+const { BroadcastChannel } = require("worker_threads");
+
+const bc = new BroadcastChannel("events");
 
 module.exports = class Events extends EventEmitter {
 
@@ -7,9 +10,17 @@ module.exports = class Events extends EventEmitter {
     static emitter = new EventEmitter();
 
     constructor(name) {
+
         super();
-        this.name = name;
+        this.name = name; // TODO: rename to component?
         this._registeredEvents = new Set();
+
+        bc.onmessage = ({ data }) => {
+            if (name === data.component && data.event !== "ready") {
+                super.emit(data.event, ...data.args);
+            }
+        };
+
     }
 
     emit(event, ...args) {
@@ -34,6 +45,14 @@ module.exports = class Events extends EventEmitter {
             event,
             args
         });
+
+        if (process.env?.ENABLE_WORKER_THREADS_PLUGINS === "true") {
+            bc.postMessage({
+                component: this.name,
+                event,
+                args
+            });
+        }
 
         return super.emit(event, ...args);
 
