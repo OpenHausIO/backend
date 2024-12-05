@@ -18,7 +18,7 @@ const COMPONENT = require("../../system/component/class.component.js");
 
 const Device = require("./class.device.js");
 const Interface = require("./class.interface.js");
-const InterfaceStream = require("./class.interfaceStream.js");
+//const InterfaceStream = require("./class.interfaceStream.js");
 
 /**
  * @description
@@ -147,7 +147,7 @@ class C_DEVICES extends COMPONENT {
         super("devices", Device.schema(), [
             Device,
             Interface,
-            InterfaceStream
+            //InterfaceStream
         ]);
 
 

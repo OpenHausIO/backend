@@ -36,11 +36,12 @@ const WEBSOCKET_SERVER = new Map();
  */
 module.exports = class Interface {
 
-    constructor(obj, stream) {
+    constructor(obj/*, stream*/) {
 
         Object.assign(this, obj);
         this._id = String(obj._id);
 
+        /*
         // hide stream object on interface
         Object.defineProperty(this, "stream", {
             value: stream
@@ -52,6 +53,7 @@ module.exports = class Interface {
         //let { interfaceStreams } = global.sharedObjects;
         let { interfaceStreams } = require("../../system/shared.js");
         interfaceStreams.set(this._id, stream);
+        */
 
         // hot fix for #350
         /*
