@@ -53,7 +53,7 @@ module.exports = (scope) => {
                 */
 
                 //if (headers?.nt === nt || headers?.usn === usn || match) {
-                if (headers?.nt === nt || headers?.usn === usn) {
+                if ((headers?.nt === nt || headers?.usn === usn) && scope.items[i]) {
 
                     let { timestamps, _id } = scope.items[i];
                     timestamps.announced = Date.now();
