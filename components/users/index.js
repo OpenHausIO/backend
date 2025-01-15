@@ -29,6 +29,33 @@ class C_USERS extends COMPONENT {
             next(null, new User(this, data));
         });
 
+        // patch password if item exists & is set
+        // otherwise the schema validation fails
+        this.hooks.pre("update", (_id, data, next) => {
+            if (data.password === null) {
+
+                let item = this.items.find((user) => {
+                    return user._id === _id;
+                });
+
+                if (!item) {
+
+                    next(null, _id, data);
+
+                } else {
+
+                    data.password = item.password;
+                    next(null, _id, data);
+
+                }
+
+            } else {
+
+                next(null, _id, data);
+
+            }
+        });
+
         this.hooks.pre(["add", "update"], (_id, data, next) => {
 
             // if next is missing & only 2 arguments passed
