@@ -3,6 +3,10 @@ const mongodb = require("mongodb");
 
 const Item = require("../../system/component/class.item.js");
 
+// simple mdns monitor:
+// nc -ulvv 224.0.0.251 5353
+// sudo tcpdump -i <eth0> udp port 5353
+// sudo tcpdump -i eno1 udp port 5353
 module.exports = class MDNS extends Item {
 
     constructor(obj) {
