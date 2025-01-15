@@ -2,6 +2,21 @@ const dispatcher = require("../../system/dispatcher");
 
 module.exports = {
 
+    // makro should have following signature
+    // before implementing #519
+    // (<scene>, <params>, {resolve, reject, signal, options})
+    // scene = scene instance
+    // params = makro specific object, e.g. command id/timer value
+    // wrapper object to fullfill/abort execution
+    // - resolve = Promise.resolver();
+    // - reject = Promise.reject();
+    // - signal = AbortController.signal
+    // - options = "custom" options for makro, similar to params object
+    //   > maybe can be merged with params object
+    //   > currently only one option "parallel", comes into my mind
+    //   > but this would also be only command makro specific, so it could/sould be merged into params object
+    // NOTE: The above, should also be adapted and applied to trigger types
+
     // TODO (mstirner) change to "sleep" instead!
     "timer": ({ _id, value }, result, signal) => {
         return new Promise((resolve) => {
