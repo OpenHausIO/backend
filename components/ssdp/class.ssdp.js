@@ -5,6 +5,8 @@ const Item = require("../../system/component/class.item.js");
 
 // simple ssdp monitor:
 // nc -ulvv 239.255.255.250 1900
+// sudo tcpdump -i <eth0> udp port 1900
+// sudo tcpdump -i eno1 udp port 1900
 // TODO: Add documentation for class
 module.exports = class SSDP extends Item {
 
