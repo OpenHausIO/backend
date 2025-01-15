@@ -20,6 +20,14 @@ module.exports = class Scene extends Item {
         //Object.assign(this, obj);
         //this._id = String(obj._id);
 
+        // override values, start clean
+        Object.assign(obj?.states || {}, {
+            running: false,
+            aborted: false,
+            finished: false,
+            index: 0
+        });
+
         this.makros = obj.makros.map((makro) => {
             return new Makro(makro);
         });
@@ -36,18 +44,6 @@ module.exports = class Scene extends Item {
 
         });
 
-        Object.defineProperty(this, "states", {
-            value: {
-                running: false,
-                aborted: false,
-                finished: false,
-                index: 0
-            },
-            enumerable: false,
-            configurable: false,
-            writable: true
-        });
-
         Object.defineProperty(this, "_ac", {
             value: null,
             enumerable: false,
@@ -58,23 +54,25 @@ module.exports = class Scene extends Item {
 
         // like in state updated
         // see components/endpoints/class.state.js
-        let updater = debounce((prop, value) => {
+        let updater = debounce(async (prop, value) => {
 
             let { update, logger } = Scene.scope;
 
-            update(this._id, this, (err) => {
-                if (err) {
+            try {
 
-                    // feedback
-                    logger.warn(err, `Could not save timestamp ${prop}=${value}`);
+                await update(this._id, this);
 
-                } else {
+            } catch (e) {
 
-                    // feedback
-                    logger.debug(`Updated timestamps in database: ${prop}=${value}`);
+                // feedback
+                logger.warn(e, `Could not update scene object, last property change: ${prop}=${value}`);
 
-                }
-            });
+            } finally {
+
+                // feedback
+                logger.verbose(`Updated scene object, last property change: ${prop}=${value}`);
+
+            }
 
         }, 100);
 
@@ -103,6 +101,31 @@ module.exports = class Scene extends Item {
             }
         });
 
+
+        // catch set operations on states object
+        // emit/trigger events/update
+        this.states = new Proxy(this?.states || {}, {
+            set: (target, prop, value, receiver) => {
+
+                let { logger, events } = Scene.scope;
+
+                if (value !== target[prop]) {
+
+                    // feedback
+                    logger.debug(`state object changed, ${prop}=${value}`);
+
+                    events.emit("state", this.states, this);
+
+                    // call debounced `.update()`
+                    updater(prop, value);
+
+                }
+
+                return Reflect.set(target, prop, value, receiver);
+
+            }
+        });
+
     }
 
     static schema() {
@@ -115,6 +138,12 @@ module.exports = class Scene extends Item {
             triggers: Joi.array().items(Trigger.schema()).default([]),
             visible: Joi.boolean().default(true),
             icon: Joi.string().allow(null).default(null),
+            states: Joi.object({
+                running: Joi.boolean().default(false),
+                aborted: Joi.boolean().default(false),
+                finished: Joi.boolean().default(false),
+                index: Joi.number().default(0),
+            }).default({}),
             timestamps: {
                 started: Joi.number().allow(null).default(null),
                 aborted: Joi.number().allow(null).default(null),
@@ -125,6 +154,10 @@ module.exports = class Scene extends Item {
 
     static validate(data) {
         return Scene.schema().validate(data);
+    }
+
+    static registerMakro() {
+
     }
 
     trigger() {
@@ -197,16 +230,16 @@ module.exports = class Scene extends Item {
             };
         });
 
-        return init(true, this._ac).then((result) => {
-            console.log("Makro stack done", result);
+        return init(true, this._ac).then(() => {
             this.timestamps.finished = Date.now();
             this.states.finished = true;
+            logger.debug(`Scene "${this.name}" finished`);
         }).catch((err) => {
-            console.log("Makro stack aborted", err);
             this.states.finished = false;
+            logger.debug(err, `Scene "${this.name}" error`);
         }).finally(() => {
-            console.log("Finaly");
             this.states.running = false;
+            logger.info(`Scene "${this.name}" runned`, this.states);
         });
 
     }
@@ -224,6 +257,10 @@ module.exports = class Scene extends Item {
         this.states.finished = false;
 
         this.timestamps.aborted = Date.now();
+
+        let { logger } = Scene.scope;
+
+        logger.info(`Scene "${this.name}" aborted!`);
 
     }
 
