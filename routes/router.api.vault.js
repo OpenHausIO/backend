@@ -38,11 +38,19 @@ module.exports = (app, router) => {
     });
 
     router.post("/:_id/secrets/:_sid/decrypt", (req, res) => {
+        try {
 
-        res.json({
-            value: req.secret.decrypt()
-        });
+            res.json({
+                value: req.secret.decrypt()
+            });
 
+        } catch (err) {
+
+            res.status(422).json({
+                error: err.message
+            });
+
+        }
     });
 
 };
