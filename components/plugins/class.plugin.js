@@ -60,6 +60,16 @@ module.exports = class Plugin extends Item {
             name: Joi.string().required(),
             uuid: Joi.string().default(() => {
                 return uuid.v4();
+            }).messages({
+                "any.invalid": `{{#label}} needs to be a valid v4 UUID`
+            }).custom((value, helpers) => {
+
+                if (!uuid.validate(value) || uuid.version(value) !== 4) {
+                    return helpers.error("any.invalid");
+                }
+
+                return value;
+
             }),
             version: Joi.string().required().messages({
                 "any.invalid": `{{#label}} needs to be a valid semver version`
