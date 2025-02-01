@@ -58,7 +58,7 @@ module.exports = (logger) => {
                         server.listen(Number(process.env.HTTP_PORT), process.env.HTTP_ADDRESS);
 
                     } else {
-                        resolve();
+                        resolve(null);
                     }
                 }),
 
@@ -123,7 +123,7 @@ module.exports = (logger) => {
                         }
 
                     } else {
-                        resolve();
+                        resolve(null);
                     }
                 })
 
@@ -152,26 +152,28 @@ module.exports = (logger) => {
                 });
 
                 servers.forEach((server) => {
+                    if (server) {
 
-                    // use express request handler
-                    server.on("request", app);
+                        // use express request handler
+                        server.on("request", app);
 
-                    // fix #408, see:
-                    // https://github.com/OpenHausIO/connector/issues/38
-                    // https://github.com/websockets/ws/issues/2193
-                    server.on("upgrade", (req, socket) => {
+                        // fix #408, see:
+                        // https://github.com/OpenHausIO/connector/issues/38
+                        // https://github.com/websockets/ws/issues/2193
+                        server.on("upgrade", (req, socket) => {
 
-                        let res = new http.ServerResponse(req);
-                        res.assignSocket(socket);
+                            let res = new http.ServerResponse(req);
+                            res.assignSocket(socket);
 
-                        res.on("finish", () => {
-                            res.socket.destroy();
+                            res.on("finish", () => {
+                                res.socket.destroy();
+                            });
+
+                            app(req, res);
+
                         });
 
-                        app(req, res);
-
-                    });
-
+                    }
                 });
 
                 resolve();
