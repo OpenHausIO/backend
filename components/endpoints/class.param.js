@@ -8,6 +8,7 @@ module.exports = class Param {
 
         Object.defineProperty(this, "value", {
             get() {
+                // NOTE: Autoconvert value here?
                 return obj.value;
             },
             set(val) {
@@ -36,6 +37,7 @@ module.exports = class Param {
 
     static schema() {
         return Joi.object({
+            // TODO: name: Joi.string().required();
             type: Joi.string().valid("number", "string", "boolean").required(),
             key: Joi.string().required()
         }).when(".type", {
@@ -65,6 +67,28 @@ module.exports = class Param {
 
     static validate(data) {
         return Param.schema().validate(data);
+    }
+
+    static merge(self, obj) {
+
+        if (!self) {
+            throw new Error("Parameter not found, got " + self);
+        }
+
+        if (self.type === "number") {
+            obj.value = Number(obj.value);
+        }
+
+        Object.assign(self, obj);
+
+        let { error = null } = Param.validate(self);
+
+        if (error) {
+            throw error;
+        }
+
+        return self;
+
     }
 
 };
