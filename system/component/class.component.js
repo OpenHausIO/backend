@@ -701,13 +701,24 @@ module.exports = class COMPONENT extends COMMON {
                     if (key === "labels" && Array.isArray(filter[key]) && Array.isArray(target[key])) {
 
                         found = filter[key].every((label) => {
+
+                            // split filter key/label
+                            let [k = null, v = null] = label.split("=");
+
+                            // check wildcard key/value
+                            if (k === "*" || v === "*") {
+                                return true;
+                            }
+
                             // fix #381
                             // target[key] is a instance if class.labels.js and not of plain string.
                             // convert it to a array wiht plain strings, so that .includes works.
                             return target[key]?.toString().includes(label);
+
                         });
 
                         return;
+
                     }
 
                     if (typeof filter[key] === "object") {
