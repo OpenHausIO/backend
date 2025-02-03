@@ -58,7 +58,8 @@ process.env = Object.assign({
     MQTT_BROKER_VERSION: "4",
     MQTT_CLIENT_ID: "OpenHaus",
     MQTT_PING_INTERVAL: "5000",
-    CONNECT_TIMEOUT: "10000"
+    CONNECT_TIMEOUT: "10000",
+    HTTP_TRUSTED_PROXYS: "loopback"
 }, env.parsed, process.env);
 
 
