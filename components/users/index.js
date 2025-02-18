@@ -151,6 +151,7 @@ class C_USERS extends COMPONENT {
                     }, (err) => {
                         if (err) {
 
+                            this.logger.error(err, `Could not set login timestamp for user "${user.email}"`);
                             done(err);
 
                         } else {
