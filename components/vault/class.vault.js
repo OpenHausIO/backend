@@ -85,7 +85,7 @@ module.exports = class Vault extends Item {
                 return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
-            identifier: Joi.string().required(),
+            identifier: Joi.string().required(), // TODO: remove
             description: Joi.string().allow(null).default(null),
             secrets: Joi.array().items(Secret.schema()).default([])
         });
