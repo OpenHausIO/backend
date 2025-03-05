@@ -203,7 +203,7 @@ module.exports = class Scene extends Item {
 
         }).reduce((acc, cur, i) => {
             return (result) => {
-                return acc(result, this._ac.signal).then(async (r) => {
+                return acc(result, this._ac.signal, this).then(async (r) => {
                     if (this.states.aborted) {
 
                         return Promise.reject("Aborted!");
@@ -220,7 +220,7 @@ module.exports = class Scene extends Item {
                         // index = timer makro in `makros` array
                         this.states.index = i;
 
-                        return cur(r, this._ac.signal);
+                        return cur(r, this._ac.signal, this);
 
                     }
                 }).catch((err) => {

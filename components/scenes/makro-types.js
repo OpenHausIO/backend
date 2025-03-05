@@ -15,8 +15,65 @@ module.exports = {
     //   > maybe can be merged with params object
     //   > currently only one option "parallel", comes into my mind
     //   > but this would also be only command makro specific, so it could/sould be merged into params object
+    //   options.value = timer value
+    //   options.parallel = Boolean
+    //   options.params = Arry, command params
     // NOTE: The above, should also be adapted and applied to trigger types
 
+    "timer": (scene, { resolve, reject, signal, makro }) => {
+
+        let timeout = setTimeout(() => {
+            resolve();
+        }, makro.value);
+
+        signal.addEventListener("abort", () => {
+            clearTimeout(timeout);
+            reject();
+        }, {
+            once: true
+        });
+
+    },
+
+
+    "command": (scene, { resolve, makro }) => {
+
+        dispatcher({
+            "component": "endpoints",
+            "item": makro.endpoint,
+            "method": "trigger",
+            "args": [makro.command, makro.params || [], () => {
+                if (!makro?.parallel) {
+                    resolve();
+                }
+            }]
+        });
+
+        // use as default parallel if undefined
+        if (makro?.parallel ?? true) {
+            resolve();
+        }
+
+    },
+
+
+    "scene": (scene, { resolve, makro }) => {
+
+        dispatcher({
+            "component": "scenes",
+            "item": makro.scene,
+            "method": "trigger",
+            "args": []
+        });
+
+        resolve();
+
+    },
+
+    // create enable/disable makro
+    // calls via dispatcher update
+
+    /*
     // TODO (mstirner) change to "sleep" instead!
     "timer": ({ _id, value }, result, signal) => {
         return new Promise((resolve) => {
@@ -77,5 +134,6 @@ module.exports = {
 
         });
     }
+    */
 
 };
