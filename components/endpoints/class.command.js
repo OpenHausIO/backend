@@ -226,12 +226,12 @@ module.exports = class Command {
         let timer = _timeout(this.#privates.get("timeout"), (timedout, duration, args) => {
             if (timedout) {
 
-                console.log("Command timedout! Execution was not successful, worker function:", worker);
+                logger.warn(`Command timedout for "${this._id}"! Execution was not successful, worker function:`, worker);
                 cb(null, false);
 
             } else {
 
-                console.log("Command handler executed", duration, args);
+                logger.debug(`Command handler for "${this._id}" executed in ${duration}ms, arguments:`, args);
                 cb(...args);
 
             }
@@ -243,6 +243,10 @@ module.exports = class Command {
                 let param = this.params.find((param) => {
                     return param.key === obj.key;
                 });
+
+                if (!param) {
+                    return obj;
+                }
 
                 return Param.merge(param, obj);
 
