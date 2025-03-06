@@ -18,6 +18,7 @@ const Joi = require("joi");
  * @property {String} namespace Object namespace, `uuid -v4`
  * @property {String} item MongoDB ObjectID for for what item the config applays (E.g: device or endpoint item)
  */
+// TODO: Rename to class.config.js
 class Value {
 
     constructor(obj, changed = () => { }) {
