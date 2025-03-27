@@ -9,6 +9,7 @@
                 "--tab", "--working-directory",  "~/projects/OpenHaus/backend",
                 "--tab", "--working-directory",  "~/projects/OpenHaus/connector",
                 "--tab", "--working-directory",  "~/projects/OpenHaus/frontend",
+                "--tab", "--working-directory",  "~/projects/OpenHaus/admin-frontend",
             ],
             "problemMatcher": [],
             "presentation": {

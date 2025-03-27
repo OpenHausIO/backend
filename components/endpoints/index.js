@@ -42,7 +42,8 @@ class C_ENDPOINTS extends COMPONENT {
 
         // inject logger, collection and schema object
         super("endpoints", Endpoint.schema(), [
-            Endpoint
+            Endpoint,
+            Command
         ]);
 
 

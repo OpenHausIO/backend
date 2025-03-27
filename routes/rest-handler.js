@@ -2,6 +2,8 @@ const _iterate = require("../helper/iterate.js");
 
 module.exports = (C_COMPONENT, router) => {
 
+    const { logger } = C_COMPONENT;
+
     router.use((req, res, next) => {
 
         let json = res.json;
@@ -72,8 +74,10 @@ module.exports = (C_COMPONENT, router) => {
         C_COMPONENT.get(_id, (err, obj) => {
             if (err) {
 
+                logger.warn(`Could not get item "${_id}":`, err);
+
                 res.status(400).json({
-                    error: err
+                    error: err.message
                 });
 
             } else {
@@ -122,10 +126,10 @@ module.exports = (C_COMPONENT, router) => {
         C_COMPONENT.update(req.params["_id"], req.body, (err, result) => {
             if (err) {
 
-                console.log(err, result);
+                logger.warn(`Could not update item "${req.params._id}":`, err);
 
                 res.status(400).json({
-                    error: err
+                    error: err.message
                 });
 
             } else {
@@ -142,6 +146,8 @@ module.exports = (C_COMPONENT, router) => {
         // redacted for quick fix, issue reopend #169
         C_COMPONENT.add(req.body, (err, result) => {
             if (err) {
+
+                logger.warn(`Could not add item:`, err);
 
                 res.status(400).json({
                     error: err.message
@@ -164,8 +170,10 @@ module.exports = (C_COMPONENT, router) => {
         C_COMPONENT.remove(req.params["_id"], (err, result) => {
             if (err) {
 
+                logger.warn(`Could not remove item "${req.params._id}":`, err);
+
                 res.status(400).json({
-                    error: err
+                    error: err.message
                 });
 
             } else {

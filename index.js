@@ -29,6 +29,8 @@ process.env = Object.assign({
     DATABASE_URL: "",
     DATABASE_WATCH_CHANGES: "false",
     DATABASE_UPDATE_DEBOUNCE_TIMER: "15",
+    DATABASE_AUTH_SOURCE: "admin",
+    DATABASE_APPNAME: "OpenHaus",
     HTTP_PORT: "8080",
     HTTP_ADDRESS: "0.0.0.0",
     HTTP_SOCKET: "/tmp/open-haus.sock",
@@ -58,7 +60,8 @@ process.env = Object.assign({
     MQTT_BROKER_VERSION: "4",
     MQTT_CLIENT_ID: "OpenHaus",
     MQTT_PING_INTERVAL: "5000",
-    CONNECT_TIMEOUT: "10000"
+    CONNECT_TIMEOUT: "10000",
+    HTTP_TRUSTED_PROXYS: "loopback"
 }, env.parsed, process.env);
 
 

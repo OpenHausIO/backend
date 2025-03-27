@@ -117,7 +117,8 @@ module.exports = class Endpoint extends Item {
             device: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required(),
             commands: Joi.array().items(Command.schema()).default([]),
             states: Joi.array().items(State.schema()).default([]),
-            identifier: Joi.any().allow(null).default(null),   // usefull for ssdp, etc.
+            // removed, see #438
+            //identifier: Joi.any().allow(null).default(null),   // usefull for ssdp, etc.
             icon: Joi.string().allow(null).default(null)
         });
     }

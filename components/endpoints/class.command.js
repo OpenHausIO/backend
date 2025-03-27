@@ -205,6 +205,9 @@ module.exports = class Command {
      */
     trigger(params, cb) {
 
+        let { events, logger } = Command.scope;
+        logger.verbose(`Trigger command "${this.name}"`, this);
+
         if (!cb && params instanceof Function) {
             cb = params;
             params = [];
@@ -218,57 +221,60 @@ module.exports = class Command {
         let worker = this.#privates.get("handler");
         let iface = interfaces.get(this.interface);
 
-        //console.log("params array:", this.params, params)
-
-        let valid = params.every(({ key, value }) => {
-
-            let param = this.params.find((param) => {
-                return param.key === key;
-            });
-
-            if (!param) {
-                return false;
-            }
-
-            // auto convert "123" to 123
-            if (param.type === "number") {
-                value = Number(value);
-            }
-
-            return typeof (value) === param.type;
-
-        });
-
-        if (!iface) {
-            let err = new Error(`Interface "${this.interface}" not found, cant write to it.`);
-            err.code = "NO_INTERFACE";
-            return cb(err, false);
-        }
-
-        if (!valid) {
-            let err = new Error(`Invalid parameter`);
-            err.code = "INVALID_PARAMETER";
-            // TODO: Should not be as second argument passed "false"?!
-            return cb(err);
-        }
-
+        // moved up, and used as callback debounce function
+        // see #528, timeout helper has a internal "called" flag
         let timer = _timeout(this.#privates.get("timeout"), (timedout, duration, args) => {
             if (timedout) {
 
-                console.log("Command timedout! Execution was not successful, worker function:", worker);
+                logger.warn(`Command timedout for "${this._id}"! Execution was not successful, worker function:`, worker);
                 cb(null, false);
 
             } else {
 
-                console.log("Command handler executed", duration, args);
+                logger.debug(`Command handler for "${this._id}" executed in ${duration}ms, arguments:`, args);
                 cb(...args);
 
             }
         });
 
+        try {
+            params = params.map((obj) => {
+
+                let param = this.params.find((param) => {
+                    return param.key === obj.key;
+                });
+
+                if (!param) {
+                    return obj;
+                }
+
+                return Param.merge(param, obj);
+
+            });
+        } catch (err) {
+
+            logger.warn(err, `Passed params to command "${this.name}" are invalid`, params);
+
+            timer(err, false);
+            return;
+
+        }
+
+        // convert to params array with .lean method
+        params = new Params(...params);
+
+        if (!iface) {
+            let err = new Error(`Interface "${this.interface}" not found, cant write to it.`);
+            err.code = "NO_INTERFACE";
+            return timer(err, false);
+        }
+
+        // emit command event, see #529
+        events.emit("command", this, params);
+
         // handle timeout stuff here?
         // when so, timeout applys to custom functions too!
-        worker.call(this, this, iface, new Params(...params), timer);
+        worker.call(this, this, iface, params, timer);
 
     }
 

@@ -3,6 +3,12 @@ const mongodb = require("mongodb");
 
 const Item = require("../../system/component/class.item.js");
 
+// simple mdns monitor:
+// nc -ulvv 224.0.0.251 5353  -> does not work, use socat below:
+// socat UDP4-RECVFROM:5353,ip-add-membership=224.0.0.0:0.0.0.0,fork,reuseaddr -
+// sudo tcpdump -i <eth0> udp port 5353
+// sudo tcpdump -i eno1 udp port 5353
+// TODO: Add documentation for class
 module.exports = class MDNS extends Item {
 
     constructor(obj) {

@@ -4,7 +4,10 @@ const mongodb = require("mongodb");
 const Item = require("../../system/component/class.item.js");
 
 // simple ssdp monitor:
-// nc -ulvv 239.255.255.250 1900
+// nc -ulvv 239.255.255.250 1900 -> does not work, use socat below:
+// socat UDP4-RECVFROM:1900,ip-add-membership=239.255.255.250:0.0.0.0,fork,reuseaddr -
+// sudo tcpdump -i <eth0> udp port 1900
+// sudo tcpdump -i eno1 udp port 1900
 // TODO: Add documentation for class
 module.exports = class SSDP extends Item {
 
