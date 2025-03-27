@@ -703,7 +703,7 @@ module.exports = class COMPONENT extends COMMON {
                         found = filter[key].every((label) => {
 
                             // split filter key/label
-                            let [k = null, v = null] = label.split("=");
+                            let [k = null, v = null] = label.toString().split(/=(.+)/);
 
                             // check wildcard key/value
                             if (k === "*" || v === "*") {
@@ -763,12 +763,7 @@ module.exports = class COMPONENT extends COMMON {
 
                     if (target[key] instanceof Object) {
                         return loop(target[key], filter[key]);
-                    } else {
-                        return target[key] === filter[key];
-                    }
-
-                });
-            };
+                    } else {endpoint
 
             if (loop(item, filter)) {
                 matched = true;
@@ -833,7 +828,7 @@ module.exports = class COMPONENT extends COMMON {
 
             } else {
 
-                let [key, value] = filter.split("=");
+                let [key, value] = filter.split(/=(.+)/);
 
                 return arr.some((label) => {
 
