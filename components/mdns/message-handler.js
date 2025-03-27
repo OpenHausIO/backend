@@ -14,9 +14,6 @@ module.exports = (scope) => {
         });
 
 
-        console.log("match", matchCallbacks, matchCallbacks.indexOf());
-
-
         // listen for newly added items
         scope.events.on("add", ({ name, type, _matches }) => {
             matchCallbacks.push({
