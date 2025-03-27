@@ -14,13 +14,38 @@ module.exports = (scope) => {
         });
 
 
+        console.log("match", matchCallbacks, matchCallbacks.indexOf());
+
+
         // listen for newly added items
-        scope.events.on("added", ({ name, type, _matches }) => {
+        scope.events.on("add", ({ name, type, _matches }) => {
             matchCallbacks.push({
                 name,
                 type,
                 _matches
             });
+        });
+
+
+        // liste for removed items
+        scope.events.on("remove", ({ name, type }) => {
+            try {
+
+                let item = matchCallbacks.find((item) => {
+                    return item.name === name && item.type === type;
+                });
+
+                let index = matchCallbacks.indexOf(item);
+
+                if (index !== -1) {
+                    matchCallbacks.splice(index, 1);
+                }
+
+            } catch (err) {
+
+                logger.error(err, "Could not remove matchCallback");
+
+            }
         });
 
 
