@@ -9,11 +9,14 @@ module.exports = (logger) => {
 
             let url = new URL(`mongodb://${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`);
 
+            url.searchParams.set("authSource", process.env.DATABASE_AUTH_SOURCE); // admin
+            url.searchParams.set("appName", process.env.DATABASE_APPNAME); // OpenHaus
+
             if (process.env.DATABASE_AUTH_USERNAME) {
                 url.username = process.env.DATABASE_AUTH_USERNAME;
             }
 
-            if (process.env.DATABASE_AUTH_USERNAME) {
+            if (process.env.DATABASE_AUTH_PASSWORD) {
                 url.password = process.env.DATABASE_AUTH_PASSWORD;
             }
 
@@ -40,9 +43,8 @@ module.exports = (logger) => {
 
                 // monky patch db instance
                 // use this instance in other files
-                //mongodb.client = client.db(process.env.DATABASE_NAME);
+                mongodb.client = client.db(process.env.DATABASE_NAME);
                 mongodb.connection = client;
-                mongodb.client = client.db();
 
 
                 client.on("error", (err) => {
