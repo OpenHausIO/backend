@@ -2,6 +2,8 @@ const jwt = require("jsonwebtoken");
 
 module.exports = (C_USERS, router) => {
 
+    const { logger } = C_USERS;
+
     // check if the request came from the same machine
     // either via reverse proxy or socket
     // if it came via unix socket, handle the request as authentciated
@@ -57,6 +59,7 @@ module.exports = (C_USERS, router) => {
             }, (err, decoded) => {
                 if (err) {
 
+                    logger.error(err);
                     res.status(401).end();
 
                 } else {
