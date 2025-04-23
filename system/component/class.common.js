@@ -13,9 +13,10 @@ const promisify = require("../../helper/promisify");
  * 
  * @extends BASE system/component/class.base.js
  * 
- * @param {Object} logger Logger instance
+ * @param {String} name Component name
  * 
  * @property {Logger} logger Logger instance
+ * @property {Number} limit Max number of items the component can have
  * 
  * @see Logger system/logger/
  */
@@ -26,6 +27,27 @@ module.exports = class COMMON extends BASE {
         super(name);
 
         this.logger = Logger.create(name);
+        this.limit = Number.MAX_SAFE_INTEGER;
+
+        if (process.env.ITEM_LIMITS) {
+            try {
+
+                let limits = JSON.parse(process.env.ITEM_LIMITS);
+                this.limit = limits?.[name];
+
+            } catch (err) {
+
+                this.logger.warn(err, `Could not parse process.env.ITEM_LIMITS`);
+                process.exit(1);
+
+            }
+        }
+
+        Object.defineProperty(this, "limit", {
+            value: this.limit,
+            configurable: false,
+            writable: false
+        });
 
     }
 
