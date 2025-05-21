@@ -27,6 +27,10 @@ module.exports = (logger) => {
 
             });
 
+            if (componentNames.length === 0) {
+                return resolve();
+            }
+
             let componentConter = 0;
             //let counter = componentNames.length;
 
