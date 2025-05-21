@@ -167,10 +167,10 @@ module.exports = (app, router) => {
         }
     });
 
-    router.post("/:_id/start", (req, res) => {
+    router.post("/:_id/start", async (req, res) => {
         try {
 
-            req.item.start();
+            await req.item.start();
             res.json(req.item);
 
         } catch (err) {
@@ -183,19 +183,20 @@ module.exports = (app, router) => {
         }
     });
 
-    /*
-    router.post("/:_id/stop", (req, res) => {
+    router.post("/:_id/stop", async (req, res) => {
         try {
 
-            req.item.stop();
+            await req.item.stop();
             res.json(req.item);
 
         } catch (err) {
 
-            res.status(500).end(err);
+            res.status(500).json({
+                error: err.message,
+                stack: err.stack
+            });
 
         }
     });
-    */
 
 };
