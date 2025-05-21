@@ -240,6 +240,18 @@ module.exports = class Plugin extends Item {
                                 this.worker = null;
                                 //this.timestamps.stopped = Date.now();
 
+                                for (const [key, value] of connections) {
+                                    if (value === worker) {
+                                        connections.delete(key);
+                                    }
+                                }
+
+                                for (const [key, value] of commands) {
+                                    if (value === worker) {
+                                        commands.delete(key);
+                                    }
+                                }
+
                                 let { events } = Plugin.scope;
                                 events.emit("stop", this);
 
