@@ -54,9 +54,14 @@ module.exports = (router) => {
 
     C_DEVICES.events.on("socket", (obj) => {
         if (obj.type === "request") {
+
             wss.clients.forEach((ws) => {
+                // TODO: check if readyState = open
+                //if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(obj));
+                //}
             });
+
         }
     });
 
