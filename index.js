@@ -255,12 +255,14 @@ const starter = new Promise((resolve) => {
 
     let started = 0;
 
-    bootable.forEach((plugin) => {
+    // without async/await the process crashes
+    // if a error is thrown, even when it has no influence on the plugin start per se
+    bootable.forEach(async (plugin) => {
         try {
 
             logger.verbose(`Start plugin "${plugin.name}" (${plugin.uuid})`);
 
-            plugin.start();
+            await plugin.start();
 
             started += 1;
 
