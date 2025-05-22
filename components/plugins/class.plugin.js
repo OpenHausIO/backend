@@ -142,7 +142,10 @@ module.exports = class Plugin extends Item {
 
                 } else {
 
-                    throw new Error(`Unregisterd intents access approach`);
+                    let msg = `Unregisterd intents access approach\n`;
+                    msg += `Needs "${dependencies}", granted "${data.intents}"`;
+
+                    throw new Error(msg);
 
                 }
 
