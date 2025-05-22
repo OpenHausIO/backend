@@ -257,6 +257,7 @@ const starter = new Promise((resolve) => {
 
     // without async/await the process crashes
     // if a error is thrown, even when it has no influence on the plugin start per se
+    /*
     bootable.forEach(async (plugin) => {
         try {
 
@@ -272,14 +273,35 @@ const starter = new Promise((resolve) => {
 
         }
     });
+    */
 
-    if (bootable.length > started) {
-        logger.warn(`${started}/${bootable.length} Plugins started (Check the previously logs)`);
-    } else {
-        logger.info(`${started}/${bootable.length} Plugins started`);
-    }
+    (async () => {
 
-    logger.info("Startup complete");
+        for (const plugin of bootable) {
+            try {
+
+                logger.verbose(`Start plugin "${plugin.name}" (${plugin.uuid})`);
+
+                await plugin.start();
+
+                started += 1;
+
+            } catch (err) {
+
+                logger.error(err, `Could not boot plugin "${plugin.name}" (${plugin.uuid})`);
+
+            }
+        }
+
+        if (bootable.length > started) {
+            logger.warn(`${started}/${bootable.length} Plugins started (Check the previously logs)`);
+        } else {
+            logger.info(`${started}/${bootable.length} Plugins started`);
+        }
+
+        logger.info("Startup complete");
+
+    })();
 
     // fix #435
     ["SIGINT", /*"SIGTERM", "SIGQUIT"*/].forEach((signal) => {

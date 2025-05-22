@@ -196,7 +196,7 @@ module.exports = class Plugin extends Item {
                             });
 
                             // feedback
-                            logger.debug(`#${worker.threadId} = ${this.uuid}`);
+                            logger.debug(`#${worker.threadId} = ${this.uuid} (${this.name})`);
 
                             if (process.env.NODE_ENV === "development") {
 
@@ -237,7 +237,13 @@ module.exports = class Plugin extends Item {
                             worker.once("exit", (code) => {
 
                                 // feedback
-                                logger.info(`Plugin "${this.name}" worker thread exited, code=${code}`);
+                                let msg = `Plugin "${this.name}" worker thread exited, code=${code}`;
+
+                                if (code >= 0) {
+                                    logger.warn(msg);
+                                } else {
+                                    logger.info(msg);
+                                }
 
                                 this.started = false;
                                 this.worker = null;
