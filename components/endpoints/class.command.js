@@ -244,10 +244,11 @@ module.exports = class Command {
         // wenn worker thread prüfen ob im main oder worker
         // when main = post to worker
         // when worker = handler like default beaufer
+        let { events, logger } = Command.scope;
 
         let wrapper = () => {
 
-            let { events, logger } = Command.scope;
+            // feedback
             logger.verbose(`Trigger command "${this.name}"`, this);
 
             if (!cb && params instanceof Function) {
@@ -354,7 +355,8 @@ module.exports = class Command {
 
                 } else {
 
-                    console.log("No hanlder registered");
+                    // feedback
+                    logger.warn("No command hanlder registered");
 
                 }
 
