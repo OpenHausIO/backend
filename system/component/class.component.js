@@ -405,6 +405,8 @@ module.exports = class COMPONENT extends COMMON {
 
                                     } else {
 
+                                        // feedback
+                                        this.logger.info(`Item "${doc.name || doc.description}" added`);
 
                                         // resolve takes a array
                                         // these are arguments passed to the callback function
@@ -498,6 +500,7 @@ module.exports = class COMPONENT extends COMMON {
                             //if (result.n === 1 && result.ok === 1 && target) {
                             if (result.acknowledged && result.deletedCount > 0) {
 
+                                this.logger.info(`Item "${target.name || target.description}" removed`);
                                 resolve([target, result, _id]);
 
                             } else {
@@ -592,6 +595,9 @@ module.exports = class COMPONENT extends COMMON {
                             // Wir arbeiten auf generischier eben hier!
                             // Umwandlung von object/string zu/von object/string
                             // muss in middlware erflogen!!!!!!!!!!!!!!
+
+                            // feedback
+                            this.logger.info(`Item "${target.name || target.description}" updated`);
 
                             // TODO CHECK RESUTL!
                             // extend exisiting object in items array
