@@ -26,6 +26,10 @@ const PENDING_CHANGE_EVENTS = new Set();
  * 
  * @extends COMMON system/component/class.common.js
  * 
+ * @param {String} name Component name 
+ * @param {Object} schema Joi object schema
+ * @param {Array} classes Child classes where to inject "scope" property
+ * 
  * @property {Array} items Store where instance of items are keept
  * @property {Object} collection MongoDB collection instance 
  * @property {Object} schema Joi Object schema which is extend by a timestamp object:
@@ -313,6 +317,11 @@ module.exports = class COMPONENT extends COMMON {
             return (data) => {
                 return new Promise((resolve, reject) => {
 
+                    if (this.items.length >= this.limit) {
+                        let err = new Error(`Item limit for ${this.name} reached!`);
+                        return reject(err);
+                    }
+
                     let options = Object.assign({
                         returnDuplicate: true
                     }, {});
@@ -396,6 +405,8 @@ module.exports = class COMPONENT extends COMMON {
 
                                     } else {
 
+                                        // feedback
+                                        this.logger.info(`Item "${doc.name || doc.description}" added`);
 
                                         // resolve takes a array
                                         // these are arguments passed to the callback function
@@ -489,6 +500,7 @@ module.exports = class COMPONENT extends COMMON {
                             //if (result.n === 1 && result.ok === 1 && target) {
                             if (result.acknowledged && result.deletedCount > 0) {
 
+                                this.logger.info(`Item "${target.name || target.description}" removed`);
                                 resolve([target, result, _id]);
 
                             } else {
@@ -583,6 +595,9 @@ module.exports = class COMPONENT extends COMMON {
                             // Wir arbeiten auf generischier eben hier!
                             // Umwandlung von object/string zu/von object/string
                             // muss in middlware erflogen!!!!!!!!!!!!!!
+
+                            // feedback
+                            this.logger.info(`Item "${target.name || target.description}" updated`);
 
                             // TODO CHECK RESUTL!
                             // extend exisiting object in items array

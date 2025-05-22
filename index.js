@@ -61,7 +61,9 @@ process.env = Object.assign({
     MQTT_CLIENT_ID: "OpenHaus",
     MQTT_PING_INTERVAL: "5000",
     CONNECT_TIMEOUT: "10000",
-    HTTP_TRUSTED_PROXYS: "loopback"
+    HTTP_TRUSTED_PROXYS: "loopback",
+    ITEM_LIMITS: "",
+    WORKER_THREADS_ENABLED: "false"
 }, env.parsed, process.env);
 
 
@@ -287,3 +289,19 @@ const starter = new Promise((resolve) => {
     });
 
 });
+
+
+
+if (process.env.WORKER_THREADS_ENABLED === "true") {
+    setInterval(() => {
+
+        let mem = process.memoryUsage();
+        console.group(Date.now());
+        console.log(`RSS: ${Number(mem.rss / 1024 / 1024).toFixed(2)} MB`);
+        console.log(`Heap Used: ${Number(mem.heapUsed / 1024 / 1024).toFixed(2)} MB`);
+        console.log(`External: ${Number(mem.external / 1024 / 1024).toFixed(2)} MB`);
+        console.log();
+        console.groupEnd();
+
+    }, 30_000);
+}

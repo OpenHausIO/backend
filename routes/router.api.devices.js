@@ -3,6 +3,10 @@ const WebSocket = require("ws");
 const C_DEVICES = require("../components/devices");
 const { WEBSOCKET_SERVER } = require("../components/devices/class.interface.js");
 
+const { connections } = require("../system/worker/shared.js");
+const MessagePortStream = require("../system/worker/class.messageportstream.js");
+const { MessageChannel } = require("worker_threads");
+
 //const iface_locked = new Map();
 
 // move that to "event bus"
@@ -96,37 +100,66 @@ module.exports = (app, router) => {
 
                         let stream = WebSocket.createWebSocketStream(ws);
 
-                        ws.once("close", (code) => {
-                            if (code >= 4000 && code <= 4999) {
+                        if (process.env.WORKER_THREADS_ENABLED === "true") {
 
-                                // error on connection attempt
-                                // underlaying os trhowed error
-                                // build custom connection error
-                                let err = new Error("Bridging failed");
-                                err.code = ERROR_CODE_MAPPINGS[code];
-                                err.errno = ERROR_CODE_MAPPINGS[err.code];
-                                err.syscall = "connect";
+                            if (connections.has(req.query.uuid)) {
 
-                                stream.emit("error", err);
+                                let worker = connections.get(req.query.uuid);
+                                let { port1, port2 } = new MessageChannel();
 
-                            } else {
+                                let socket = new MessagePortStream(port1);
 
-                                // no clue why closed, cleanup anyway
-                                // TODO: check code and decide if error or success closing
-                                //stream.emit("close"); // desotroy() emit close event(!|?)
-                                stream.destroy();
+                                stream.pipe(socket);
+                                socket.pipe(stream);
+
+                                worker.postMessage({
+                                    component: "devices",
+                                    event: "socket",
+                                    uuid: req.query.uuid,
+                                    iface: req.params._iid,
+                                    type: "response",
+                                    port: port2
+                                }, [port2]);
+
+                                // cleanup
+                                connections.delete(req.query.uuid);
 
                             }
-                        });
 
+                        } else {
 
-                        C_DEVICES.events.emit("socket", {
-                            uuid: req.query.uuid,
-                            iface: req.params._iid,
-                            type: "response",
-                            socket: true,
-                            stream
-                        });
+                            ws.once("close", (code) => {
+                                if (code >= 4000 && code <= 4999) {
+
+                                    // error on connection attempt
+                                    // underlaying os trhowed error
+                                    // build custom connection error
+                                    let err = new Error("Bridging failed");
+                                    err.code = ERROR_CODE_MAPPINGS[code];
+                                    err.errno = ERROR_CODE_MAPPINGS[err.code];
+                                    err.syscall = "connect";
+
+                                    stream.emit("error", err);
+
+                                } else {
+
+                                    // no clue why closed, cleanup anyway
+                                    // TODO: check code and decide if error or success closing
+                                    //stream.emit("close"); // desotroy() emit close event(!|?)
+                                    stream.destroy();
+
+                                }
+                            });
+
+                            C_DEVICES.events.emit("socket", {
+                                uuid: req.query.uuid,
+                                iface: req.params._iid,
+                                type: "response",
+                                socket: true,
+                                stream
+                            });
+
+                        }
 
                     } else {
 

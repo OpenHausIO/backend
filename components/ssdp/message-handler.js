@@ -24,7 +24,7 @@ module.exports = (scope) => {
 
         // listen for newly added items
         //scope.events.on("added", ({ nt, usn, _matches, headers }) => {
-        scope.events.on("added", ({ nt, usn, _matches }) => {
+        scope.events.on("add", ({ nt, usn, _matches }) => {
             matchCallbacks.push({
                 nt,
                 usn,
@@ -34,6 +34,28 @@ module.exports = (scope) => {
                     return new RegExp(str, "i");
                 })*/
             });
+        });
+
+
+        // liste for removed items
+        scope.events.on("remove", ({ name, type }) => {
+            try {
+
+                let item = matchCallbacks.find((item) => {
+                    return item.name === name && item.type === type;
+                });
+
+                let index = matchCallbacks.indexOf(item);
+
+                if (index !== -1) {
+                    matchCallbacks.splice(index, 1);
+                }
+
+            } catch (err) {
+
+                logger.error(err, "Could not remove matchCallback");
+
+            }
         });
 
 

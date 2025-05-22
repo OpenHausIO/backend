@@ -39,7 +39,15 @@ class C_SCENES extends COMPONENT {
             // fix #390
             data.triggers.forEach((trigger, i, arr) => {
                 if (!(trigger instanceof Trigger)) {
+
                     arr[i] = new Trigger(trigger);
+
+                    // data = scene item instance
+                    // same handling as in class.scene.js
+                    arr[i].signal.on("fire", () => {
+                        data.trigger();
+                    });
+
                 }
             });
 

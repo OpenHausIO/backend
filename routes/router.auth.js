@@ -1,9 +1,10 @@
 const jwt = require("jsonwebtoken");
 const C_USERS = require("../components/users");
+const { logger } = C_USERS;
 
 module.exports = (app, router) => {
 
-    router.get("/", (req, res) => {
+    router.get("/check", (req, res) => {
         if (process.env.API_AUTH_ENABLED === "true") {
 
             // override header header token with query token
@@ -79,32 +80,45 @@ module.exports = (app, router) => {
     router.post("/logout", (req, res) => {
         if (req.headers["x-auth-token"]) {
 
-            let decoded = jwt.decode(req.headers["x-auth-token"]);
-
-            if (!decoded.uuid || decoded.uuid !== process.env.UUID) {
-                res.status(401).end();
-                return;
-            }
-
-            C_USERS.logout(decoded.email, (err, user, success) => {
+            // TODO: use jwt.verify() instead, otherwise you could trigger a logout for any other user
+            //let decoded = jwt.decode(req.headers["x-auth-token"]);
+            jwt.verify(req.headers["x-auth-token"], process.env.USERS_JWT_SECRET, {
+                algorithms: [process.env.USERS_JWT_ALGORITHM]
+            }, (err, decoded) => {
                 if (err) {
 
+                    logger.error(err);
                     res.status(401).end();
 
                 } else {
 
-                    if (!user) {
+                    if (!decoded.uuid || decoded.uuid !== process.env.UUID) {
                         res.status(401).end();
                         return;
                     }
 
-                    res.status(200).json({
-                        success
+                    // NOTE: could this a security risk?
+                    C_USERS.logout(decoded.email, (err, user, success) => {
+                        if (err) {
+
+                            res.status(401).end();
+
+                        } else {
+
+                            if (!user) {
+                                res.status(401).end();
+                                return;
+                            }
+
+                            res.status(200).json({
+                                success
+                            });
+
+                        }
                     });
 
                 }
             });
-
         } else {
 
             res.status(401).end();

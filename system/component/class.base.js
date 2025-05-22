@@ -11,6 +11,7 @@ const Events = require("./class.events.js");
  * 
  * @class BASE
  * 
+ * @property {String} name Name of the component
  * @property {Boolean} ready Indicate if the component is ready to use
  * @property {EventEmitter} events node.js EventEmitter instance
  * @property {Object} hooks Hooks class instance 
@@ -24,6 +25,7 @@ const Events = require("./class.events.js");
 module.exports = class BASE {
 
     constructor(name) {
+        this.name = name;
         this.ready = false;
         this.events = new Events(name);
         this.hooks = new Hooks();

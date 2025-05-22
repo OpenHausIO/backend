@@ -6,6 +6,7 @@ const debounce = require("../../helper/debounce.js");
 
 const Makro = require("./class.makro.js");
 const Trigger = require("./class.trigger.js");
+const Input = require("./class.input.js");
 
 const Item = require("../../system/component/class.item.js");
 
@@ -138,6 +139,7 @@ module.exports = class Scene extends Item {
             triggers: Joi.array().items(Trigger.schema()).default([]),
             visible: Joi.boolean().default(true),
             icon: Joi.string().allow(null).default(null),
+            inputs: Joi.array().items(Input.schema()).default([]),
             states: Joi.object({
                 running: Joi.boolean().default(false),
                 aborted: Joi.boolean().default(false),
@@ -160,10 +162,10 @@ module.exports = class Scene extends Item {
 
     }
 
-    trigger() {
+    trigger(inputs) {
 
         let { logger } = Scene.scope;
-        logger.info(`Trigger scene "${this.name}" (${this._id})`);
+        logger.info(`Trigger scene "${this.name}" (${this._id}), inputs:`, inputs);
 
         // fix #507
         // stop previous running scene
@@ -171,6 +173,19 @@ module.exports = class Scene extends Item {
             logger.debug(`Abort previously running scene "${this.name}" (${this._id})`);
             this._ac.abort();
         }
+
+        // Without this, when the scene is done
+        // default values are set for input
+        // we need to ensure that the "input" value are correct saved
+        inputs?.forEach(({ key, value }) => {
+
+            let input = this.inputs.find((input) => {
+                return input.key === key;
+            });
+
+            input.value = value;
+
+        });
 
         this.timestamps.started = Date.now();
         let ac = new AbortController();
@@ -197,6 +212,11 @@ module.exports = class Scene extends Item {
             return enabled;
 
         }).map((makro) => {
+
+            // monkey patch input/params array
+            if (makro.type === "command") {
+                makro.params = inputs;
+            }
 
             // bind scope to method
             return makro.execute.bind(makro);
