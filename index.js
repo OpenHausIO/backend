@@ -36,7 +36,7 @@ process.env = Object.assign({
     HTTP_SOCKET: "/tmp/open-haus.sock",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
     LOG_LEVEL: "info",
-    LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
+    LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM:ss.l",
     LOG_SUPPRESS: "false",
     LOG_TARGET: "",
     NODE_ENV: "production",
@@ -82,7 +82,7 @@ if (process.execArgv.includes("--inspect") && process.env.NODE_ENV === "developm
     try {
         exec("chromium-browser & sleep 1 && xdotool type 'chrome://inspect' && xdotool key Return");
     } catch (err) {
-        console.error("Could not open chromium browser");
+        console.error(err, "Could not open chromium browser");
     }
 }
 
@@ -307,7 +307,12 @@ const starter = new Promise((resolve) => {
     ["SIGINT", /*"SIGTERM", "SIGQUIT"*/].forEach((signal) => {
         process.once(signal, () => {
 
+            logger.debug(`signal=${signal} received`);
             logger.warn("Shuting down...");
+
+            setTimeout(() => {
+                process.exit(0);
+            });
 
         });
     });
