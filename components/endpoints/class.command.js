@@ -396,7 +396,8 @@ module.exports = class Command {
             //payload: Joi.string().allow(null).default(null),
             payload: Joi.alternatives().try(Joi.string(), Joi.binary()).allow(null).default(null),
             description: Joi.string().allow(null).default(null),
-            params: Joi.array().items(Param.schema()).default([])
+            params: Joi.array().items(Param.schema()).default([]),
+            icon: Joi.string().allow(null).default(null)
         });
     }
 
