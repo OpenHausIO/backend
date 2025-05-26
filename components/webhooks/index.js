@@ -15,7 +15,9 @@ class C_WEBHOOKS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("webhooks", Webhook.schema());
+        super("webhooks", Webhook.schema(), [
+            Webhook
+        ]);
 
         this.hooks.post("add", (data, next) => {
             next(null, new Webhook(data));
