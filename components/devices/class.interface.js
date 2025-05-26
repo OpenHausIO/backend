@@ -225,7 +225,7 @@ module.exports = class Interface {
                 stream.once("close", () => {
 
                     // feedback
-                    logger.debug(`Bridge closed, destroy everything: iface ${this._id} <-> ${proto}://${host}:${port} (${request.uuid})`);
+                    //logger.debug(`Bridge closed, destroy everything: iface ${this._id} <-> ${proto}://${host}:${port} (${request.uuid})`);
 
                     // TODO: Improve error handling/forwarding/cleanup
                     // socket.destroy() throws ABORT_ERR after emitting custom connection error
@@ -250,7 +250,7 @@ module.exports = class Interface {
 
                 process.nextTick(() => {
 
-                    stream.emit("open");
+                    socket.emit("open");
 
                     writable.pipe(stream);
                     stream.pipe(readable);
