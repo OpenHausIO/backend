@@ -15,6 +15,7 @@ RUN chmod +x scripts/post-install.sh
 RUN apk --no-cache add python3 make g++
 
 COPY ./package*.json ./
+RUN npm pkg delete scripts.prepare
 RUN npm install
 
 
