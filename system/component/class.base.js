@@ -43,23 +43,29 @@ module.exports = class BASE {
      * @param {Function} cb Worker callback
      */
     init(cb) {
-        cb(this, (err) => {
-            if (err) {
+        try {
+            cb(this, (err) => {
+                if (err) {
 
-                // see issue #53, this should not throw
-                this.events.emit("error", err);
-                //process.exit(1000); ?!
+                    // see issue #53, this should not throw
+                    this.events.emit("error", err);
+                    //process.exit(1000); ?!
 
-            } else {
+                } else {
 
-                this.ready = true;
+                    this.ready = true;
 
-                process.nextTick(() => {
-                    this.events.emit("ready");
-                });
+                    process.nextTick(() => {
+                        this.events.emit("ready");
+                    });
 
-            }
-        });
+                }
+            });
+        } catch (err) {
+
+            this.events.emit("error", err);
+
+        }
     }
 
 };

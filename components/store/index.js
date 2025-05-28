@@ -71,25 +71,21 @@ const instance = module.exports = new C_STORE();
 // init component
 // set items/build cache
 instance.init((scope, ready) => {
+    scope.collection.find({}).toArray().then((data) => {
 
-    scope.collection.find({}).toArray((err, data) => {
-        if (err) {
+        data.forEach((obj) => {
 
-            // shit...
-            ready(err);
+            let item = new Store(obj);
+            scope.items.push(item);
 
-        } else {
+        });
 
-            data = data.map((obj) => {
-                return new Store(obj);
-            });
+        // init done
+        ready(null);
 
-            scope.items.push(...data);
+    }).catch((err) => {
 
-            // init done
-            ready(null);
+        ready(err);
 
-        }
     });
-
 });

@@ -126,23 +126,22 @@ const instance = module.exports = new C_ENDPOINTS();
 // init component
 // set items/build cache
 instance.init((scope, ready) => {
-    scope.collection.find({}).toArray((err, data) => {
-        if (err) {
+    scope.collection.find({}).toArray().then((data) => {
 
-            // shit...
-            ready(err);
+        data.forEach((obj) => {
 
-        } else {
+            let item = new Endpoint(obj);
+            scope.items.push(item);
 
-            data = data.map((item) => {
-                return new Endpoint(item);
-            });
+        });
 
-            scope.items.push(...data);
+        // init done
+        ready(null);
 
-            // init done
-            ready(null);
+    }).catch((err) => {
 
-        }
+        ready(err);
+
     });
+
 });

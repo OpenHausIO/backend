@@ -232,24 +232,22 @@ instance.init((scope, ready) => {
         return ready(new Error("You need to set a `USERS_JWT_SECRET` environment variable!"));
     }
 
-    scope.collection.find({}).toArray((err, data) => {
-        if (err) {
+    scope.collection.find({}).toArray().then((data) => {
 
-            // shit...
-            ready(err);
+        data.forEach((obj) => {
 
-        } else {
+            let item = new User(scope, obj);
+            scope.items.push(item);
 
-            data = data.map((obj) => {
-                return new User(scope, obj);
-            });
+        });
 
-            scope.items.push(...data);
+        // init done
+        ready(null);
 
-            // init done
-            ready(null);
+    }).catch((err) => {
 
-        }
+        ready(err);
+
     });
 
 });

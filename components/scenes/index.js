@@ -66,21 +66,21 @@ const instance = module.exports = new C_SCENES();
 // init component
 // set items/build cache
 instance.init((scope, ready) => {
-    scope.collection.find({}).toArray((err, data) => {
-        if (err) {
+    scope.collection.find({}).toArray().then((data) => {
 
-            // shit...
-            ready(err);
+        data.forEach((obj) => {
 
-        } else {
+            let item = new Scene(obj);
+            scope.items.push(item);
 
-            data.forEach((obj) => {
-                scope.items.push(new Scene(obj));
-            });
+        });
 
-            // init done
-            ready(null);
+        // init done
+        ready(null);
 
-        }
+    }).catch((err) => {
+
+        ready(err);
+
     });
 });
