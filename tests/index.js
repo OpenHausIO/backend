@@ -1,6 +1,7 @@
 const mongodb = require("mongodb");
 const path = require("path");
 const { describe, it, after } = require("mocha");
+const { channel } = require("../system/component/class.events.js");
 
 const env = require("dotenv").config({
     path: path.resolve(process.cwd(), ".env")
@@ -48,36 +49,45 @@ if (!process.env.DATABASE_URL) {
 describe("Database", () => {
 
     it(`- Should connect to ${process.env.DATABASE_URL}`, (done) => {
+
         mongodb.MongoClient.connect(process.env.DATABASE_URL, {
-            useUnifiedTopology: true,
-            useNewUrlParser: true
-        }, (err, client) => {
+            //useUnifiedTopology: true,
+            //useNewUrlParser: true
+        }).then((client) => {
 
-            if (err) {
-                return done(err);
-            }
-
-            //assert(err, null);
+            /*
+            // mocha should handle this with specific error code
+            client.on("serverClosed", () => {
+                process.exit();
+            });
+            */
 
             mongodb.connection = client;
             mongodb.client = client.db();
 
-            done(err);
+            done();
 
-            require("./helper/index.js");
+            //require("./helper/index.js");
             require("./system/index.js");
             require("./components/index.js");
             //require("./http-api/index.js");
+
+        }).catch((err) => {
+
+            console.error(err);
+
+            done(err);
+            process.exit(1);
 
         });
     });
 
 });
 
-after((done) => {
-    mongodb.client.dropDatabase(() => {
-        mongodb.connection.close(() => {
-            done();
-        });
-    });
+after(async () => {
+
+    channel.close(); // close brodcast channel, see #6
+    await mongodb.client.dropDatabase();
+    await mongodb.connection.close();
+
 });
