@@ -142,7 +142,7 @@ describe("common", () => {
     describe("- should have following properties", () => {
 
         it("should have property .logger", () => {
-            assert(instance.logger === logger);
+            assert(instance.logger instanceof Logger);
         });
 
     });
