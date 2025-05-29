@@ -23,10 +23,12 @@ class C_USERS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("users", User.schema());
+        super("users", User.schema(), [
+            User
+        ]);
 
         this.hooks.post("add", (data, next) => {
-            next(null, new User(this, data));
+            next(null, new User(data));
         });
 
         // patch password if item exists & is set
@@ -236,7 +238,7 @@ instance.init((scope, ready) => {
 
         data.forEach((obj) => {
 
-            let item = new User(scope, obj);
+            let item = new User(obj);
             scope.items.push(item);
 
         });
