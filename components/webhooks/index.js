@@ -51,5 +51,4 @@ instance.init((scope, ready) => {
         ready(err);
 
     });
-
 });
