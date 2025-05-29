@@ -1,4 +1,6 @@
 const { describe, it } = require("mocha");
+const fs = require("fs");
+const path = require("path");
 
 describe("Components", () => {
 
@@ -12,10 +14,26 @@ describe("Components", () => {
         ].forEach((name) => {
             describe(name, () => {
 
+                // clear require cach before each test
+                // otherwise the `.scope` property cant be set in component classes
+                // because its not configurerable/writable
+                beforeEach((done) => {
+
+                    let base = path.join(process.cwd(), `components/${name}/`);
+
+                    fs.readdirSync(base).map((file) => {
+                        return path.join(base, file);
+                    }).forEach((file) => {
+                        delete require.cache[file];
+                    });
+
+                    done();
+
+                });
+
 
                 it(`should emit the "ready" event when init is done`, (done) => {
 
-                    delete require.cache[require.resolve(`../../components/${name}`)];
                     let C_COMPONENT = require(`../../components/${name}`);
 
                     C_COMPONENT.events.once("ready", () => {
@@ -27,7 +45,6 @@ describe("Components", () => {
 
                 it(`should call the ._ready callback when init is done`, (done) => {
 
-                    delete require.cache[require.resolve(`../../components/${name}`)];
                     let C_COMPONENT = require(`../../components/${name}`);
 
                     C_COMPONENT._ready(() => {
