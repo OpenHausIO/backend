@@ -21,7 +21,7 @@ describe("HTTP API", function () {
             silent: true,
             env: Object.assign({}, process.env, {
                 UUID: crypto.randomUUID(),
-                DATABASE_NAME: "test",
+                DATABASE_NAME: crypto.randomBytes(8).toString("hex"),
                 VAULT_MASTER_PASSWORD: crypto.randomBytes(24).toString("hex"),
                 USERS_JWT_SECRET: crypto.randomBytes(24).toString("hex")
             })
@@ -46,7 +46,13 @@ describe("HTTP API", function () {
         let emitter = newman.run({
             collection,
             //reporters: "json",
-            timeoutRequest: 3000
+            //timeoutRequest: 30000
+            delayRequest: 200
+        });
+
+        emitter.on("beforeItem", (err, { item }) => {
+            let { request } = item;
+            console.log(`\t[${request.method}] ${item.name} (${request.url})`);
         });
 
         emitter.once("exception", (err, { error }) => {
@@ -62,8 +68,8 @@ describe("HTTP API", function () {
 
                 } else {
 
-                    summary.run.failures.forEach(({ source: { request }, error }) => {
-                        console.error(`[${request.method}] ${request.url.toString()}`, error.message);
+                    summary.run.failures.forEach(({ source: { name, request }, error }) => {
+                        console.error(`[${request.method}] ${request.url.toString()} (${name})`, error.message);
                     });
 
                     assert.equal(summary.run.failures.length, 0);
