@@ -354,21 +354,31 @@ module.exports = class Command {
 
             }
 
-            // convert to params array with .lean method
-            params = new Params(...params);
+            try {
 
-            if (!iface) {
-                let err = new Error(`Interface "${this.interface}" not found, cant write to it.`);
-                err.code = "NO_INTERFACE";
-                return timer(err, false);
+                // convert to params array with .lean method
+                params = new Params(...params);
+
+                if (!iface) {
+                    let err = new Error(`Interface "${this.interface}" not found, cant write to it.`);
+                    err.code = "NO_INTERFACE";
+                    return timer(err, false);
+                }
+
+                // emit command event, see #529
+                events.emit("command", this, params);
+
+                // handle timeout stuff here?
+                // when so, timeout applys to custom functions too!
+                worker.call(this, this, iface, params, timer);
+
+            } catch (err) {
+
+                logger.warn(err, "Error catched in worker function");
+
+                timer(err, false);
+
             }
-
-            // emit command event, see #529
-            events.emit("command", this, params);
-
-            // handle timeout stuff here?
-            // when so, timeout applys to custom functions too!
-            worker.call(this, this, iface, params, timer);
 
         };
 
