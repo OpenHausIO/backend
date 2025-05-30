@@ -76,7 +76,7 @@ module.exports = (router) => {
         }
 
 
-        if ((req.query?.includes?.includes("env") || (!req.query?.includes && true))) {
+        if ((req.query?.includes?.includes("env") || (!req.query?.includes && true)) && fs.existsSync(path.join(process.cwd(), ".env"))) {
 
             // encode .env value as base64, so the are not human readable
             let content = fs.readFileSync(path.join(process.cwd(), ".env"), "utf8").split(EOL).map((line) => {
