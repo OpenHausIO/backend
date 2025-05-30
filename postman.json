@@ -3472,11 +3472,11 @@
 								"body": {
 									"mode": "file",
 									"file": {
-										"src": ""
+										"src": "/home/marc/Downloads/OpenHaus-1748626762611.tgz"
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/system/backup/import?truncate=true",
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/backup/import?truncate=true&decode=true&includes[]=plugins&includes[]=database",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -3509,7 +3509,19 @@
 										{
 											"key": "decode",
 											"value": "true",
-											"description": "Decode base64 .env values",
+											"description": "Decode base64 .env values"
+										},
+										{
+											"key": "includes[]",
+											"value": "plugins"
+										},
+										{
+											"key": "includes[]",
+											"value": "database"
+										},
+										{
+											"key": "includes[]",
+											"value": "env",
 											"disabled": true
 										}
 									]
