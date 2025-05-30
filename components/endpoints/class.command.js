@@ -11,6 +11,56 @@ const { parentPort, isMainThread } = require("worker_threads");
 const { commands } = require("../../system/worker/shared.js");
 const { randomUUID } = require("crypto");
 
+
+// check if a passed callback uses old
+// command arugments, or the new signature
+// see #504 - "change command handler function arguments"
+function compatWrapper(fn, { logger }) {
+    return function (...args) {
+
+        // args[0] = cmd
+        // args[1] = iface
+        // args[2] = params
+        // args[3] = timer/cb
+
+        // this, provokes "Cannot set headers after they are sent to the client"
+        // see issue #528
+        //let { logger } = Command.scope; 
+
+        if (fn.length === 4) {
+
+            // print a deprecation notice (only in dev mode)
+            // for production this would be to verbose
+            if (process.env.NODE_ENV === "development") {
+
+                let msg = "Command handler signature deprecated!\n";
+                msg += "`(cmd, iface, params, done) => {}` will be removed in further versions.\n";
+                msg += "Use `(obj, done) => {}` instead. See: https://github.com/OpenHausIO/backend/issues/504#issuecomment-2922734270";
+
+                logger.warn(msg);
+
+            }
+
+            // old signature/arguments
+            return fn(...args);
+
+        } else if (fn.length === 2) {
+
+            // new signature/arguments accepted
+            return fn({
+                params: args[2]
+            }, timer);
+
+        } else {
+
+            return fn(...args);
+
+        }
+
+    }
+}
+
+
 /**
  * @description
  * Single command
@@ -261,8 +311,9 @@ module.exports = class Command {
                 cb = () => { };
             }
 
-            let worker = this.#privates.get("handler");
+            let handler = this.#privates.get("handler");
             let iface = interfaces.get(this.interface);
+            let worker = compatWrapper(handler, Command.scope);
 
             // moved up, and used as callback debounce function
             // see #528, timeout helper has a internal "called" flag
