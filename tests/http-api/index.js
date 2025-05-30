@@ -57,10 +57,6 @@ describe("HTTP API", function () {
 
         emitter.on("beforeItem", (err, { item }) => {
 
-            if (!child) {
-                emitter?.abort();
-            }
-
             let { request } = item;
             console.log(`\t[${request.method}] ${item.name} (${request.url})`);
 
