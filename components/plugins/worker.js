@@ -58,7 +58,12 @@ const Plugin = require("./class.plugin.js");
     } catch (err) {
 
         log.error(err, "Could not initalize system");
-        process.exit(1);
+
+        // without setTimeout, logs are not printed
+        // drain the event loop/flush stdout, and exit then
+        setTimeout(() => {
+            process.exit(1);
+        });
 
     }
 })();

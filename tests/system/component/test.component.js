@@ -67,7 +67,7 @@ describe("component", function () {
             "_defineMethod", "_mapMethod", "_ready",    // common methods
             "items", "collection", "schema",            // common properties
             "get", "add", "update", "remove", "find",   // component methods
-            "found", "_labels", "labels"
+            "found", "_labels", "labels", "limit"
         ];
 
         for (let item of getItmes(instance)) {

@@ -1,4 +1,4 @@
-const dateFormat = require("dateformat");
+const dateFormat = require("dateformat").default;
 const safe = require("colors/safe");
 
 const levels = require("./levels.js");

@@ -5,6 +5,7 @@ const channel = new BroadcastChannel("events");
 
 module.exports = class Events extends EventEmitter {
 
+    static channel = channel;
     static emitted = Symbol("emitted");
     static registered = Symbol("registerd");
     static emitter = new EventEmitter();

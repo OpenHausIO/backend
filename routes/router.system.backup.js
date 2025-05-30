@@ -76,7 +76,7 @@ module.exports = (router) => {
         }
 
 
-        if ((req.query?.includes?.includes("env") || (!req.query?.includes && true))) {
+        if ((req.query?.includes?.includes("env") || (!req.query?.includes && true)) && fs.existsSync(path.join(process.cwd(), ".env"))) {
 
             // encode .env value as base64, so the are not human readable
             let content = fs.readFileSync(path.join(process.cwd(), ".env"), "utf8").split(EOL).map((line) => {
@@ -244,8 +244,17 @@ module.exports = (router) => {
 
             } else if (header.name === ".env") {
 
-                if (req.query?.truncate === "true") {
-                    fs.truncateSync(path.join(process.cwd(), ".env"));
+                let envPath = path.join(process.cwd(), ".env");
+                let fd = null;
+
+                try {
+                    if (req.query?.truncate === "true") {
+                        fs.truncateSync(envPath, 0);
+                    }
+                } catch (err) {
+                    // ignore
+                } finally {
+                    fd = fs.openSync(envPath, "w");
                 }
 
                 let rl = createInterface({
@@ -253,10 +262,12 @@ module.exports = (router) => {
                 });
 
                 rl.once("error", (err) => {
+                    fs.closeSync(fd);
                     next(err);
                 });
 
                 rl.once("close", () => {
+                    fs.closeSync(fd);
                     next();
                 });
 
@@ -265,11 +276,11 @@ module.exports = (router) => {
                     let [key, value] = line.split("=");
 
                     if (!key || !value || req.query?.decode !== "true") {
-                        return fs.appendFileSync(path.join(process.cwd(), ".env"), line + EOL);
+                        return fs.writeSync(fd, line + EOL);
                     }
 
                     line = `${key}=${Buffer.from(value, "base64").toString()}`;
-                    fs.appendFileSync(path.join(process.cwd(), ".env"), line + EOL);
+                    fs.writeSync(fd, line + EOL);
 
                 });
 

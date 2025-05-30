@@ -15,7 +15,9 @@ class C_WEBHOOKS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("webhooks", Webhook.schema());
+        super("webhooks", Webhook.schema(), [
+            Webhook
+        ]);
 
         this.hooks.post("add", (data, next) => {
             next(null, new Webhook(data));
@@ -32,23 +34,21 @@ const instance = module.exports = new C_WEBHOOKS();
 // init component
 // set items/build cache
 instance.init((scope, ready) => {
-    scope.collection.find({}).toArray((err, data) => {
-        if (err) {
+    scope.collection.find({}).toArray().then((data) => {
 
-            // shit...
-            ready(err);
+        data.forEach((obj) => {
 
-        } else {
+            let item = new Webhook(obj);
+            scope.items.push(item);
 
-            data = data.map((obj) => {
-                return new Webhook(obj);
-            });
+        });
 
-            scope.items.push(...data);
+        // init done
+        ready(null);
 
-            // init done
-            ready(null);
+    }).catch((err) => {
 
-        }
+        ready(err);
+
     });
 });

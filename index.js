@@ -36,7 +36,7 @@ process.env = Object.assign({
     HTTP_SOCKET: "/tmp/open-haus.sock",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
     LOG_LEVEL: "info",
-    LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
+    LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM:ss.l",
     LOG_SUPPRESS: "false",
     LOG_TARGET: "",
     NODE_ENV: "production",
@@ -82,7 +82,7 @@ if (process.execArgv.includes("--inspect") && process.env.NODE_ENV === "developm
     try {
         exec("chromium-browser & sleep 1 && xdotool type 'chrome://inspect' && xdotool key Return");
     } catch (err) {
-        console.error("Could not open chromium browser");
+        console.error(err, "Could not open chromium browser");
     }
 }
 
@@ -255,12 +255,15 @@ const starter = new Promise((resolve) => {
 
     let started = 0;
 
-    bootable.forEach((plugin) => {
+    // without async/await the process crashes
+    // if a error is thrown, even when it has no influence on the plugin start per se
+    /*
+    bootable.forEach(async (plugin) => {
         try {
 
             logger.verbose(`Start plugin "${plugin.name}" (${plugin.uuid})`);
 
-            plugin.start();
+            await plugin.start();
 
             started += 1;
 
@@ -270,20 +273,46 @@ const starter = new Promise((resolve) => {
 
         }
     });
+    */
 
-    if (bootable.length > started) {
-        logger.warn(`${started}/${bootable.length} Plugins started (Check the previously logs)`);
-    } else {
-        logger.info(`${started}/${bootable.length} Plugins started`);
-    }
+    (async () => {
 
-    logger.info("Startup complete");
+        for (const plugin of bootable) {
+            try {
+
+                logger.verbose(`Start plugin "${plugin.name}" (${plugin.uuid})`);
+
+                await plugin.start();
+
+                started += 1;
+
+            } catch (err) {
+
+                logger.error(err, `Could not boot plugin "${plugin.name}" (${plugin.uuid})`);
+
+            }
+        }
+
+        if (bootable.length > started) {
+            logger.warn(`${started}/${bootable.length} Plugins started (Check the previously logs)`);
+        } else {
+            logger.info(`${started}/${bootable.length} Plugins started`);
+        }
+
+        logger.info("Startup complete");
+
+    })();
 
     // fix #435
     ["SIGINT", /*"SIGTERM", "SIGQUIT"*/].forEach((signal) => {
         process.once(signal, () => {
 
+            logger.debug(`signal=${signal} received`);
             logger.warn("Shuting down...");
+
+            setTimeout(() => {
+                process.exit(0);
+            });
 
         });
     });

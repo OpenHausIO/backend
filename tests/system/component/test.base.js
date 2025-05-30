@@ -4,7 +4,7 @@ const assert = require("assert");
 const { BASE } = require("../../../system/component");
 
 const event = require("events").EventEmitter;
-const Hooks = require("../../../system/hooks.js");
+const Hooks = require("../../../system/class.hooks.js");
 
 describe("base", function () {
 

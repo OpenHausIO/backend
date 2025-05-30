@@ -142,7 +142,10 @@ module.exports = class Plugin extends Item {
 
                 } else {
 
-                    throw new Error(`Unregisterd intents access approach`);
+                    let msg = `Unregisterd intents access approach\n`;
+                    msg += `Needs "${dependencies}", granted "${data.intents}"`;
+
+                    throw new Error(msg);
 
                 }
 
@@ -193,7 +196,7 @@ module.exports = class Plugin extends Item {
                             });
 
                             // feedback
-                            logger.debug(`#${worker.threadId} = ${this.uuid}`);
+                            logger.debug(`#${worker.threadId} = ${this.uuid} (${this.name})`);
 
                             if (process.env.NODE_ENV === "development") {
 
@@ -234,7 +237,13 @@ module.exports = class Plugin extends Item {
                             worker.once("exit", (code) => {
 
                                 // feedback
-                                logger.info(`Plugin "${this.name}" worker thread exited, code=${code}`);
+                                let msg = `Plugin "${this.name}" worker thread exited, code=${code}`;
+
+                                if (code >= 0) {
+                                    logger.warn(msg);
+                                } else {
+                                    logger.info(msg);
+                                }
 
                                 this.started = false;
                                 this.worker = null;

@@ -34,7 +34,7 @@ if ("help" in args) {
     console.log(`--url\t\tFull server url (inkl. proto), default "http://127.0.0.1"`);
     console.log(`--delay\t\tConnection delay in sec, before start bridging to WebSocket, default "5"`);
 
-    return;
+    process.exit(0);
 
 }
 

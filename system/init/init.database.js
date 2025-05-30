@@ -30,16 +30,11 @@ module.exports = (logger) => {
 
 
             mongodb.MongoClient.connect(url.toString(), {
-                useUnifiedTopology: true,
-                useNewUrlParser: true,
+                //useUnifiedTopology: true,  removed in mongodb@v4
+                //useNewUrlParser: true, removed in mongodb@v4
                 //connectTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000, // #9
                 //socketTimeoutMS: Number(process.env.DATABASE_TIMEOUT) * 1000 // #9
-            }, async (err, client) => {
-
-                if (err) {
-                    logger.error(err, "Could not connect to database");
-                    return reject(err);
-                }
+            }).then((client) => {
 
                 // monky patch db instance
                 // use this instance in other files
@@ -55,35 +50,33 @@ module.exports = (logger) => {
                     process.exit(1000);
                 });
 
+            }).then(() => {
 
-                try {
+                // check credentials
+                // test command
+                return mongodb.client.stats();
 
-                    // test authenticiation
-                    // throws a error is auth is noc successfull
-                    await mongodb.client.stats();
+            }).then(() => {
 
-                    // feedback
-                    logger.info(`Connected to "mongodb://${url.hostname}:${url.port}${url.pathname}"`);
+                // feedback
+                logger.info(`Connected to "mongodb://${url.hostname}:${url.port}${url.pathname}"`);
 
-                    process.once("SIGINT", () => {
-                        mongodb.connection.close(() => {
-                            logger.info(`Connection closed from "mongodb://${url.hostname}:${url.port}${url.pathname}"`);
-                        });
+                process.once("SIGINT", () => {
+                    mongodb.connection.close(() => {
+                        logger.info(`Connection closed from "mongodb://${url.hostname}:${url.port}${url.pathname}"`);
                     });
+                });
 
-                    resolve();
+                resolve();
 
-                } catch (err) {
+            }).catch((err) => {
 
-                    if (err?.code == 13) {
-                        logger.error("Invalid database credentials!");
-                    }
-
-                    client.emit("error", err);
-                    reject(err);
-
+                if (err?.code == 13) {
+                    logger.error("Invalid database credentials!");
                 }
 
+                mongodb.client.emit("error", err);
+                reject(err);
 
             });
 

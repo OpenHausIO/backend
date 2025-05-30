@@ -46,7 +46,21 @@ class MQTT extends Item {
                 return String(new mongodb.ObjectId());
             }),
             topic: Joi.string().required(),
-            description: Joi.string().allow(null).default(null)
+            description: Joi.string().allow(null).default(null),
+            /*
+            value: Joi.any().custom((value, helpers) => {
+
+                if (!Buffer.isBuffer(value)) {
+                    return helpers.error("any.invalid");
+                }
+
+                return value;
+
+            }, "Buffer Validation"),
+            */
+            timestamps: {
+                published: Joi.number().allow(null).default(null),
+            }
         });
     }
 

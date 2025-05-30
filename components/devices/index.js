@@ -215,25 +215,21 @@ const instance = module.exports = new C_DEVICES();
 // init component
 // set items/build cache
 instance.init((scope, ready) => {
-    scope.collection.find({}).toArray((err, data) => {
-        if (err) {
+    scope.collection.find({}).toArray().then((data) => {
 
-            // shit...
-            ready(err);
+        data.forEach((obj) => {
 
-        } else {
+            let item = new Device(obj);
+            scope.items.push(item);
 
+        });
 
-            data = data.map((item) => {
-                return new Device(item);
-            });
+        // init done
+        ready(null);
 
+    }).catch((err) => {
 
-            scope.items.push(...data);
+        ready(err);
 
-            // init done
-            ready(null);
-
-        }
     });
 });
