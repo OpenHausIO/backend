@@ -58,7 +58,7 @@ describe("HTTP API", function () {
         emitter.on("beforeItem", (err, { item }) => {
 
             if (!child) {
-                emitter.abort();
+                emitter?.abort();
             }
 
             let { request } = item;
