@@ -101,7 +101,7 @@ describe("HTTP API", function () {
     // ensure to kill the backend
     // so that github actions complete
     this.afterAll(() => {
-        child.kill();
+        child?.kill();
     });
 
 });
