@@ -276,7 +276,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -285,7 +286,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -294,7 +296,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"_id\": \"658187db41c59ef57eb25df8\",\n    \"name\": \"Evening\",\n    \"makros\": [{\n        \"type\": \"command\",\n        \"endpoint\": \"63a0ce5b33d59ec69d8ffe18\",\n        \"command\": \"63a0ce5b33d59ec69d8ffe19\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426bf\",\n        \"command\": \"63a1753f44427ef1a83426c0\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426af\",\n        \"command\": \"63a1753f44427ef1a83426b0\"\n    }]\n}",
+									"raw": "{\n    \"_id\": \"658187db41c59ef57eb25df8\",\n    \"name\": \"Gruppeninput Farbe\",\n    \"inputs\": [{\n        \"name\": \"R\",\n        \"key\": \"r\",\n        \"type\": \"number\"\n    }, {\n        \"name\": \"G\",\n        \"key\": \"g\",\n        \"type\": \"number\"\n    },\n    {\n        \"name\": \"B\",\n        \"key\": \"b\",\n        \"type\": \"number\"\n    }],\n    \"makros\": [\n        {\n            \"type\": \"command\",\n            \"endpoint\": \"67e918e6fde2819cb4218bd0\",\n            \"command\": \"67e918e6fde2819cb4218bd3\"\n        }\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -441,7 +443,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -450,7 +453,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Evening\",\n    \"makros\": [{\n        \"type\": \"command\",\n        \"endpoint\": \"63a0ce5b33d59ec69d8ffe18\",\n        \"command\": \"63a0ce5b33d59ec69d8ffe19\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426bf\",\n        \"command\": \"63a1753f44427ef1a83426c0\"\n    }, {\n        \"type\": \"timer\",\n        \"value\": \"3000\"\n    }, {\n        \"type\": \"command\",\n        \"endpoint\": \"63a1753f44427ef1a83426af\",\n        \"command\": \"63a1753f44427ef1a83426b0\"\n    }]\n}",
+									"raw": "{\n    \"inputs\": [\n        {\n            \"name\": \"R\",\n            \"key\": \"r\",\n            \"type\": \"number\",\n            \"value\": 49,\n            \"min\": 0,\n            \"max\": 255\n        },\n        {\n            \"name\": \"G\",\n            \"key\": \"g\",\n            \"type\": \"number\",\n            \"value\": 24,\n            \"min\": 0,\n            \"max\": 255\n        },\n        {\n            \"name\": \"B\",\n            \"key\": \"b\",\n            \"type\": \"number\",\n            \"value\": 6,\n            \"min\": 0,\n            \"max\": 255\n        }\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -474,10 +477,19 @@
 							"response": []
 						},
 						{
-							"name": "Trigger scene",
+							"name": "Trigger scene execution",
 							"request": {
 								"method": "POST",
 								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"inputs\": [\n        {\n            \"value\": 152,\n            \"key\": \"r\"\n        },\n        {\n            \"value\": 100,\n            \"key\": \"g\"\n        },\n        {\n           \"value\": 25,\n           \"key\": \"b\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
 								"url": {
 									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/658187db41c59ef57eb25df8/trigger",
 									"protocol": "http",
@@ -496,7 +508,29 @@
 							"response": []
 						},
 						{
-							"name": "Abort scene",
+							"name": "Get scene state",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/scenes/658187db41c59ef57eb25df8/state",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"scenes",
+										"658187db41c59ef57eb25df8",
+										"state"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Abort scene execution",
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -1324,7 +1358,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -1333,7 +1368,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -1342,7 +1378,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"_id\": \"658188a7aadfcc026a0e0131\",\n    \"name\": \"Hans Hubert #3\",\n    \"email\": \"hans.hubert3@example.com\",\n    \"password\": \"Pa$$w0rd\",\n    \"labels\": [\n        \"expires=29991231\"\n    ]\n}",
+									"raw": "{\n    \"_id\": \"658188a7aadfcc026a0e0131\",\n    \"name\": \"Hans Hubert\",\n    \"email\": \"hans.hubert@example.com\",\n    \"password\": \"Pa$$w0rd\",\n    \"enabled\": true,\n    \"labels\": [\n        \"expires=29991231\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1499,7 +1535,7 @@
 							"response": []
 						},
 						{
-							"name": "Delete exisiting room",
+							"name": "Delete exisiting user",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -1695,11 +1731,11 @@
 								"body": {
 									"mode": "file",
 									"file": {
-										"src": "/home/marc/projects/OpenHaus/plugins/plugin-boilerplate/dist/oh-plg-plugin-boilerplate.tgz"
+										"src": "/home/marc/Downloads/oh-plg-dummy-v1.0.0.tgz"
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806/files?install=true",
+									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806/files",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -1715,7 +1751,8 @@
 										{
 											"key": "install",
 											"value": "true",
-											"description": "Install npm dependenys"
+											"description": "Install npm dependenys",
+											"disabled": true
 										}
 									]
 								}
@@ -1739,6 +1776,28 @@
 										"plugins",
 										"658188e93cde9987c3228806",
 										"start"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Stop plugin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806/stop",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"plugins",
+										"658188e93cde9987c3228806",
+										"stop"
 									]
 								}
 							},
@@ -2369,7 +2428,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								},
 								{
@@ -2378,7 +2438,8 @@
 										"exec": [
 											""
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -2387,7 +2448,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"_id\": \"65818986ca5133d8de2bb4a1\",\n    \"name\": \"Store name\",\n    \"config\": [{\n        \"_id\": \"6581a14f1c6d01f32129dabc\",\n        \"name\": \"Device Pairing\",\n        \"key\": \"pairing\",\n        \"type\": \"boolean\",\n        \"value\": false,\n        \"description\": \"Is the Gateway ready for pairing?\"\n    }, {\n        \"_id\": \"6581a1520bcb15659d48b207\",\n        \"name\": \"Polling interval\",\n        \"key\": \"interval\",\n        \"type\": \"number\",\n        \"value\": 3000,\n        \"description\": \"Sync intervall for Endpoints\"\n    }]\n}",
+									"raw": "{\n    \"_id\": \"65818986ca5133d8de2bb4a1\",\n    \"name\": \"Store name\",\n    \"config\": [{\n        \"_id\": \"6581a14f1c6d01f32129dabc\",\n        \"name\": \"Device Pairing\",\n        \"key\": \"pairing\",\n        \"type\": \"boolean\",\n        \"value\": false,\n        \"description\": \"Is the Gateway ready for pairing?\"\n    }, {\n        \"_id\": \"6581a1520bcb15659d48b207\",\n        \"name\": \"Polling interval\",\n        \"key\": \"interval\",\n        \"type\": \"number\",\n        \"value\": 3000,\n        \"description\": \"Sync intervall for Endpoints\"\n    }, {\n        \"_id\": \"67717f67c3afe115ea2ee30f\",\n        \"name\": \"json example\",\n        \"key\": \"string\",\n        \"type\": \"string\",\n        \"value\": \"{\\\"key\\\": \\\"value\\\"}\",\n        \"description\": \"JSON string example\"\n    }]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2769,7 +2830,7 @@
 							"response": []
 						},
 						{
-							"name": "Update existing webhook",
+							"name": "Trigger webhook",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -2812,7 +2873,7 @@
 							"response": []
 						},
 						{
-							"name": "Delete exisiting room",
+							"name": "Delete exisiting webhook",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -2908,13 +2969,7 @@
 					"name": "Login",
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "x-auth-token",
-								"value": "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhbnMuaHViZXJ0QGV4YW1wbGUuY29tIiwidXVpZCI6ImM3N2E3NjJkLWM4ODYtNGQ2My1iNGM1LWU0MDJhZGNmYTdiZSIsImlhdCI6MTY1MzUyMDM1Mn0.10H4v6IhiI2mlaiSAcbTp2m4QUSueA1l4c2CPGV8L7WltZfXia8pLCnbYC243LPz",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"email\": \"hans.hubert@example.com\",\n    \"password\": \"Pa$$w0rd\"\n}",
@@ -2980,14 +3035,15 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{HOST}}:{{PORT}}/auth",
+							"raw": "http://{{HOST}}:{{PORT}}/auth/check",
 							"protocol": "http",
 							"host": [
 								"{{HOST}}"
 							],
 							"port": "{{PORT}}",
 							"path": [
-								"auth"
+								"auth",
+								"check"
 							]
 						}
 					},
@@ -3218,7 +3274,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{HOST}}:{{PORT}}/api/system/logs?delete=false",
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/logs",
 									"protocol": "http",
 									"host": [
 										"{{HOST}}"
@@ -3233,7 +3289,8 @@
 										{
 											"key": "delete",
 											"value": "false",
-											"description": "Delete files or just truncate them?"
+											"description": "Delete files or just truncate them?",
+											"disabled": true
 										}
 									]
 								}
@@ -3310,6 +3367,28 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Environment variables",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{HOST}}:{{PORT}}/api/system/info/environment",
+									"protocol": "http",
+									"host": [
+										"{{HOST}}"
+									],
+									"port": "{{PORT}}",
+									"path": [
+										"api",
+										"system",
+										"info",
+										"environment"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -3377,21 +3456,23 @@
 								"header": [
 									{
 										"key": "X-ENCRYPTION-KEY",
-										"value": "1e3665f8a687da2d0869ff524c10e64ee1cb600df8228c6dfcc37fbec3359846",
+										"value": "",
 										"description": "Header value from export (If backup is encrpyted)",
-										"type": "text"
+										"type": "text",
+										"disabled": true
 									},
 									{
 										"key": "X-ENCRYPTION-IV",
-										"value": "186cfe92205c578a7f7199d3c973b8bd",
+										"value": "",
 										"description": "Header value from export (If backup is encrpyted)",
-										"type": "text"
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"body": {
 									"mode": "file",
 									"file": {
-										"src": "/home/marc/projects/OpenHaus/tmp/backup-staging.tgz"
+										"src": ""
 									}
 								},
 								"url": {
@@ -3469,12 +3550,7 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					"console.log(\"Check if /system route\", pm.request.url.toString().includes(\"/system\"), pm.request.url.toString().includes(\"/auth\"))",
-					"",
-					"if(pm.request.url.toString().includes(\"/system\") || pm.request.url.toString().includes(\"/auth\")){",
-					"    postman.setNextRequest(null);",
-					"    return;",
-					"}"
+					""
 				]
 			}
 		},
@@ -3483,46 +3559,31 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					"let IGNORE = {",
-					"    \"PUT\": [",
-					"        \"/api/plugins/658188e93cde9987c3228806/files\"",
-					"    ],",
-					"    \"POST\": [",
-					"        \"/api/plugins/658188e93cde9987c3228806/start\",",
-					"        \"/api/endpoints/658189336fa19198939caa21/commands/6581fc8ac20cb522e02868ff\"",
-					"    ],",
-					"    \"GET\": [",
-					"        \"/auth\"",
-					"    ]",
-					"};",
+					"// skip test for specified urls",
+					"// the request is performed, but no test executed",
+					"// otherwise the test run fails",
+					"// ",
+					"// due to limitations of postman collections",
+					"// no binary/plugin/*.tgz can be used",
+					"// thats the reaseon why why skip all test with such attachments",
 					"",
-					"let URLS = [",
-					"    \"auth\",",
-					"    \"system\"",
-					"]",
+					"let url = pm.request.url.toString();",
 					"",
-					"console.log(\"Check ignore object\", pm.request.method, pm.request.url.toString());",
+					"let ignore = [",
+					"    \"/auth\",",
+					"    \"/system\",",
+					"    \"/api/plugins/658188e93cde9987c3228806/files\",",
+					"    \"/api/plugins/658188e93cde9987c3228806/start\",",
+					"    \"/api/endpoints/658189336fa19198939caa21/commands/6581fc8ac20cb522e02868ff\",   ",
+					"].some(path => url.includes(path));",
 					"",
+					"console.log(\"URL ignore\", ignore, url);",
 					"",
-					"if(Object.prototype.hasOwnProperty.call(IGNORE, pm.request.method)){",
-					"",
-					"    let skip1 = IGNORE[pm.request.method].some((url) => {",
-					"        return pm.request.url.toString().includes(url);",
-					"    });",
-					"",
-					"    let skip2 = URLS.some((url) => {",
-					"        return pm.request.url.toString().includes(url);",
-					"    });",
-					"",
-					"",
-					"    console.log(\"Ignore\", pm.request.url.toString(), skip1 || skip2);",
-					"",
-					"    if(skip1 || skip2){",
-					"        return;",
-					"    }",
-					"",
+					"if(ignore){",
+					"    return;",
 					"}",
 					"",
+					"console.log(`${pm.request.method} - ${pm.info.requestName}`);",
 					"",
 					"pm.test(\"Status code 200 || 202\", () => {",
 					"    pm.expect(pm.response.code).to.be.oneOf([",
