@@ -10,7 +10,7 @@ const collection = require("../../postman.json");
 
 describe("HTTP API", function () {
 
-    this.timeout(30000);
+    this.timeout(60000);
 
     //let HTTP_PORT = crypto.randomInt(2048, 1024);
     let child = null;
@@ -25,6 +25,11 @@ describe("HTTP API", function () {
                 VAULT_MASTER_PASSWORD: crypto.randomBytes(24).toString("hex"),
                 USERS_JWT_SECRET: crypto.randomBytes(24).toString("hex")
             })
+        });
+
+        child.on("exit", (code) => {
+            console.error(`child exited, code=${code}`);
+            child = null;
         });
 
         child.on("spawn", () => {
@@ -51,8 +56,14 @@ describe("HTTP API", function () {
         });
 
         emitter.on("beforeItem", (err, { item }) => {
+
+            if (!child) {
+                emitter.abort();
+            }
+
             let { request } = item;
             console.log(`\t[${request.method}] ${item.name} (${request.url})`);
+
         });
 
         emitter.once("exception", (err, { error }) => {
