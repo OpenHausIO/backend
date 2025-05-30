@@ -41,17 +41,20 @@ module.exports = (app, router) => {
 
             req.cmd.trigger(req.body, (err, success) => {
                 if (err) {
-
                     if (err.code === "NO_INTERFACE") {
+
                         res.status(424).json({
                             error: err.message
                         });
-                    } else {
-                        res.status(500).json({
-                            error: err.message
-                        });
-                    }
 
+                    } else {
+
+                        res.status(500).json({
+                            error: err.message,
+                            stack: err.stack
+                        });
+
+                    }
                 } else {
 
                     res.json({
