@@ -1,7 +1,7 @@
 const process = require("process");
 const { exec } = require("child_process");
 const os = require("os");
-//const mongodb = require("mongodb");
+const mongodb = require("mongodb");
 
 module.exports = (router) => {
 
@@ -45,23 +45,20 @@ module.exports = (router) => {
 
             // get mongodb version
             // TODO: before enable this, check if this works with authentication
-            /*
             new Promise((resolve, reject) => {
 
                 let db = mongodb.client.admin();
 
-                db.serverStatus((err, info) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(info.version);
-                    }
+                db.serverStatus().then(({ version }) => {
+                    resolve(version);
+                }).catch((err) => {
+                    reject(err);
                 });
 
             }),
-            */
 
             // calculate cpu usage
+            /*
             new Promise((resolve, reject) => {
                 try {
 
@@ -95,27 +92,24 @@ module.exports = (router) => {
                     reject(err);
                 }
             })
+            */
 
         ]).then((results) => {
 
             // remove whitespaces & convert to string
-            let [npm, tar, /*mongodb,*/ cpu, ram] = results.map((result) => {
+            let [npm, tar, mongodb, /*cpu, ram*/] = results.map((result) => {
                 return String(result).trim();
             });
 
-            res.json({
-                versions: {
-                    node: process.versions.node,
-                    npm,
-                    tar,
-                    //mongodb
-                },
-                // ore move this into a /usage route?
-                usage: {
-                    cpu,
-                    ram
-                }
+            let versions = Object.create(null);
+
+            Object.assign(versions, process.versions, {
+                npm,
+                tar,
+                mongodb
             });
+
+            res.json(versions);
 
         }).catch((err) => {
 
