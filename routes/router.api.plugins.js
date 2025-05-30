@@ -5,7 +5,8 @@ const process = require("process");
 const fs = require("fs/promises");
 const { statSync } = require("fs");
 
-//const C_PLUGINS = require("../components/plugins");
+const C_PLUGINS = require("../components/plugins");
+const { logger } = C_PLUGINS;
 
 module.exports = (app, router) => {
 
@@ -33,8 +34,36 @@ module.exports = (app, router) => {
     });
     */
 
+    // catch delete request
+    // stop plugin worker thread before deleting item
+    if (process.env.WORKER_THREADS_ENABLED == "true") {
+        router.delete("/:_id", async (req, res, next) => {
+            try {
+
+                // req.item is set from rest-handler router.param()
+                // TODO: Make this optional e.g. via req.query
+                // In the frontend then should a checkbox which sets it to true
+                if (req?.item?.started) {
+                    await req.item.stop();
+                }
+
+            } catch (err) {
+
+                // feedback
+                logger.warn(err, "Could not stop plugin before delete, it may be still running. Restart the backend to apply changes");
+
+            } finally {
+
+                // foward to rest-handler.js
+                next();
+
+            }
+        });
+    }
+
     const variables = (req, res, next) => {
 
+        // TODO: use process.env.<plugins location>
         req.install = req.query?.install === "true" || false;
         req.folder = path.join(process.cwd(), "plugins", req.item.uuid);
 
@@ -167,10 +196,10 @@ module.exports = (app, router) => {
         }
     });
 
-    router.post("/:_id/start", (req, res) => {
+    router.post("/:_id/start", async (req, res) => {
         try {
 
-            req.item.start();
+            await req.item.start();
             res.json(req.item);
 
         } catch (err) {
@@ -183,19 +212,20 @@ module.exports = (app, router) => {
         }
     });
 
-    /*
-    router.post("/:_id/stop", (req, res) => {
+    router.post("/:_id/stop", async (req, res) => {
         try {
 
-            req.item.stop();
+            await req.item.stop();
             res.json(req.item);
 
         } catch (err) {
 
-            res.status(500).end(err);
+            res.status(500).json({
+                error: err.message,
+                stack: err.stack
+            });
 
         }
     });
-    */
 
 };

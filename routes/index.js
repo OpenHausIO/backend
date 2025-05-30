@@ -45,11 +45,7 @@ const about = express.Router();
 //const system = express.Router();
 
 // https://expressjs.com/en/guide/behind-proxies.html
-app.set("trust proxy", [
-    "loopback",
-    "linklocal",
-    "uniquelocal"
-]);
+app.set("trust proxy", process.env.HTTP_TRUSTED_PROXYS.split(","));
 
 // fix #409
 // add logging for http requests
@@ -67,10 +63,14 @@ app.use((req, res, next) => {
         headers: req.headers
     }));
 
+    //res.removeHeader("x-powered-by");
+    //res.setHeader("x-timestamp", Date.now());
+
     next();
 
 });
 
+// NOTE: Remove limit?, since when is a 25mb json needed?!
 app.use(bodyParser.json({
     limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
 }));
@@ -169,8 +169,8 @@ const systemRouter = express.Router();
 
 // http://127.0.0.1/api/plugins
 api.use("/plugins", pluginsRouter);
-require("./rest-handler.js")(C_PLUGINS, pluginsRouter);
 require("./router.api.plugins.js")(app, pluginsRouter);
+require("./rest-handler.js")(C_PLUGINS, pluginsRouter);
 
 // http://127.0.0.1/api/rooms
 api.use("/rooms", roomsRouter);

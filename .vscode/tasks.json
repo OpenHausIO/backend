@@ -1,0 +1,20 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Open Gnome Terminal with Tabs",
+            "type": "shell",
+            "command": "gnome-terminal",
+            "args": [
+                "--tab", "--working-directory",  "~/projects/OpenHaus/backend",
+                "--tab", "--working-directory",  "~/projects/OpenHaus/connector",
+                "--tab", "--working-directory",  "~/projects/OpenHaus/frontend",
+                "--tab", "--working-directory",  "~/projects/OpenHaus/admin-frontend",
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "close": true
+            }
+        }
+    ]
+}

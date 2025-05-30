@@ -1,4 +1,5 @@
 const C_DEVICES = require("../components/devices");
+const { PENDING_BRIDGES } = require("../components/devices/class.interface.js");
 
 // external modules
 const WebSocket = require("ws");
@@ -33,11 +34,34 @@ module.exports = (router) => {
     });
 
 
+    wss.on("connection", (ws) => {
+        if (PENDING_BRIDGES.size > 0 && ws.readyState === WebSocket.OPEN) {
+
+            PENDING_BRIDGES.forEach((bridge) => {
+                ws.send(JSON.stringify(bridge), () => {
+
+                    // sometimes it happens that pending bridges are not build
+                    // but message is written to the connector
+                    //let { remotePort, remoteAddress } = req.socket;
+                    //console.log(err || `Writed to connector [${remoteAddress}:${remotePort}]: ${JSON.stringify(bridge)}`);
+
+                });
+            });
+
+        }
+    });
+
+
     C_DEVICES.events.on("socket", (obj) => {
         if (obj.type === "request") {
+
             wss.clients.forEach((ws) => {
+                // TODO: check if readyState = open
+                //if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify(obj));
+                //}
             });
+
         }
     });
 

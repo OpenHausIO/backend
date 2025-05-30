@@ -1,4 +1,4 @@
-const Middleware = require("./middleware.js");
+const Middleware = require("./class.middleware.js");
 const { v4: uuidv4 } = require("uuid");
 
 /**

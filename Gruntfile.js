@@ -62,6 +62,7 @@ module.exports = function (grunt) {
             `echo "exit 0" > ${path.join(PATH_BUILD, "scripts/post-install.sh")}`,
             `chmod +x ${path.join(PATH_BUILD, "scripts/post-install.sh")}`,
             `cp ./package*.json ${PATH_BUILD}`,
+            `cd ${PATH_BUILD} && npm pkg delete scripts.prepare`,
             "grunt uglify",
         ].forEach((cmd) => {
             cp.execSync(cmd, {

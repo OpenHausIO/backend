@@ -1,12 +1,12 @@
 const Joi = require("joi");
 const mongodb = require("mongodb");
 
-const InterfaceStream = require("./class.interfaceStream.js");
+//const InterfaceStream = require("./class.interfaceStream.js");
 const Interface = require("./class.interface.js");
 const Item = require("../../system/component/class.item.js");
 
-const mixins = require("../../helper/mixins.js");
-const injectMethod = require("../../helper/injectMethod.js");
+//const mixins = require("../../helper/mixins.js");
+//const injectMethod = require("../../helper/injectMethod.js");
 
 //const { parse, calculateChecksum } = require("./net-helper.js");
 
@@ -28,7 +28,7 @@ const injectMethod = require("../../helper/injectMethod.js");
  * @see interfaceStream components/devices/class.interfaceStream.js
  */
 module.exports = class Device extends Item {
-    constructor(props, scope) {
+    constructor(props) {
 
         super(props);
 
@@ -41,11 +41,13 @@ module.exports = class Device extends Item {
         // for each interface class, create a interface stream
         this.interfaces = props.interfaces.map((obj) => {
 
+            return new Interface(obj);
 
             // NOTE: refactor interfaceStream in v4
             // move .bridge method there and pass device instance?
             // > Would this also create a ciruclar reference in Interface class 
             // > since its stored via `Object.defineProperty(this, "stream",...);`
+            /*
             let stream = new InterfaceStream({
                 // duplex stream options
                 emitClose: false
@@ -64,6 +66,7 @@ module.exports = class Device extends Item {
             // NOTE: remove "device" for bridging requests (only needed in connector)? 
             // > See: https://github.com/OpenHausIO/connector/issues/54
             // > When done, "device" property can be removed, and the `.bridge()` method can be moved into Interface class
+            /*
             injectMethod(iface, "bridge", (cb) => {
                 return Interface._bridge({
                     events: scope.events,
@@ -71,6 +74,7 @@ module.exports = class Device extends Item {
                     device: this._id
                 }, cb);
             });
+            *
 
 
             // "hide" stream behind iface object
@@ -80,6 +84,7 @@ module.exports = class Device extends Item {
                 setPrototype: true,
                 //transparent: false
             });
+            */
 
         });
 

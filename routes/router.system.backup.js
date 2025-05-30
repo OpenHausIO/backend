@@ -5,6 +5,7 @@ const fs = require("fs");
 const { Writable, pipeline } = require("stream");
 const { createInterface } = require("readline");
 const { EOL } = require("os");
+const { ObjectId } = require("mongodb");
 
 const { client } = require("mongodb");
 const tar = require("tar-stream");
@@ -75,7 +76,7 @@ module.exports = (router) => {
         }
 
 
-        if ((req.query?.includes?.includes("env") || (!req.query?.includes && true))) {
+        if ((req.query?.includes?.includes("env") || (!req.query?.includes && true)) && fs.existsSync(path.join(process.cwd(), ".env"))) {
 
             // encode .env value as base64, so the are not human readable
             let content = fs.readFileSync(path.join(process.cwd(), ".env"), "utf8").split(EOL).map((line) => {
@@ -104,6 +105,16 @@ module.exports = (router) => {
 
 
     router.post("/import", async (req, res) => {
+
+        // NOTE: this also deletes .gitkeep
+        if (req.query?.truncate === "true") {
+            for (let file of await fs.promises.readdir(BASE_PATH)) {
+                await fs.promises.rm(path.join(BASE_PATH, file), {
+                    recursive: true,
+                    force: true
+                });
+            }
+        }
 
         const extract = tar.extract();
 
@@ -165,7 +176,7 @@ module.exports = (router) => {
         extract.on("entry", async (header, stream, next) => {
             if (header.name.startsWith("database/")) {
 
-                console.log("restartoe database collection", header);
+                console.log("restartoe database collection", header.name, header.size);
 
                 let chunks = [];
                 let name = header.name.replace("database/", "");
@@ -181,8 +192,12 @@ module.exports = (router) => {
 
                     // TODO: check/handle binary (serialized buffer objects)
                     // > endpoint commands payload
-                    // > _id's should be mongodb object id's
-                    let documents = JSON.parse(Buffer.concat(chunks).toString());
+                    // > _id's should be mongodb object id's                    
+                    let documents = JSON.parse(Buffer.concat(chunks).toString()).map((item) => {
+                        // NOTE: Hotfix for #506
+                        item._id = new ObjectId(item._id);
+                        return item;
+                    });
 
                     // prevents bulk write error
                     // MongoInvalidArgumentError: Invalid BulkOperation, Batch cannot be empty
@@ -191,7 +206,7 @@ module.exports = (router) => {
                         return;
                     }
 
-                    console.log("collection name", path.basename(name, ".json"));
+                    //console.log("collection name", path.basename(name, ".json"));
 
                     let collection = client.collection(path.basename(name, ".json"));
 
@@ -213,17 +228,7 @@ module.exports = (router) => {
 
             } else if (header.name.startsWith("plugins/")) {
 
-                console.log("restroe plugin file", header);
-
-                // NOTE: this also deletes .gitkeep
-                if (req.query?.truncate === "true") {
-                    for (let file of await fs.promises.readdir(BASE_PATH)) {
-                        await fs.promises.rm(path.join(BASE_PATH, file), {
-                            recursive: true,
-                            force: true
-                        });
-                    }
-                }
+                console.log("restroe plugin file", header.name, header.size);
 
                 let name = header.name.replace("plugins/", "");
 
@@ -239,8 +244,17 @@ module.exports = (router) => {
 
             } else if (header.name === ".env") {
 
-                if (req.query?.truncate === "true") {
-                    fs.truncateSync(path.join(process.cwd(), ".env"));
+                let envPath = path.join(process.cwd(), ".env");
+                let fd = null;
+
+                try {
+                    if (req.query?.truncate === "true") {
+                        fs.truncateSync(envPath, 0);
+                    }
+                } catch (err) {
+                    // ignore
+                } finally {
+                    fd = fs.openSync(envPath, "w");
                 }
 
                 let rl = createInterface({
@@ -248,10 +262,12 @@ module.exports = (router) => {
                 });
 
                 rl.once("error", (err) => {
+                    fs.closeSync(fd);
                     next(err);
                 });
 
                 rl.once("close", () => {
+                    fs.closeSync(fd);
                     next();
                 });
 
@@ -260,11 +276,11 @@ module.exports = (router) => {
                     let [key, value] = line.split("=");
 
                     if (!key || !value || req.query?.decode !== "true") {
-                        return fs.appendFileSync(path.join(process.cwd(), ".env"), line + EOL);
+                        return fs.writeSync(fd, line + EOL);
                     }
 
                     line = `${key}=${Buffer.from(value, "base64").toString()}`;
-                    fs.appendFileSync(path.join(process.cwd(), ".env"), line + EOL);
+                    fs.writeSync(fd, line + EOL);
 
                 });
 

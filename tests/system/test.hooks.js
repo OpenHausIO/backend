@@ -1,5 +1,5 @@
 const { describe, it } = require("mocha");
-const Hooks = require("../../system/hooks");
+const Hooks = require("../../system/class.hooks.js");
 
 describe("system/hooks", function () {
 

@@ -7,6 +7,10 @@ const { interfaces } = require("../../system/shared.js");
 const Param = require("./class.param.js");
 const Params = require("./class.params.js");
 
+const { parentPort, isMainThread } = require("worker_threads");
+const { commands } = require("../../system/worker/shared.js");
+const { randomUUID } = require("crypto");
+
 /**
  * @description
  * Single command
@@ -21,11 +25,7 @@ const Params = require("./class.params.js");
  * @property {String} alias Machine friendly name, e.g.: `POWER_ON`
  * @property {String} [identifier=null] Simple/custom identifiert for custom command handler
  * @property {String|Buffer} payload The payload to send over the device interface
- * @property {String} [description=null] Command description, displayed on the frontend
- * @property {Array} params Possible parameter for the command
- * @property {String} params[].key Custom key
- * @property {String} params[].type Type of value: "string", "number" or "boolean"
- * @property {String|Number|Boolean} params[].value Value to set
+ *
  * @property {Number} [params[].min=0] Min value if param type is a number (`type=number`)
  * @property {Number} [params[].max=100] Max value if param type is a number (`type=number`)
  * 
@@ -93,32 +93,70 @@ module.exports = class Command {
             }
         });
 
+
+        if (process.env.WORKER_THREADS_ENABLED === "true" && !isMainThread) {
+            parentPort.on("message", (msg) => {
+                if (msg.component === "endpoints" && msg.type === "request" && msg.method === "trigger" && msg.command === this._id) {
+
+                    //console.log("Received command trigger request", msg);
+
+                    this.trigger(msg.params, (...args) => {
+
+                        //console.log("TRigger executed", args);
+
+                        parentPort.postMessage({
+                            uuid: msg.uuid,
+                            type: "response",
+                            method: "trigger",
+                            args
+                        });
+
+                    });
+
+                }
+            });
+        }
+
+
         // command duration timeout
         this.#privates.set("timeout", Number(process.env.COMMAND_RESPONSE_TIMEOUT));
 
         // set default command handler worker function
         this.#privates.set("handler", (cmd, iface, params, done) => {
 
+            let err = new Error("DEFAULT_COMMAND_HANDLER_REMOVED");
+
+            done(err);
+            //throw err;
+
+            /*
             if (!cmd.payload) {
                 done(new Error("NO_PAYLOAD_DEFINED"));
                 return;
             }
 
-            iface.write(cmd.payload, (err) => {
+            // switched to `iface.stream.write`
+            // `.stream` should implement the needed adapter stack
+            stream.write(cmd.payload, (err) => {
                 if (err) {
 
                     done(err);
 
                 } else {
 
-                    iface.once("data", (chunk) => {
+
+                    // NOTE: define timeout here
+                    // timeout sould only apply when the data was written
+                    // not when `.trigger()` was called, see #500
+
+                    stream.once("data", (chunk) => {
 
                         // read chunk
                         //let chunk = iface.read();
                         let regex = new RegExp(/success|ok|1|true/, "gimu");
 
                         // compare respond with command payload
-                        if ((chunk && chunk === cmd.payload) || regex.test(chunk)) {
+                        if ((chunk && chunk === cmd.payload) || regex.test(chunk?.toString())) {
 
                             done(null, true);
 
@@ -132,6 +170,7 @@ module.exports = class Command {
 
                 }
             });
+            */
 
         });
 
@@ -145,7 +184,17 @@ module.exports = class Command {
      * @param {Function} handler 
      */
     setHandler(handler) {
+
         this.#privates.set("handler", handler);
+
+        if (!isMainThread) {
+            parentPort.postMessage({
+                component: "endpoints",
+                method: "setHandler",
+                command: this._id
+            });
+        }
+
     }
 
 
@@ -191,70 +240,138 @@ module.exports = class Command {
      */
     trigger(params, cb) {
 
-        if (!cb && params instanceof Function) {
-            cb = params;
-            params = [];
-        }
+        // when kein worker thread enabled, alles sinlge process = defualt beaufer
+        // wenn worker thread prüfen ob im main oder worker
+        // when main = post to worker
+        // when worker = handler like default beaufer
+        let { events, logger } = Command.scope;
 
-        if (!params && !cb) {
-            params = [];
-            cb = () => { };
-        }
+        let wrapper = () => {
 
-        let worker = this.#privates.get("handler");
-        let iface = interfaces.get(this.interface);
+            // feedback
+            logger.verbose(`Trigger command "${this.name}"`, this);
 
-        //console.log("params array:", this.params, params)
+            if (!cb && params instanceof Function) {
+                cb = params;
+                params = [];
+            }
 
-        let valid = params.every(({ key, value }) => {
+            if (!params && !cb) {
+                params = [];
+                cb = () => { };
+            }
 
-            let param = this.params.find((param) => {
-                return param.key === key;
+            let worker = this.#privates.get("handler");
+            let iface = interfaces.get(this.interface);
+
+            // moved up, and used as callback debounce function
+            // see #528, timeout helper has a internal "called" flag
+            let timer = _timeout(this.#privates.get("timeout"), (timedout, duration, args) => {
+                if (timedout) {
+
+                    logger.warn(`Command timedout for "${this._id}"! Execution was not successful, worker function:`, worker);
+                    cb(null, false);
+
+                } else {
+
+                    logger.debug(`Command handler for "${this._id}" executed in ${duration}ms, arguments:`, args);
+                    cb(...args);
+
+                }
             });
 
-            if (!param) {
-                return false;
+            try {
+                params = params.map((obj) => {
+
+                    let param = this.params.find((param) => {
+                        return param.key === obj.key;
+                    });
+
+                    if (!param) {
+                        return obj;
+                    }
+
+                    return Param.merge(param, obj);
+
+                });
+            } catch (err) {
+
+                logger.warn(err, `Passed params to command "${this.name}" are invalid`, params);
+
+                timer(err, false);
+                return;
+
             }
 
-            // auto convert "123" to 123
-            if (param.type === "number") {
-                value = Number(value);
+            // convert to params array with .lean method
+            params = new Params(...params);
+
+            if (!iface) {
+                let err = new Error(`Interface "${this.interface}" not found, cant write to it.`);
+                err.code = "NO_INTERFACE";
+                return timer(err, false);
             }
 
-            return typeof (value) === param.type;
+            // emit command event, see #529
+            events.emit("command", this, params);
 
-        });
+            // handle timeout stuff here?
+            // when so, timeout applys to custom functions too!
+            worker.call(this, this, iface, params, timer);
 
-        if (!iface) {
-            let err = new Error(`Interface "${this.interface}" not found, cant write to it.`);
-            err.code = "NO_INTERFACE";
-            return cb(err, false);
-        }
+        };
 
-        if (!valid) {
-            let err = new Error(`Invalid parameter`);
-            err.code = "INVALID_PARAMETER";
-            // TODO: Should not be as second argument passed "false"?!
-            return cb(err);
-        }
+        if (process.env.WORKER_THREADS_ENABLED === "true") {
+            if (isMainThread) {
 
-        let timer = _timeout(this.#privates.get("timeout"), (timedout, duration, args) => {
-            if (timedout) {
+                // im main
+                // post message to worker
+                if (commands.has(this._id)) {
 
-                console.log("Command timedout! Execution was not successful, worker function:", worker);
-                cb(null, false);
+                    let worker = commands.get(this._id);
+                    let uuid = randomUUID();
+
+                    worker.postMessage({
+                        component: "endpoints",
+                        method: "trigger",
+                        params,
+                        type: "request",
+                        uuid,
+                        command: this._id
+                    });
+
+                    let messageHandler = (msg) => {
+                        if (msg.type === "response" && msg.uuid === uuid && msg.method === "trigger") {
+
+                            //console.log("cmd Response received", msg)
+
+                            worker.off("messsage", messageHandler);
+                            Reflect.apply(cb, this, msg.args);
+
+                        }
+                    };
+
+                    worker.on("message", messageHandler);
+
+                } else {
+
+                    // feedback
+                    logger.warn("No command hanlder registered");
+
+                }
 
             } else {
 
-                console.log("Command handler executed", duration, args);
-                cb(...args);
+                // in worker
+                wrapper();
 
             }
-        });
+        } else {
 
-        // handle timeout stuff here?
-        // when so, timeout applys to custom functions too!
-        worker.call(this, this, iface, new Params(...params), timer);
+            // in main
+            wrapper();
+
+        }
 
     }
 
@@ -279,7 +396,8 @@ module.exports = class Command {
             //payload: Joi.string().allow(null).default(null),
             payload: Joi.alternatives().try(Joi.string(), Joi.binary()).allow(null).default(null),
             description: Joi.string().allow(null).default(null),
-            params: Joi.array().items(Param.schema()).default([])
+            params: Joi.array().items(Param.schema()).default([]),
+            icon: Joi.string().allow(null).default(null)
         });
     }
 

@@ -29,12 +29,14 @@ process.env = Object.assign({
     DATABASE_URL: "",
     DATABASE_WATCH_CHANGES: "false",
     DATABASE_UPDATE_DEBOUNCE_TIMER: "15",
+    DATABASE_AUTH_SOURCE: "admin",
+    DATABASE_APPNAME: "OpenHaus",
     HTTP_PORT: "8080",
     HTTP_ADDRESS: "0.0.0.0",
     HTTP_SOCKET: "/tmp/open-haus.sock",
     LOG_PATH: path.resolve(process.cwd(), "logs"),
     LOG_LEVEL: "info",
-    LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM.ss.l",
+    LOG_DATEFORMAT: "yyyy.mm.dd - HH:MM:ss.l",
     LOG_SUPPRESS: "false",
     LOG_TARGET: "",
     NODE_ENV: "production",
@@ -57,7 +59,11 @@ process.env = Object.assign({
     USERS_JWT_ALGORITHM: "HS384",
     MQTT_BROKER_VERSION: "4",
     MQTT_CLIENT_ID: "OpenHaus",
-    MQTT_PING_INTERVAL: "5000"
+    MQTT_PING_INTERVAL: "5000",
+    CONNECT_TIMEOUT: "10000",
+    HTTP_TRUSTED_PROXYS: "loopback",
+    ITEM_LIMITS: "",
+    WORKER_THREADS_ENABLED: "false"
 }, env.parsed, process.env);
 
 
@@ -76,7 +82,7 @@ if (process.execArgv.includes("--inspect") && process.env.NODE_ENV === "developm
     try {
         exec("chromium-browser & sleep 1 && xdotool type 'chrome://inspect' && xdotool key Return");
     } catch (err) {
-        console.error("Could not open chromium browser");
+        console.error(err, "Could not open chromium browser");
     }
 }
 
@@ -249,12 +255,15 @@ const starter = new Promise((resolve) => {
 
     let started = 0;
 
-    bootable.forEach((plugin) => {
+    // without async/await the process crashes
+    // if a error is thrown, even when it has no influence on the plugin start per se
+    /*
+    bootable.forEach(async (plugin) => {
         try {
 
             logger.verbose(`Start plugin "${plugin.name}" (${plugin.uuid})`);
 
-            plugin.start();
+            await plugin.start();
 
             started += 1;
 
@@ -264,22 +273,64 @@ const starter = new Promise((resolve) => {
 
         }
     });
+    */
 
-    if (bootable.length > started) {
-        logger.warn(`${started}/${bootable.length} Plugins started (Check the previously logs)`);
-    } else {
-        logger.info(`${started}/${bootable.length} Plugins started`);
-    }
+    (async () => {
 
-    logger.info("Startup complete");
+        for (const plugin of bootable) {
+            try {
+
+                logger.verbose(`Start plugin "${plugin.name}" (${plugin.uuid})`);
+
+                await plugin.start();
+
+                started += 1;
+
+            } catch (err) {
+
+                logger.error(err, `Could not boot plugin "${plugin.name}" (${plugin.uuid})`);
+
+            }
+        }
+
+        if (bootable.length > started) {
+            logger.warn(`${started}/${bootable.length} Plugins started (Check the previously logs)`);
+        } else {
+            logger.info(`${started}/${bootable.length} Plugins started`);
+        }
+
+        logger.info("Startup complete");
+
+    })();
 
     // fix #435
     ["SIGINT", /*"SIGTERM", "SIGQUIT"*/].forEach((signal) => {
         process.once(signal, () => {
 
+            logger.debug(`signal=${signal} received`);
             logger.warn("Shuting down...");
+
+            setTimeout(() => {
+                process.exit(0);
+            });
 
         });
     });
 
 });
+
+
+
+if (process.env.WORKER_THREADS_ENABLED === "true") {
+    setInterval(() => {
+
+        let mem = process.memoryUsage();
+        console.group(Date.now());
+        console.log(`RSS: ${Number(mem.rss / 1024 / 1024).toFixed(2)} MB`);
+        console.log(`Heap Used: ${Number(mem.heapUsed / 1024 / 1024).toFixed(2)} MB`);
+        console.log(`External: ${Number(mem.external / 1024 / 1024).toFixed(2)} MB`);
+        console.log();
+        console.groupEnd();
+
+    }, 30_000);
+}

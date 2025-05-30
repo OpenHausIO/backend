@@ -23,7 +23,6 @@ module.exports = class Job {
     constructor(cron, fnc) {
 
         // TODO (mstirner) fix eslint rule
-        // eslint-disable-next-line no-useless-escape
         let parts = cron.match(/^([0-9,\-\/]+|\*{1}|\*{1}\/[0-9]+)\s+([0-9,\-\/]+|\*{1}|\*{1}\/[0-9]+)\s+([0-9,\-\/]+|\*{1}|\*{1}\/[0-9]+)\s+([0-9,\-\/]+|\*{1}|\*{1}\/[0-9]+)\s+([0-9,\-\/]+|\*{1}|\*{1}\/[0-9]+)\s*$/);
 
         this.minute = this.parse(parts[1]);

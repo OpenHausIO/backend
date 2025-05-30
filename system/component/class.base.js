@@ -1,7 +1,8 @@
 const process = require("process");
-const events = require("events");
+//const events = require("events");
 
-const Hooks = require("../hooks.js");
+const Hooks = require("../class.hooks.js");
+const Events = require("./class.events.js");
 
 /**
  * @description
@@ -10,6 +11,7 @@ const Hooks = require("../hooks.js");
  * 
  * @class BASE
  * 
+ * @property {String} name Name of the component
  * @property {Boolean} ready Indicate if the component is ready to use
  * @property {EventEmitter} events node.js EventEmitter instance
  * @property {Object} hooks Hooks class instance 
@@ -22,10 +24,12 @@ const Hooks = require("../hooks.js");
  */
 module.exports = class BASE {
 
-    constructor() {
+    constructor(name) {
+        this.name = name;
         this.ready = false;
-        this.events = new events();
+        this.events = new Events(name);
         this.hooks = new Hooks();
+        // this.logger = ...?
     }
 
     // NOTE improve/change function name
@@ -39,23 +43,29 @@ module.exports = class BASE {
      * @param {Function} cb Worker callback
      */
     init(cb) {
-        cb(this, (err) => {
-            if (err) {
+        try {
+            cb(this, (err) => {
+                if (err) {
 
-                // see issue #53, this should not throw
-                this.events.emit("error", err);
-                //process.exit(1000); ?!
+                    // see issue #53, this should not throw
+                    this.events.emit("error", err);
+                    //process.exit(1000); ?!
 
-            } else {
+                } else {
 
-                this.ready = true;
+                    this.ready = true;
 
-                process.nextTick(() => {
-                    this.events.emit("ready");
-                });
+                    process.nextTick(() => {
+                        this.events.emit("ready");
+                    });
 
-            }
-        });
+                }
+            });
+        } catch (err) {
+
+            this.events.emit("error", err);
+
+        }
     }
 
 };

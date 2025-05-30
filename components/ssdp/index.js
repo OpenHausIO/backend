@@ -27,6 +27,11 @@ const messageHandler = require("./message-handler.js");
  * ```
  * 
  * @example
+ * ```sh
+ * nc -ulvv 239.255.255.250 1900
+ * ```
+ * 
+ * @example
  * ```json
  * {
  *  host: '239.255.255.250:1900',
@@ -45,7 +50,7 @@ class C_SSDP extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("ssdp", SSDP.schema(), module);
+        super("ssdp", SSDP.schema());
 
         this.hooks.post("add", (data, next) => {
             next(null, new SSDP(data));
@@ -74,23 +79,21 @@ const instance = module.exports = new C_SSDP();
 // init component
 // set items/build cache
 instance.init((scope, ready) => {
-    scope.collection.find({}).toArray((err, data) => {
-        if (err) {
+    scope.collection.find({}).toArray().then((data) => {
 
-            // shit...
-            ready(err);
+        data.forEach((obj) => {
 
-        } else {
+            let item = new SSDP(obj);
+            scope.items.push(item);
 
-            data = data.map((obj) => {
-                return new SSDP(obj);
-            });
+        });
 
-            scope.items.push(...data);
+        // init done
+        ready(null);
 
-            // init done
-            ready(null);
+    }).catch((err) => {
 
-        }
+        ready(err);
+
     });
 });

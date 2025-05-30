@@ -2,7 +2,7 @@ module.exports = class Label {
 
     constructor(label) {
 
-        let [key, value] = label.split("=");
+        let [key, value] = label.split(/=(.+)/);
 
         Object.defineProperty(this, "key", {
             set(val) {
@@ -28,7 +28,7 @@ module.exports = class Label {
 
         Object.defineProperty(this, "label", {
             set(val) {
-                let { k, v } = label.split("=");
+                let { k, v } = label.split(/=(.+)/);
                 label = val;
                 key = k;
                 value = v;

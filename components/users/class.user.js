@@ -24,7 +24,7 @@ const Item = require("../../system/component/class.item.js");
  */
 module.exports = class User extends Item {
 
-    constructor(scope, obj) {
+    constructor(obj) {
 
         super(obj);
 
@@ -32,12 +32,15 @@ module.exports = class User extends Item {
         //Object.assign(this, obj);
         //this._id = String(obj._id);
 
+        /*
+        // removed, see #594
         Object.defineProperty(this, "_scope", {
             value: scope,
             writable: false,
             enumerable: false,
             configurable: false
         });
+        */
 
     }
 
@@ -89,12 +92,14 @@ module.exports = class User extends Item {
 
                     this.tokens.push(token);
 
-                    this._scope.update(this._id, this, (err, data) => {
+                    let { logger, update } = User.scope;
+
+                    update(this._id, this, (err, data) => {
                         if (err) {
                             done(err);
                         } else {
 
-                            this._scope.logger.verbose(`Token for user "${this.name}" (${this._id}) added.`);
+                            logger.verbose(`Token for user "${this.name}" (${this._id}) added.`);
 
                             done(null, token, data);
 
@@ -129,12 +134,14 @@ module.exports = class User extends Item {
 
             this.tokens.splice(index, 1);
 
-            this._scope.update(this._id, this, (err, result) => {
+            let { logger, update } = User.scope;
+
+            update(this._id, this, (err, result) => {
                 if (err) {
                     done(err);
                 } else {
 
-                    this._scope.logger.verbose(`Token from user "${this.name}" (${this._id}) removed.`);
+                    logger.verbose(`Token from user "${this.name}" (${this._id}) removed.`);
 
                     done(null, result);
 

@@ -1,5 +1,5 @@
 const { describe, it } = require("mocha");
-const Middleware = require("../../system/middleware");
+const Middleware = require("../../system/class.middleware.js");
 const assert = require("assert").strict;
 
 describe("system/middleware", () => {

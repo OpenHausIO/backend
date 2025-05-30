@@ -4,15 +4,33 @@ const mqtt = require("mqtt-packet");
 const VERSION = Number(process.env.MQTT_BROKER_VERSION);
 const exitCodes = require("./exit-codes.js")(VERSION);
 
+const _debounce = require("../../helper/debounce.js");
+
 const parser = mqtt.parser({
     protocolVersion: VERSION
 });
 
 module.exports = (scope) => {
-    scope._ready(({ logger, events, items }) => {
+    scope._ready(({ logger, events, items, update }) => {
 
         // ping setTimeout timer
         let interval = null;
+
+        let updater = _debounce(async (topic) => {
+            try {
+
+                // trigger update on item
+                await update(topic._id, topic);
+
+                // feedback
+                logger.verbose(`Topic timestamp "published" updated`, topic);
+
+            } catch (err) {
+
+                logger.warn(err, "Could not update topic item after debouncing");
+
+            }
+        }, 100);
 
 
         // listen for published topics
@@ -22,12 +40,39 @@ module.exports = (scope) => {
             // feedback
             logger.trace(`Published: ${packet.topic}=${packet.payload}`);
 
-            items.forEach(({ topic, _subscriber }) => {
+            items.forEach(({ topic, _subscriber }, index) => {
                 if (String(packet.topic).startsWith(topic) || packet.topic === topic) {
+
+                    let item = items[index];
+                    let { timestamps } = item;
+
+                    /*
+                    // when value should be stored
+                    // prevent useless set when value is the same as previous one
+                    // same should be for published timestamp
+                    if (topic.value !== packet.payload) {
+
+                        topic.value = Number(packet.payload);
+                        timestamps.published = Date.now();
+
+                        console.log("Published", topic, packet.payload)
+
+                        _subscriber.forEach((cb) => {
+                            cb(packet.payload, packet);
+                        });
+
+                        process.nextTick(updater, topic);
+
+                    }
+                    */
+
+                    timestamps.published = Date.now();
 
                     _subscriber.forEach((cb) => {
                         cb(packet.payload, packet);
                     });
+
+                    process.nextTick(updater, item);
 
                 }
             });

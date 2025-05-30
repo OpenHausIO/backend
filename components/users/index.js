@@ -23,10 +23,39 @@ class C_USERS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("users", User.schema(), module);
+        super("users", User.schema(), [
+            User
+        ]);
 
         this.hooks.post("add", (data, next) => {
-            next(null, new User(this, data));
+            next(null, new User(data));
+        });
+
+        // patch password if item exists & is set
+        // otherwise the schema validation fails
+        this.hooks.pre("update", (_id, data, next) => {
+            if (data.password === null) {
+
+                let item = this.items.find((user) => {
+                    return user._id === _id;
+                });
+
+                if (!item) {
+
+                    next(null, _id, data);
+
+                } else {
+
+                    data.password = item.password;
+                    next(null, _id, data);
+
+                }
+
+            } else {
+
+                next(null, _id, data);
+
+            }
         });
 
         this.hooks.pre(["add", "update"], (_id, data, next) => {
@@ -124,6 +153,7 @@ class C_USERS extends COMPONENT {
                     }, (err) => {
                         if (err) {
 
+                            this.logger.error(err, `Could not set login timestamp for user "${user.email}"`);
                             done(err);
 
                         } else {
@@ -204,24 +234,22 @@ instance.init((scope, ready) => {
         return ready(new Error("You need to set a `USERS_JWT_SECRET` environment variable!"));
     }
 
-    scope.collection.find({}).toArray((err, data) => {
-        if (err) {
+    scope.collection.find({}).toArray().then((data) => {
 
-            // shit...
-            ready(err);
+        data.forEach((obj) => {
 
-        } else {
+            let item = new User(obj);
+            scope.items.push(item);
 
-            data = data.map((obj) => {
-                return new User(scope, obj);
-            });
+        });
 
-            scope.items.push(...data);
+        // init done
+        ready(null);
 
-            // init done
-            ready(null);
+    }).catch((err) => {
 
-        }
+        ready(err);
+
     });
 
 });

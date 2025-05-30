@@ -1,12 +1,12 @@
 const path = require("path");
 
 module.exports = (logger) => {
-    return () => {
+    return (intents) => {
         return new Promise((resolve) => {
 
             logger.debug("Init components...");
 
-            const componentNames = [
+            const componentNames = (intents || [
                 "devices",
                 "endpoints",
                 "plugins",
@@ -19,13 +19,17 @@ module.exports = (logger) => {
                 "mqtt",
                 "mdns",
                 "scenes"
-            ].sort(() => {
+            ]).sort(() => {
 
                 // pseudo randomize start/init of components
                 // https://stackoverflow.com/a/18650169/5781499
                 return 0.5 - Math.random();
 
             });
+
+            if (componentNames.length === 0) {
+                return resolve();
+            }
 
             let componentConter = 0;
             //let counter = componentNames.length;

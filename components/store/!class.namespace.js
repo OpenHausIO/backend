@@ -55,7 +55,6 @@ class Namespace extends EventEmitter {
             // https://medium.com/trabe/async-getters-and-setters-is-it-possible-c18759b6f7e4
             Reflect.defineProperty(this, obj.key, {
                 set: (value) => {
-                    // eslint-disable-next-line no-setter-return
                     return new Promise((resolve, reject) => {
 
                         // update value in database

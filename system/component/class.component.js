@@ -26,6 +26,10 @@ const PENDING_CHANGE_EVENTS = new Set();
  * 
  * @extends COMMON system/component/class.common.js
  * 
+ * @param {String} name Component name 
+ * @param {Object} schema Joi object schema
+ * @param {Array} classes Child classes where to inject "scope" property
+ * 
  * @property {Array} items Store where instance of items are keept
  * @property {Object} collection MongoDB collection instance 
  * @property {Object} schema Joi Object schema which is extend by a timestamp object:
@@ -45,13 +49,18 @@ const PENDING_CHANGE_EVENTS = new Set();
  */
 module.exports = class COMPONENT extends COMMON {
 
-    constructor(name, schema, parent) {
+    constructor(name, schema, classes = []) {
 
-        if (parent) {
-            //require("../prevent_cross_load")(parent);
-        }
+        super(name);
 
-        super(require("../../system/logger").create(name));
+        classes.forEach((cls) => {
+            Object.defineProperty(cls, "scope", {
+                value: this,
+                writable: false,
+                enumerable: false,
+                configurable: false
+            });
+        });
 
         // "secret" items array
         let items = [];
@@ -247,7 +256,7 @@ module.exports = class COMPONENT extends COMMON {
 
                         // event now contain dot notation partial update
                         // to make things simpler, just fetch the doc and merge it
-                        this.collection.find(documentKey).toArray((err, [doc]) => {
+                        this.collection.find(documentKey).toArray().then(([doc]) => {
 
                             // merge docs
                             _merge(target, doc);
@@ -258,6 +267,10 @@ module.exports = class COMPONENT extends COMMON {
                             // trigger update event
                             // TODO trigger update event, so changes can be detect via websockets /events API?
                             this.events.emit("update", target);
+
+                        }).catch((err) => {
+
+                            this.logger.warn(err, "Could not find document");
 
                         });
 
@@ -308,6 +321,11 @@ module.exports = class COMPONENT extends COMMON {
             return (data) => {
                 return new Promise((resolve, reject) => {
 
+                    if (this.items.length >= this.limit) {
+                        let err = new Error(`Item limit for ${this.name} reached!`);
+                        return reject(err);
+                    }
+
                     let options = Object.assign({
                         returnDuplicate: true
                     }, {});
@@ -331,81 +349,79 @@ module.exports = class COMPONENT extends COMMON {
                     // add id to pending change events
                     PENDING_CHANGE_EVENTS.add(result.value._id);
 
-                    this.collection.insertOne(result.value, (err, ops) => {
-                        if (err) {
-                            if (err.code === 11000 && options.returnDuplicate) {
+                    this.collection.insertOne(result.value).then((ops) => {
 
-                                // 11000 = duplicate key
-                                // search for object in .items and return it
+                        if (ops.acknowledged) {
+                            this.collection.find({
+                                _id: ops.insertedId
+                            }).toArray().then(([doc]) => {
 
-                                let item = this.items.find((item) => {
+                                // feedback
+                                this.logger.info(`Item "${doc.name || doc.description}" added`);
 
-                                    // NOTE: rename value to key
-                                    return Object.keys(err.keyValue).every((value) => {
+                                // resolve takes a array
+                                // these are arguments passed to the callback function
+                                // when resolve is called, the cb function gets as first argument, null
+                                // and every entry from the array as parameter
+                                resolve([doc]);
 
-                                        // fixing "Duplicate unique key/index in database, but no matching item"
-                                        // see #367
-                                        if (err.keyValue[value] instanceof mongodb.ObjectId) {
-                                            return item[value] === err.keyValue[value].toString();
-                                        }
+                            }).catch((err) => {
 
-                                        return item[value] === err.keyValue[value];
-
-                                    });
-
-                                    /*
-                                    for (let key in err.keyValue) {
-                                        console.log("Search in add data for", key)
-                                        // change to or statement?
-                                        return (item[key] && item[key] == (err.keyValue[key] || null));
-                                    }
-                                    */
-                                });
-
-                                duplicate = !!item;
-
-                                // remove id when error occurs
-                                PENDING_CHANGE_EVENTS.delete(result.value._id);
-
-                                if (item) {
-                                    resolve([item]);
-                                } else {
-                                    reject(new Error(`Duplicate unique key/index in database, but no matching item`));
-                                }
-
-                            } else {
-
+                                this.logger.warn("Could not fetch added doc", err);
                                 reject(err);
 
-                            }
+                            });
                         } else {
 
-                            if (ops.acknowledged) {
-                                this.collection.find({
-                                    _id: ops.insertedId
-                                }).toArray((err, [doc]) => {
-                                    if (err) {
+                            reject("Could not fetch added doc");
+                            this.logger.warn("Could not fetch added doc", ops);
 
-                                        this.logger.warn("Could not fetch added doc", err);
-                                        reject(err);
+                        }
 
-                                    } else {
+                    }).catch((err) => {
+                        if (err.code === 11000 && options.returnDuplicate) {
 
+                            // 11000 = duplicate key
+                            // search for object in .items and return it
 
-                                        // resolve takes a array
-                                        // these are arguments passed to the callback function
-                                        // when resolve is called, the cb function gets as first argument, null
-                                        // and every entry from the array as parameter
-                                        resolve([doc]);
+                            let item = this.items.find((item) => {
 
+                                // NOTE: rename value to key
+                                return Object.keys(err.keyValue).every((value) => {
+
+                                    // fixing "Duplicate unique key/index in database, but no matching item"
+                                    // see #367
+                                    if (err.keyValue[value] instanceof mongodb.ObjectId) {
+                                        return item[value] === err.keyValue[value].toString();
                                     }
+
+                                    return item[value] === err.keyValue[value];
+
                                 });
+
+                                /*
+                                for (let key in err.keyValue) {
+                                    console.log("Search in add data for", key)
+                                    // change to or statement?
+                                    return (item[key] && item[key] == (err.keyValue[key] || null));
+                                }
+                                */
+                            });
+
+                            duplicate = !!item;
+
+                            // remove id when error occurs
+                            PENDING_CHANGE_EVENTS.delete(result.value._id);
+
+                            if (item) {
+                                resolve([item]);
                             } else {
-
-                                reject("Could not fetch added doc");
-                                this.logger.warn("Could not fetch added doc", ops);
-
+                                reject(new Error(`Duplicate unique key/index in database, but no matching item`));
                             }
+
+                        } else {
+
+                            reject(err);
 
                         }
                     });
@@ -471,26 +487,25 @@ module.exports = class COMPONENT extends COMMON {
 
                     this.collection.deleteOne({
                         _id: new mongodb.ObjectId(_id)
-                    }, (err, result) => {
-                        if (err) {
+                    }).then((result) => {
 
-                            // remove id when error occurs
-                            PENDING_CHANGE_EVENTS.delete(result.value._id);
+                        //if (result.n === 1 && result.ok === 1 && target) {
+                        if (result.acknowledged && result.deletedCount > 0) {
 
-                            reject(err);
+                            this.logger.info(`Item "${target.name || target.description}" removed`);
+                            resolve([target, result, _id]);
 
                         } else {
-
-                            //if (result.n === 1 && result.ok === 1 && target) {
-                            if (result.acknowledged && result.deletedCount > 0) {
-
-                                resolve([target, result, _id]);
-
-                            } else {
-                                reject(new Error("Invalid result returnd"));
-                            }
-
+                            reject(new Error("Invalid result returnd"));
                         }
+
+                    }).catch((err) => {
+
+                        // remove id when error occurs
+                        PENDING_CHANGE_EVENTS.delete(result.value._id);
+
+                        reject(err);
+
                     });
 
                 });
@@ -556,36 +571,38 @@ module.exports = class COMPONENT extends COMMON {
                         //returnOriginal: false
                         //returnDocument: "after",
                         //upsert: true
-                    }, (err) => {
-                        if (err) {
+                    }).then(() => {
 
-                            // remove id when error occurs
-                            PENDING_CHANGE_EVENTS.delete(target._id);
+                        // TODO HANDLE UPDATE DATA PROPERLY!!!:
+                        // - schema valdation fucks on "adapter"/"interface" istance
+                        //   -> these are class/object instance and not "string" or what ever
+                        // - Convert them on "shallow" object back to string or whatever?!
+                        // - What happens after the update?!
+                        //   -> Convert them again to interface/adapter instance?!
 
-                            //console.log("4tpoiwrejtkwienrut", err)
-                            reject(err);
+                        // VIEL GRÖ?ERES PROBLEM!!!!!
+                        // Wir arbeiten auf generischier eben hier!
+                        // Umwandlung von object/string zu/von object/string
+                        // muss in middlware erflogen!!!!!!!!!!!!!!
 
-                        } else {
+                        // feedback
+                        this.logger.info(`Item "${target.name || target.description}" updated`);
 
-                            // TODO HANDLE UPDATE DATA PROPERLY!!!:
-                            // - schema valdation fucks on "adapter"/"interface" istance
-                            //   -> these are class/object instance and not "string" or what ever
-                            // - Convert them on "shallow" object back to string or whatever?!
-                            // - What happens after the update?!
-                            //   -> Convert them again to interface/adapter instance?!
+                        // TODO CHECK RESUTL!
+                        // extend exisiting object in items array
+                        //_extend(target, validation.value);
+                        _merge(target, validation.value);
+                        resolve([target]);
 
-                            // VIEL GRÖ?ERES PROBLEM!!!!!
-                            // Wir arbeiten auf generischier eben hier!
-                            // Umwandlung von object/string zu/von object/string
-                            // muss in middlware erflogen!!!!!!!!!!!!!!
+                    }).catch((err) => {
 
-                            // TODO CHECK RESUTL!
-                            // extend exisiting object in items array
-                            //_extend(target, validation.value);
-                            _merge(target, validation.value);
-                            resolve([target]);
 
-                        }
+                        // remove id when error occurs
+                        PENDING_CHANGE_EVENTS.delete(target._id);
+
+                        //console.log("4tpoiwrejtkwienrut", err)
+                        reject(err);
+
                     });
 
 
@@ -696,13 +713,24 @@ module.exports = class COMPONENT extends COMMON {
                     if (key === "labels" && Array.isArray(filter[key]) && Array.isArray(target[key])) {
 
                         found = filter[key].every((label) => {
+
+                            // split filter key/label
+                            let [k = null, v = null] = label.toString().split(/=(.+)/);
+
+                            // check wildcard key/value
+                            if (k === "*" || v === "*") {
+                                return true;
+                            }
+
                             // fix #381
                             // target[key] is a instance if class.labels.js and not of plain string.
                             // convert it to a array wiht plain strings, so that .includes works.
                             return target[key]?.toString().includes(label);
+
                         });
 
                         return;
+
                     }
 
                     if (typeof filter[key] === "object") {
@@ -747,12 +775,7 @@ module.exports = class COMPONENT extends COMMON {
 
                     if (target[key] instanceof Object) {
                         return loop(target[key], filter[key]);
-                    } else {
-                        return target[key] === filter[key];
-                    }
-
-                });
-            };
+                    } else {endpoint
 
             if (loop(item, filter)) {
                 matched = true;
@@ -817,7 +840,7 @@ module.exports = class COMPONENT extends COMMON {
 
             } else {
 
-                let [key, value] = filter.split("=");
+                let [key, value] = filter.split(/=(.+)/);
 
                 return arr.some((label) => {
 

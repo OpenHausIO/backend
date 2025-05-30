@@ -48,7 +48,7 @@ class C_ROOMS extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("rooms", Room.schema(), module);
+        super("rooms", Room.schema());
 
         this.hooks.post("add", (data, next) => {
             next(null, new Room(data));
@@ -68,23 +68,21 @@ const instance = module.exports = new C_ROOMS();
 // init component
 // set items/build cache
 instance.init((scope, ready) => {
-    scope.collection.find({}).toArray((err, data) => {
-        if (err) {
+    scope.collection.find({}).toArray().then((data) => {
 
-            // shit...
-            ready(err);
+        data.forEach((obj) => {
 
-        } else {
+            let item = new Room(obj);
+            scope.items.push(item);
 
-            data = data.map((obj) => {
-                return new Room(obj);
-            });
+        });
 
-            scope.items.push(...data);
+        // init done
+        ready(null);
 
-            // init done
-            ready(null);
+    }).catch((err) => {
 
-        }
+        ready(err);
+
     });
 });

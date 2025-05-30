@@ -34,10 +34,12 @@ class C_STORE extends COMPONENT {
     constructor() {
 
         // inject logger, collection and schema object
-        super("store", Store.schema(), module);
+        super("store", Store.schema(), [
+            Store
+        ]);
 
         this.hooks.post("add", (data, next) => {
-            next(null, new Store(data, this));
+            next(null, new Store(data));
         });
 
         // fix #406
@@ -69,25 +71,21 @@ const instance = module.exports = new C_STORE();
 // init component
 // set items/build cache
 instance.init((scope, ready) => {
+    scope.collection.find({}).toArray().then((data) => {
 
-    scope.collection.find({}).toArray((err, data) => {
-        if (err) {
+        data.forEach((obj) => {
 
-            // shit...
-            ready(err);
+            let item = new Store(obj);
+            scope.items.push(item);
 
-        } else {
+        });
 
-            data = data.map((obj) => {
-                return new Store(obj, scope);
-            });
+        // init done
+        ready(null);
 
-            scope.items.push(...data);
+    }).catch((err) => {
 
-            // init done
-            ready(null);
+        ready(err);
 
-        }
     });
-
 });

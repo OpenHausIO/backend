@@ -3,6 +3,8 @@ const mongodb = require("mongodb");
 
 const Item = require("../../system/component/class.item.js");
 
+const _debounce = require("../../helper/debounce.js");
+
 /**
  * @description
  * Represents a webhook item
@@ -24,6 +26,25 @@ module.exports = class Webhook extends Item {
         //Object.assign(this, obj);
         //this._id = String(obj._id);
 
+        let { update, logger } = Webhook.scope;
+
+        let updater = _debounce(async () => {
+            try {
+
+                // trigger update on endpoint item
+                // otherwise ui is not rendered/refreshed on state changed
+                await update(this._id, this);
+
+                // feedback
+                logger.verbose("Webhook trigger timestamp updated", this.timestamps);
+
+            } catch (err) {
+
+                logger.warn(err, "Could not update webhook item after debouncing");
+
+            }
+        }, 100);
+
         Object.defineProperty(this, "_handler", {
             value: [],
             configurable: false,
@@ -38,6 +59,9 @@ module.exports = class Webhook extends Item {
                     cb(body, query);
                 });
 
+                this.timestamps.triggered = Date.now();
+                process.nextTick(updater, this);
+
             },
             enumerable: false,
             configurable: false,
@@ -51,7 +75,10 @@ module.exports = class Webhook extends Item {
             _id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).default(() => {
                 return String(new mongodb.ObjectId());
             }),
-            name: Joi.string().required()
+            name: Joi.string().required(),
+            timestamps: {
+                triggered: Joi.number().allow(null).default(null),
+            }
         });
     }
 

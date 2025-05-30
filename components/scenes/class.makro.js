@@ -31,6 +31,7 @@ module.exports = class Makro {
 
         Object.assign(this, obj);
         this._id = String(obj._id);
+        //this.options
 
     }
 
@@ -44,62 +45,31 @@ module.exports = class Makro {
      * 
      * @returns 
      */
-    execute(result, signal) {
-
+    // TODO: remove result argument
+    execute(result, signal, scene) {
         if (types[this.type]) {
-            return types[this.type](this, result, signal);
+
+            return new Promise((resolve, reject) => {
+
+                let options = {
+                    resolve,
+                    reject,
+                    signal,
+                    makro: this
+                };
+
+                return Reflect.apply(types[this.type], null, [
+                    scene,
+                    options
+                ]);
+
+            });
+
         } else {
-            throw new Error(`Type ${this.type} handler not found`);
+
+            throw new Error(`Type ${this.type} makro handler not defined`);
+
         }
-
-        /*
-        return new Promise((resolve, reject) => {
-            try {
-                if (this.type === "timer") {
-
-                    let timeout = setTimeout(() => {
-                        resolve(this._id, signal);
-                    }, this.value);
-
-                    signal.addEventListener("abort", () => {
-                        clearTimeout(timeout);
-                    }, {
-                        once: true
-                    });
-
-                } else if (this.type === "command") {
-
-                    dispatcher({
-                        "component": "endpoints",
-                        "item": this.endpoint,
-                        "method": "trigger",
-                        "args": [this.command]
-                    });
-
-                    resolve(this._id);
-
-                } else if (this.type === "scene") {
-
-                    dispatcher({
-                        "component": "scenes",
-                        "item": this.scene,
-                        "method": "trigger",
-                        "args": []
-                    });
-
-                } else {
-
-                    reject(`${this.type} is invalid!`);
-
-                }
-            } catch (err) {
-
-                reject(err);
-
-            }
-        });
-        */
-
     }
 
 
@@ -120,6 +90,7 @@ module.exports = class Makro {
             }),
             type: Joi.string().valid("command", "timer", "scene"/*, "state"*/).required(),
             enabled: Joi.boolean().default(true),
+            // comment: Joi.string().allow(null).default(null)
             timestamps: Joi.object({
                 created: Joi.number().allow(null),
                 updated: Joi.number().allow(null)
@@ -129,7 +100,9 @@ module.exports = class Makro {
                 is: "command",
                 then: Joi.object({
                     endpoint: Joi.string().pattern(/^[0-9a-fA-F]{24}$/),
-                    command: Joi.string().pattern(/^[0-9a-fA-F]{24}$/)
+                    command: Joi.string().pattern(/^[0-9a-fA-F]{24}$/),
+                    parallel: Joi.boolean().default(true),
+                    params: Joi.array().default([])
                 })
             }, {
                 is: "timer",

@@ -28,26 +28,27 @@ module.exports = class Vault extends Item {
 
     #privates = new Map();
 
-    constructor(obj, scope) {
+    constructor(obj) {
 
         super(obj);
 
         // create event emitter for lean object
         let events = new EventEmitter();
+        let { logger, update } = Vault.scope;
         this.#privates.set("events", events);
 
         let changed = _debounce(async (secret) => {
             try {
 
                 // feedback
-                scope.logger.debug(`Secret "${secret.key}" changed`);
+                logger.debug(`Secret "${secret.key}" changed`);
 
                 // update item in database
-                await scope.update(this._id, this);
+                await update(this._id, this);
 
             } catch (err) {
 
-                scope.logger.warn(err, `Could not update secret value. (${obj._id}) ${secret.key}=${secret.value}`);
+                logger.warn(err, `Could not update secret value. (${obj._id}) ${secret.key}=${secret.value}`);
 
             } finally {
 
@@ -84,7 +85,7 @@ module.exports = class Vault extends Item {
                 return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
-            identifier: Joi.string().required(),
+            identifier: Joi.string().required(), // TODO: remove
             description: Joi.string().allow(null).default(null),
             secrets: Joi.array().items(Secret.schema()).default([])
         });
