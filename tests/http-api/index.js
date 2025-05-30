@@ -18,7 +18,7 @@ describe("HTTP API", function () {
     it("- Should start OpenHaus", (done) => {
 
         child = fork(path.resolve(process.cwd(), "index.js"), {
-            silent: false,
+            silent: true,
             env: Object.assign({}, process.env, {
                 UUID: crypto.randomUUID(),
                 DATABASE_NAME: crypto.randomBytes(8).toString("hex"),
