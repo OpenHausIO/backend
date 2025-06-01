@@ -489,6 +489,9 @@ module.exports = class COMPONENT extends COMMON {
                         _id: new mongodb.ObjectId(_id)
                     }).then((result) => {
 
+                        // remove id when error occurs
+                        PENDING_CHANGE_EVENTS.delete(result.value._id);
+
                         //if (result.n === 1 && result.ok === 1 && target) {
                         if (result.acknowledged && result.deletedCount > 0) {
 
@@ -502,7 +505,7 @@ module.exports = class COMPONENT extends COMMON {
                     }).catch((err) => {
 
                         // remove id when error occurs
-                        PENDING_CHANGE_EVENTS.delete(result.value._id);
+                        PENDING_CHANGE_EVENTS.delete(target._id);
 
                         reject(err);
 

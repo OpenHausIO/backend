@@ -113,8 +113,6 @@ module.exports = (router) => {
             "env"
         ];
 
-        console.log("req.query.includes: ", req.query?.includes)
-
         // NOTE: this also deletes .gitkeep
         if (req.query?.truncate === "true") {
             for (let file of await fs.promises.readdir(BASE_PATH)) {

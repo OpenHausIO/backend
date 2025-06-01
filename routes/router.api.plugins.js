@@ -6,7 +6,6 @@ const fs = require("fs/promises");
 const { statSync } = require("fs");
 const { createConnection } = require("net");
 const os = require("os");
-const { Transform } = require("stream");
 
 const C_PLUGINS = require("../components/plugins");
 const { logger } = C_PLUGINS;
@@ -312,7 +311,7 @@ module.exports = (app, router) => {
 
         client.on("error", (err) => {
             logger.error(err, "[proxy] Error on client object");
-            res.status(502)
+            res.status(502);
             res.end("Bad Gateway");
         });
 
@@ -322,14 +321,14 @@ module.exports = (app, router) => {
             client.end();
         });
 
-        req.on("error", () => {
+        req.on("error", (err) => {
             logger.error(err, "[proxy] Error on req object");
             client.end();
         });
 
         req.once("end", () => {
             logger.verbose("[proxy] req ended");
-            client.end()
+            client.end();
         });
 
     });

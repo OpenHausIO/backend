@@ -1,5 +1,5 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+//const bodyParser = require("body-parser");
 
 const C_PLUGINS = require("../components/plugins");
 const C_ROOMS = require("../components/rooms");
@@ -73,7 +73,9 @@ app.use((req, res, next) => {
 let parser = express.json();
 
 app.use((req, res, next) => {
-    if (req.path.match(/^\/api\/plugins\/[^\/]+\/proxy/)) {
+    // ESLint erorr: /^\/api\/plugins\/[^\/]+\/proxy/
+    // ESLint ok:    /^\/api\/plugins\/[^/]+\/proxy/
+    if (req.path.match(/^\/api\/plugins\/[^/]+\/proxy/)) {
 
         // forward request 1:1 
         next();

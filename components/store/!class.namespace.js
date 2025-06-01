@@ -55,41 +55,42 @@ class Namespace extends EventEmitter {
             // https://medium.com/trabe/async-getters-and-setters-is-it-possible-c18759b6f7e4
             Reflect.defineProperty(this, obj.key, {
                 set: (value) => {
-                    return new Promise((resolve, reject) => {
+                    // ESLint "Setter cannot return a value"
+                    //return new Promise((resolve, reject) => {
 
-                        // update value in database
-                        scope.collection.updateOne({
-                            namespace,
-                            key: obj.key
-                        }, {
-                            $set: {
-                                value,
-                                timestamps: {
-                                    created: obj.timestamps.created,
-                                    updated: Date.now()
-                                }
+                    // update value in database
+                    scope.collection.updateOne({
+                        namespace,
+                        key: obj.key
+                    }, {
+                        $set: {
+                            value,
+                            timestamps: {
+                                created: obj.timestamps.created,
+                                updated: Date.now()
                             }
-                        }, (err, { result }) => {
-                            if (err) {
+                        }
+                    }, (err, { result }) => {
+                        if (err) {
 
-                                scope.logger.warn(`Could not update value for namespace/key (${namespace}/${obj.key}):`, err.message);
-                                reject(err);
+                            scope.logger.warn(`Could not update value for namespace/key (${namespace}/${obj.key}):`, err.message);
+                            //reject(err);
 
-                            } else {
+                        } else {
 
-                                // update value
-                                obj.value = value;
+                            // update value
+                            obj.value = value;
 
-                                if (result.n === 1 && result.nModified === 1) {
-                                    scope.logger.verbose(`Key/Value for namespace (${namespace}) updated: ${obj.key} = ${value}`);
-                                }
-
-                                resolve(true);
-                                this.emit("changed", obj.key, value);
-
+                            if (result.n === 1 && result.nModified === 1) {
+                                scope.logger.verbose(`Key/Value for namespace (${namespace}) updated: ${obj.key} = ${value}`);
                             }
-                        });
+
+                            //resolve(true);
+                            this.emit("changed", obj.key, value);
+
+                        }
                     });
+                    //});
                 },
                 get: () => {
                     return obj.value;

@@ -49,7 +49,7 @@ function compatWrapper(fn, { logger }) {
             // new signature/arguments accepted
             return fn({
                 params: args[2]
-            }, timer);
+            }, args[3]);
 
         } else {
 
@@ -57,7 +57,7 @@ function compatWrapper(fn, { logger }) {
 
         }
 
-    }
+    };
 }
 
 
