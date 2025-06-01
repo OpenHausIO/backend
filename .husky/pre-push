@@ -1,0 +1,13 @@
+#!/bin/bash
+
+POSTMAN_FILE="postman.json"
+
+if [ -f "$POSTMAN_FILE" ]; then
+  # Check if any "src" value is not empty
+  if grep -Po '"src"\s*:\s*"\K[^"]+' "$POSTMAN_FILE" | grep -qv '^$'; then
+    echo "$POSTMAN_FILE contains personal src paths" >&2
+    exit 1
+  fi
+fi
+
+exit 0
