@@ -1601,6 +1601,95 @@
 					"name": "Plugins",
 					"item": [
 						{
+							"name": "Proxy",
+							"item": [
+								{
+									"name": "Simple GET Request",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806/proxy",
+											"protocol": "http",
+											"host": [
+												"{{HOST}}"
+											],
+											"port": "{{PORT}}",
+											"path": [
+												"api",
+												"plugins",
+												"658188e93cde9987c3228806",
+												"proxy"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "POST JSON body",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"string\": \"Hello from postman\",\n    \"array\": [1,2,3],\n    \"bool\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806/proxy/json",
+											"protocol": "http",
+											"host": [
+												"{{HOST}}"
+											],
+											"port": "{{PORT}}",
+											"path": [
+												"api",
+												"plugins",
+												"658188e93cde9987c3228806",
+												"proxy",
+												"json"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Binary file upload",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "file",
+											"file": {
+												"src": ""
+											}
+										},
+										"url": {
+											"raw": "http://{{HOST}}:{{PORT}}/api/plugins/658188e93cde9987c3228806/proxy/binary",
+											"protocol": "http",
+											"host": [
+												"{{HOST}}"
+											],
+											"port": "{{PORT}}",
+											"path": [
+												"api",
+												"plugins",
+												"658188e93cde9987c3228806",
+												"proxy",
+												"binary"
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"description": "**NOTE**: The requests in this folder depend on plugins, not OpenHaus.  \nThis is just a demonstration of the proxy functionality."
+						},
+						{
 							"name": "Create new plugin",
 							"request": {
 								"method": "PUT",
@@ -1731,7 +1820,7 @@
 								"body": {
 									"mode": "file",
 									"file": {
-										"src": "/home/marc/Downloads/oh-plg-dummy-v1.0.0.tgz"
+										"src": ""
 									}
 								},
 								"url": {
@@ -1811,7 +1900,7 @@
 								"body": {
 									"mode": "file",
 									"file": {
-										"src": "/home/marc/projects/playground/oh-plg-dummy/oh-plg-dummy-v1.0.0.tgz"
+										"src": ""
 									}
 								},
 								"url": {
@@ -3472,7 +3561,7 @@
 								"body": {
 									"mode": "file",
 									"file": {
-										"src": "/home/marc/Downloads/OpenHaus-1748626762611.tgz"
+										"src": ""
 									}
 								},
 								"url": {
@@ -3586,12 +3675,14 @@
 					"    \"/system\",",
 					"    \"/api/plugins/658188e93cde9987c3228806/files\",",
 					"    \"/api/plugins/658188e93cde9987c3228806/start\",",
-					"    \"/api/endpoints/658189336fa19198939caa21/commands/6581fc8ac20cb522e02868ff\",   ",
+					"    \"/api/plugins/658188e93cde9987c3228806/stop\",",
+					"    \"/api/plugins/658188e93cde9987c3228806/proxy\",",
+					"    \"/api/endpoints/658189336fa19198939caa21/commands/6581fc8ac20cb522e02868ff\",",
 					"].some(path => url.includes(path));",
 					"",
 					"console.log(\"URL ignore\", ignore, url);",
 					"",
-					"if(ignore){",
+					"if (ignore) {",
 					"    return;",
 					"}",
 					"",
@@ -3615,7 +3706,7 @@
 					"    let length = pm.response.headers.get(\"content-length\");",
 					"",
 					"    // ignore empty response/no body",
-					"    if(!length || Number(length) === 0){",
+					"    if (!length || Number(length) === 0) {",
 					"        return;",
 					"    }",
 					"",
