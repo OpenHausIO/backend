@@ -490,7 +490,7 @@ module.exports = class COMPONENT extends COMMON {
                     }).then((result) => {
 
                         // remove id when error occurs
-                        PENDING_CHANGE_EVENTS.delete(result.value._id);
+                        PENDING_CHANGE_EVENTS.delete(target._id);
 
                         //if (result.n === 1 && result.ok === 1 && target) {
                         if (result.acknowledged && result.deletedCount > 0) {
