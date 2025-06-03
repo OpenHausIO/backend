@@ -1,7 +1,6 @@
 const mongodb = require("mongodb");
 const path = require("path");
 const { describe, it, after } = require("mocha");
-const { channel } = require("../system/component/class.events.js");
 const crypto = require("crypto");
 
 const env = require("dotenv").config({
@@ -45,6 +44,8 @@ process.env = Object.assign({
 if (!process.env.DATABASE_URL) {
     process.env.DATABASE_URL = `mongodb://${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`;
 }
+
+const { channel } = require("../system/component/class.events.js");
 
 
 describe("Database", () => {
