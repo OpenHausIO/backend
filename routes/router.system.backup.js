@@ -106,6 +106,13 @@ module.exports = (router) => {
 
     router.post("/import", async (req, res) => {
 
+        // set deafult resotre includes to "all"
+        req.query.includes = req?.query?.includes || [
+            "database",
+            "plugins",
+            "env"
+        ];
+
         // NOTE: this also deletes .gitkeep
         if (req.query?.truncate === "true") {
             for (let file of await fs.promises.readdir(BASE_PATH)) {
@@ -174,7 +181,7 @@ module.exports = (router) => {
 
 
         extract.on("entry", async (header, stream, next) => {
-            if (header.name.startsWith("database/")) {
+            if (header.name.startsWith("database/") && req.query?.includes?.includes("database")) {
 
                 console.log("restartoe database collection", header.name, header.size);
 
@@ -226,7 +233,7 @@ module.exports = (router) => {
 
                 });
 
-            } else if (header.name.startsWith("plugins/")) {
+            } else if (header.name.startsWith("plugins/") && req.query?.includes?.includes("plugins")) {
 
                 console.log("restroe plugin file", header.name, header.size);
 
@@ -242,7 +249,7 @@ module.exports = (router) => {
                     next();
                 });
 
-            } else if (header.name === ".env") {
+            } else if (header.name === ".env" && req.query?.includes?.includes("env")) {
 
                 let envPath = path.join(process.cwd(), ".env");
                 let fd = null;
@@ -286,7 +293,8 @@ module.exports = (router) => {
 
             } else {
 
-                console.log("unknown file prefix/name", header);
+                //console.log("unknown file prefix/name", header);
+                next();
 
             }
         });

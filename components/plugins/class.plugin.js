@@ -11,6 +11,8 @@ const stdio = require("./stdout-wrapper.js");
 
 const Item = require("../../system/component/class.item.js");
 const { connections, commands } = require("../../system/worker/shared.js");
+const { createServer, ServerResponse } = require("http");
+const os = require("os");
 
 
 //const Bootstrap = require("./class.bootstrap.js");
@@ -61,7 +63,16 @@ module.exports = class Plugin extends Item {
             writable: true
         });
 
+        Object.defineProperty(this, Plugin.symbolkServer, {
+            value: null,
+            configurable: false,
+            enumerable: false,
+            writable: true
+        });
+
     }
+
+    static symbolkServer = Symbol("kServer");
 
     static schema() {
         return Joi.object({
@@ -439,6 +450,100 @@ module.exports = class Plugin extends Item {
             return true;
 
         }
+    }
+
+
+    httpServer(autostart = true, handler) {
+
+        if (autostart instanceof Function) {
+            handler = autostart;
+            autostart = true;
+        }
+
+        let logger = this.logger;
+
+        logger.debug(`httpServer() called, autostart=${autostart}`);
+
+        let server = createServer();
+        let sock = path.join(os.tmpdir(), `OpenHaus/plugins/${this.uuid}.sock`);
+
+        server.timeout = 5000;
+        server.requestTimeout = 5000;
+        server.setTimeout(5000);
+
+        this[Plugin.symbolkServer] = server;
+
+        fs.mkdirSync(path.dirname(sock), {
+            recursive: true,
+            force: true
+        });
+
+        fs.rmSync(sock, {
+            force: true
+        });
+
+        server.once("close", () => {
+            logger.info(`HTTP Server closed on ${sock}`);
+        });
+
+        server.on("error", (err) => {
+            logger.warn(err, "HTTP Server error");
+        });
+
+        if (autostart) {
+            server.listen(sock, (err) => {
+                if (err) {
+
+                    logger.error(err, `Could not start HTTP Server on ${sock}`);
+
+                } else {
+
+                    logger.debug(`HTTP Server listening on ${sock}`);
+
+                }
+            });
+        }
+
+        if (handler) {
+
+            // use request handler
+            server.on("request", (req, res) => {
+
+                // tell the client connection will be closed
+                // "keep-alive" breaks the proxy
+                // see comment in "router.api.plugins.js" -> "FIXME: "connection=keep-alive"""
+                res.setHeader("connection", "close");
+
+                handler(req, res);
+
+            });
+
+            // fix #408, see:
+            // https://github.com/OpenHausIO/connector/issues/38
+            // https://github.com/websockets/ws/issues/2193
+            // keep this for native socket
+            server.on("upgrade", (req, socket) => {
+
+                let res = new ServerResponse(req);
+                res.assignSocket(socket);
+
+                res.on("finish", () => {
+                    res.socket.destroy();
+                });
+
+                handler(req, res);
+
+            });
+
+        }
+
+        process.on("SIGINT", () => {
+            server.closeAllConnections();
+            server.close();
+        });
+
+        return server;
+
     }
 
 };

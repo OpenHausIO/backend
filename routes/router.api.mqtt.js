@@ -35,7 +35,23 @@ module.exports = (app, router) => {
 
     // listen for websockt clients
     // forward messages between component & ws client
-    wss.once("connection", (ws) => {
+    wss.on("connection", (ws) => {
+
+        let { logger } = C_MQTT;
+
+        let transmitter = (packet, item, payload) => {
+            ws.send(packet, (err) => {
+                if (err) {
+
+                    logger.warn(`Could not publish on topic ${item.topic}`);
+
+                } else {
+
+                    logger.trace(`Send publish: ${item.topic}=${payload}`);
+
+                }
+            });
+        };
 
         C_MQTT.events.emit("connected", ws);
 
@@ -44,8 +60,12 @@ module.exports = (app, router) => {
         });
 
         ws.on("close", () => {
+            C_MQTT.events.off("transmit", transmitter);
             C_MQTT.events.emit("disconnected", ws);
         });
+
+        // helper event for publishing on topics
+        C_MQTT.events.on("transmit", transmitter);
 
     });
 
@@ -58,6 +78,10 @@ module.exports = (app, router) => {
             //return res.status(403).end();
             next(); // let the rest-handler.js do its job
             return;
+        }
+
+        if (wss.clients.size > 0) {
+            return res.status(423).end();
         }
 
         // handle request as websocket

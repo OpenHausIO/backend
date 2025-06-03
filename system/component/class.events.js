@@ -1,5 +1,6 @@
 const { EventEmitter } = require("events");
 const { isMainThread, BroadcastChannel, threadId } = require("worker_threads");
+const logger = require("../logger/index.js");
 
 const channel = new BroadcastChannel("events");
 
@@ -65,8 +66,23 @@ module.exports = class Events extends EventEmitter {
         });
 
         if (process.env.WORKER_THREADS_ENABLED === "true") {
-            if (!["ready", "error"].includes(event)) {
+            // ready = each component instance emits ready on its own
+            // error = each component instance emits error on its own
+            // connect = pass Websocket instance as argument in mqtt, which breaks serialazion (and is only needed once in main)
+            // disconnect = pass websocket instance as argument in mqtt, which breaks serialazion (and is only needed once in main)
+            // TODO: scope events into components to prevent event name conflicts?
+            if (!["ready", "error", "connected", "disconnected"].includes(event)) {
                 try {
+
+                    // fix/workaround for dataclone error because of proxies, see #556
+                    if (this.name === "scenes") {
+
+                        // item.timestamps = proxy
+                        // item.scenes = proxy
+                        // structuredClone fails/cant handle proxies
+                        args = JSON.parse(JSON.stringify(args));
+
+                    }
 
                     channel.postMessage({
                         origin: threadId,
@@ -78,10 +94,17 @@ module.exports = class Events extends EventEmitter {
                     });
 
                 } catch (err) {
+                    if (process.env.NODE_ENV === "development") {
 
-                    //console.log(event, args);
-                    //console.error("Error, could not post message", err);
+                        //console.log(event, args);
+                        //console.error("Error, could not post message", err);
+                        logger.warn(err, "Could not serialize event", {
+                            component: this.name,
+                            event,
+                            args
+                        });
 
+                    }
                 }
             }
         }
