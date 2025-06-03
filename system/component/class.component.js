@@ -589,7 +589,20 @@ module.exports = class COMPONENT extends COMMON {
                         // muss in middlware erflogen!!!!!!!!!!!!!!
 
                         // feedback
-                        this.logger.info(`Item "${target.name || target.description}" updated`);
+                        if (process.env.NODE_ENV === "production") {
+
+                            // info is to verbose on production
+                            // if there is problem that needs debugging, logging should be set to debug
+                            // so keep the production logging at a lower level
+                            this.logger.debug(`Item "${target.name || target.description}" updated`);
+
+                        } else {
+
+                            // in development or test environment, a more talkative logging is welcome
+                            this.logger.info(`Item "${target.name || target.description}" updated`);
+
+                        }
+
 
                         // TODO CHECK RESUTL!
                         // extend exisiting object in items array
