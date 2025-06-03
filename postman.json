@@ -2079,7 +2079,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"_id\": \"658189336fa19198939caa21\",\n  \"name\": \"Dummy Endpoint\",\n  \"device\": \"6398ae590dce390161f7fc2f\",\n  \"states\": [\n    {\n      \"_id\": \"658190d232fe653a07638863\",\n      \"name\": \"Total Power\",\n      \"alias\": \"POWER_TOTAL\",\n      \"type\": \"number\"\n    },\n    {\n      \"_id\": \"658190de4a1369d179c3387f\",\n      \"name\": \"Powerd on?\",\n      \"alias\": \"POWERD_ON\",\n      \"type\": \"boolean\"\n    }\n  ],\n  \"commands\": [\n    {\n      \"_id\": \"658190acbccb180491c2672c\",\n      \"name\": \"Switch to Input 03\",\n      \"payload\": {\n        \"type\": \"Buffer\",\n        \"data\": [\n          115,\n          119,\n          32,\n          105,\n          48,\n          51,\n          13,\n          10\n        ]\n      },\n      \"alias\": \"INPUT_03\",\n      \"interface\": \"6581c55abc21a0a3122b9998\"\n    },\n    {\n      \"_id\": \"658190ec0e09c0d5d22c59f0\",\n      \"name\": \"Command as String\",\n      \"payload\": \"foobar\",\n      \"alias\": \"STRING_CMD\",\n      \"interface\": \"6581c55abc21a0a3122b9998\"\n    }\n  ]\n}\n",
+									"raw": "{\n  \"_id\": \"658189336fa19198939caa21\",\n  \"name\": \"Dummy Endpoint\",\n  \"device\": \"6398ae590dce390161f7fc2f\",\n  \"states\": [\n    {\n      \"_id\": \"658190d232fe653a07638863\",\n      \"name\": \"Total Power\",\n      \"alias\": \"POWER_TOTAL\",\n      \"type\": \"number\"\n    },\n    {\n      \"_id\": \"658190de4a1369d179c3387f\",\n      \"name\": \"Powerd on?\",\n      \"alias\": \"POWERD_ON\",\n      \"type\": \"boolean\"\n    }\n  ],\n  \"commands\": [\n    {\n      \"_id\": \"658190acbccb180491c2672c\",\n      \"name\": \"Switch to Input 03\",\n      \"payload\": {\n        \"type\": \"Buffer\",\n        \"data\": [\n          115,\n          119,\n          32,\n          105,\n          48,\n          51,\n          13,\n          10\n        ]\n      },\n      \"alias\": \"INPUT_03\",\n      \"interface\": \"6581c55abc21a0a3122b9998\"\n    },\n    {\n      \"_id\": \"658190ec0e09c0d5d22c59f0\",\n      \"name\": \"Command as String\",\n      \"payload\": \"foobar\",\n      \"alias\": \"STRING_CMD\",\n      \"interface\": \"6581c55abc21a0a3122b9998\"\n    },\n    {\n      \"_id\": \"6581fc8ac20cb522e02868ff\",\n      \"name\": \"Volume\",\n      \"alias\": \"VOLUME\",\n      \"interface\": \"6581c55abc21a0a3122b9998\",\n      \"params\": [{\n        \"key\": \"value\",\n        \"type\": \"number\",\n        \"min\": 0,\n        \"max\": 100\n      }]\n    }    \n  ]\n}\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2223,7 +2223,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "[{\n    \"key\": \"VOLUME\",\n    \"value\": 15\n}]",
+									"raw": "[{\n    \"key\": \"value\",\n    \"value\": 15\n}]",
 									"options": {
 										"raw": {
 											"language": "json"

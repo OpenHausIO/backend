@@ -296,7 +296,7 @@ module.exports = class Command {
         // when worker = handler like default beaufer
         let { events, logger } = Command.scope;
 
-        let wrapper = () => {
+        let wrapper = (abort = null) => {
 
             // feedback
             logger.verbose(`Trigger command "${this.name}"`, this);
@@ -311,16 +311,12 @@ module.exports = class Command {
                 cb = () => { };
             }
 
-            let handler = this.#privates.get("handler");
-            let iface = interfaces.get(this.interface);
-            let worker = compatWrapper(handler, Command.scope);
-
             // moved up, and used as callback debounce function
             // see #528, timeout helper has a internal "called" flag
             let timer = _timeout(this.#privates.get("timeout"), (timedout, duration, args) => {
                 if (timedout) {
 
-                    logger.warn(`Command timedout for "${this._id}"! Execution was not successful, worker function:`, worker);
+                    logger.warn(`Command timedout for "${this._id}"! Execution was not successful, worker function:`);
                     cb(null, false);
 
                 } else {
@@ -330,6 +326,10 @@ module.exports = class Command {
 
                 }
             });
+
+            if (abort) {
+                timer(abort, false);
+            }
 
             try {
                 params = params.map((obj) => {
@@ -358,6 +358,10 @@ module.exports = class Command {
 
                 // convert to params array with .lean method
                 params = new Params(...params);
+
+                let handler = this.#privates.get("handler");
+                let iface = interfaces.get(this.interface);
+                let worker = compatWrapper(handler, Command.scope);
 
                 if (!iface) {
                     let err = new Error(`Interface "${this.interface}" not found, cant write to it.`);
@@ -416,8 +420,12 @@ module.exports = class Command {
 
                 } else {
 
+                    let err = new Error("No command handler registered");
+                    err.code = "NO_HANDLER";
+
                     // feedback
-                    logger.warn("No command hanlder registered");
+                    logger.warn(err.message);
+                    wrapper(err);
 
                 }
 

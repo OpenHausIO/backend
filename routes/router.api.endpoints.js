@@ -47,6 +47,13 @@ module.exports = (app, router) => {
                             error: err.message
                         });
 
+                    } else if (err.code === "NO_HANDLER") {
+
+                        res.status(425).json({
+                            error: err.message,
+                            stack: err.stack
+                        });
+
                     } else {
 
                         res.status(500).json({
