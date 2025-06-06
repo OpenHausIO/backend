@@ -19,16 +19,17 @@ export default defineConfig([
         "**/node_modules",
         "**/build",
         "**/dist",
-        "**/plugins"
+        "**/plugins",
+        "**/tests"
     ]), {
-        files: ["*.js"],
+        files: ["**/*.js"],
         extends: compat.extends("eslint:recommended"),
         languageOptions: {
             globals: {
                 ...globals.node,
                 ...globals.commonjs,
             },
-            ecmaVersion: 12,
+            ecmaVersion: 2022,
             sourceType: "commonjs"
         },
         rules: {

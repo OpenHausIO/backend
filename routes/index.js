@@ -1,5 +1,5 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+//const bodyParser = require("body-parser");
 
 const C_PLUGINS = require("../components/plugins");
 const C_ROOMS = require("../components/rooms");
@@ -70,10 +70,23 @@ app.use((req, res, next) => {
 
 });
 
-// NOTE: Remove limit?, since when is a 25mb json needed?!
-app.use(bodyParser.json({
-    limit: (Number(process.env.API_LIMIT_SIZE) * 1024)  // default to 25, (=25mb)
-}));
+let parser = express.json();
+
+app.use((req, res, next) => {
+    // ESLint erorr: /^\/api\/plugins\/[^\/]+\/proxy/
+    // ESLint ok:    /^\/api\/plugins\/[^/]+\/proxy/
+    if (req.path.match(/^\/api\/plugins\/[^/]+\/proxy/)) {
+
+        // forward request 1:1 
+        next();
+
+    } else {
+
+        // parse http body
+        parser(req, res, next);
+
+    }
+});
 
 // mount api router    
 app.use("/api", api);

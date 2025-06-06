@@ -34,6 +34,11 @@ try {
         }, (err, item) => {
             try {
 
+                // WORKER_TRHEAD_ENABLED=true
+                // NOTE: args[0] = serialized object, and not instance of Scene
+                // is this maybe fixed when pre/post hooks are implemented?,
+                // see: https://github.com/OpenHausIO/backend/issues/6#issuecomment-2932114069                
+
                 // check event arguments
                 event.args.forEach((args) => {
                     assert.equal(args[0] instanceof Scene, true);
@@ -118,6 +123,8 @@ try {
 
         ]).then(() => {
 
+            // see comment above for "add"
+            // WORKER_TRHEAD_ENABLED=true
             event.args.forEach((args) => {
                 assert.equal(args[0] instanceof Scene, true);
             });

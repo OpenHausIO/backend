@@ -4,6 +4,8 @@ const { exec } = require("child_process");
 const process = require("process");
 const fs = require("fs/promises");
 const { statSync } = require("fs");
+const { createConnection } = require("net");
+const os = require("os");
 
 const C_PLUGINS = require("../components/plugins");
 const { logger } = C_PLUGINS;
@@ -43,6 +45,9 @@ module.exports = (app, router) => {
                 // req.item is set from rest-handler router.param()
                 // TODO: Make this optional e.g. via req.query
                 // In the frontend then should a checkbox which sets it to true
+                // when expert settings are disabled, there should be modal which asks to stop the plugin before delete
+                // when enabled, delete anyway, but dont stop plugin, instead a 202 http code shoult be returned when the plugin is still running
+                // where then the frontend notification changes and says "restart required, plugin still running" or so...
                 if (req?.item?.started) {
                     await req.item.stop();
                 }
@@ -227,5 +232,106 @@ module.exports = (app, router) => {
 
         }
     });
+
+    router.all("/:_id/proxy(/*)?", (req, res) => {
+
+        let { method, httpVersion, headers } = req;
+        let url = req.url.replace(`/${req.params._id}/proxy`, "/");
+        url = path.normalize(url);
+
+        // TODO: configure path to sockets?
+        let sock = path.join(os.tmpdir(), `OpenHaus/plugins/${req.item.uuid}.sock`);
+
+        // TODO: implement leading/railing-slash error
+        // FIXME: "connection=keep-alive" results in "Cannot read properties of null (reading 'server')" :
+        /*
+            at /home/marc/projects/OpenHaus/backend/routes/auth-handler.js:12:31
+            at Layer.handle [as handle_request] (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/layer.js:95:5)
+            at trim_prefix (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:328:13)
+            at /home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:286:9
+            at Function.process_params (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:346:12)
+            at next (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:280:10)
+            at Function.handle (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:175:3)
+            at router (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:47:12)
+            at Layer.handle [as handle_request] (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/layer.js:95:5)
+            at trim_prefix (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:328:13)
+            
+            Add req.socket.unpipe();?
+        */
+
+        logger.verbose(`[proxy] Incoming request: ${req.method} ${req.url}`, req.headers);
+
+
+        const client = createConnection(sock, () => {
+
+            // write http header first line
+            client.write(`${method} ${url} HTTP/${httpVersion}\r\n`);
+
+            // send http request headers to proxy target
+            for (let key in headers) {
+                if (key.toLowerCase() === "connection" && headers[key] !== "Upgrade") {
+
+                    // override client connection header
+                    // fix "Cannot read properties of null (reading 'server')" error above
+                    // multiple/frequent requests result in the error above if "connection=keep-alive"
+                    client.write("connection: close\r\n");
+
+                } else {
+
+                    // forward original header/value
+                    client.write(`${key}: ${headers[key]}\r\n`);
+
+                }
+            }
+
+            // sperate header&body
+            client.write(`\r\n`);
+
+            // TODO: toLowerCase() header keys
+            if (req.headers["upgrade"] && req.headers["connection"]) {
+
+                // handle websocket
+                client.pipe(res.socket);
+                req.socket.pipe(client);
+
+            } else {
+
+                // handle regular http
+                client.pipe(res.socket);
+                req.pipe(client);
+
+            }
+
+        });
+
+        res.socket.once("error", (err) => {
+            logger.error(err, "[proxy] Error on res.socket");
+            client.destroy();
+        });
+
+        client.on("error", (err) => {
+            logger.error(err, "[proxy] Error on client object");
+            res.status(502);
+            res.end("Bad Gateway");
+        });
+
+        client.once("end", () => {
+            logger.verbose("[proxy] client socket ended");
+            res.end();
+            client.end();
+        });
+
+        req.on("error", (err) => {
+            logger.error(err, "[proxy] Error on req object");
+            client.end();
+        });
+
+        req.once("end", () => {
+            logger.verbose("[proxy] req ended");
+            client.end();
+        });
+
+    });
+
 
 };
