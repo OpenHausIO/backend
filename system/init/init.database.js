@@ -71,11 +71,13 @@ module.exports = (logger) => {
 
             }).catch((err) => {
 
+                logger.error(err, "Could not connecto to database");
+
                 if (err?.code == 13) {
                     logger.error("Invalid database credentials!");
                 }
 
-                mongodb.client.emit("error", err);
+                //mongodb.client.emit("error", err);
                 reject(err);
 
             });
