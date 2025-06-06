@@ -39,6 +39,17 @@ module.exports = (app, router) => {
     router.post("/:_id/commands/:_cid", (req, res) => {
         if (req.cmd) {
 
+            // fix #565
+            if (Object.keys(req.body).length === 0 && req.body.constructor === Object) {
+                req.body = [];
+            }
+
+            if (!Array.isArray(req.body)) {
+                return res.status(400).json({
+                    error: "Array expected in request body"
+                });
+            }
+
             req.cmd.trigger(req.body, (err, success) => {
                 if (err) {
                     if (err.code === "NO_INTERFACE") {
