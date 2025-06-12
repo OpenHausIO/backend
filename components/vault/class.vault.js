@@ -85,7 +85,22 @@ module.exports = class Vault extends Item {
                 return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
-            identifier: Joi.string().required(), // TODO: remove
+            identifier: Joi.string().allow(null).default(null).custom((value) => {
+
+                if (process.env.NODE_ENV === "development") {
+
+                    let { logger } = Vault.scope;
+
+                    let msg = `Property .identifier is deprecated and will be removed in furhter version.\r\n`;
+                    msg += `Use the .labels array instead as custom fields for identifing items.`;
+
+                    logger.warn(msg);
+
+                }
+
+                return value;
+
+            }), // TODO: remove
             description: Joi.string().allow(null).default(null),
             secrets: Joi.array().items(Secret.schema()).default([])
         });
