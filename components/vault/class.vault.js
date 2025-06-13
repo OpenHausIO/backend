@@ -152,9 +152,27 @@ module.exports = class Vault extends Item {
      * @returns {Object} Key = Secret key property, Value = decrypted value
      */
     decrypt() {
-        return this.secrets.reduce((prev, cur) => {
-            prev[cur.key] = cur.decrypt();
-            return prev;
+        return this.secrets.reduce((obj, secret) => {
+
+            try {
+
+                // try to decrypt secret
+                // this can fail when no vaule is set
+                // e.g. default value = null,
+                // see https://github.com/OpenHausIO/backend/issues/568
+                obj[secret.key] = secret.decrypt();
+
+            } catch (err) {
+
+                let { logger } = Vault.scope;
+                logger.warn(err, `Could not decrypt secret "${secret.name}"`);
+
+                obj[secret.key] = null;
+
+            }
+
+            return obj;
+
         }, {});
     }
 
