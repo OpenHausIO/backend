@@ -100,7 +100,7 @@ class Secret {
     encrypt(text) {
 
         if (!text) {
-            let err = new RangeError(`Value need to be set before encrypting, got: ${text}!`);
+            let err = new RangeError(`Value for secret "${this.name}" needs to be set before encrypting, got: ${text}!`);
             err.field = this.key;
             throw err;
         }
@@ -122,7 +122,7 @@ class Secret {
     decrypt() {
 
         if (!this.value) {
-            let err = new RangeError(`Value need to be set before decrypting, got: ${this.value}!`);
+            let err = new RangeError(`Value for secret "${this.name}" needs to be set before decrypting, got: ${this.value}!`);
             err.field = this.key;
             throw err;
         }
