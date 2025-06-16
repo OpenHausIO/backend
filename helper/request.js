@@ -14,9 +14,9 @@ const promisify = require("./promisify.js");
  */
 function perform(uri, options, cb) {
 
-    if(!options && !cb){
+    if (!options && !cb) {
         options = {};
-        cb = () => {};
+        cb = () => { };
     }
 
     let { protocol } = new url.URL(uri);
@@ -69,6 +69,9 @@ function perform(uri, options, cb) {
 
 
     request.on("error", (err) => {
+        //console.log("Logger in helper/request", err);
+        // this event listener does fire, but cb(err) call does nothing
+        // why in the first place does a 1:1 forwarding of events end in a abort error?
         cb(err);
     });
 
