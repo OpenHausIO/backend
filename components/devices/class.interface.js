@@ -222,6 +222,18 @@ module.exports = class Interface {
 
                 }
 
+                ["close", "end", "error"].forEach((event) => {
+                    stream.on(event, (...args) => {
+                        socket.emit(event, ...args);
+                    });
+                });
+
+                stream.once("destroy", () => {
+                    writable.destory();
+                    readable.destroy();
+                    socket.destory();
+                });
+
                 stream.once("close", () => {
 
                     // feedback
@@ -236,9 +248,11 @@ module.exports = class Interface {
                     // on what instance is the error thrown?
 
                     // destroy everything
-                    socket.destroy();
-                    readable.destroy();
-                    writable.destroy();
+                    //socket.destroy();
+                    //readable.destroy();
+                    //writable.destroy();
+                    //socket.end();
+                    //socket.emit("close");
 
                 });
 
@@ -250,6 +264,7 @@ module.exports = class Interface {
 
                 process.nextTick(() => {
 
+                    //socket.emit("connect")?
                     socket.emit("open");
 
                     writable.pipe(stream);

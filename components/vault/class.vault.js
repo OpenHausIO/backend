@@ -85,7 +85,22 @@ module.exports = class Vault extends Item {
                 return String(new mongodb.ObjectId());
             }),
             name: Joi.string().required(),
-            identifier: Joi.string().required(), // TODO: remove
+            identifier: Joi.string().allow(null).default(null).custom((value) => {
+
+                if (process.env.NODE_ENV === "development") {
+
+                    let { logger } = Vault.scope;
+
+                    let msg = `Property .identifier is deprecated and will be removed in furhter version.\r\n`;
+                    msg += `Use the .labels array instead as custom fields for identifing items.`;
+
+                    logger.warn(msg);
+
+                }
+
+                return value;
+
+            }), // TODO: remove
             description: Joi.string().allow(null).default(null),
             secrets: Joi.array().items(Secret.schema()).default([])
         });
@@ -137,9 +152,27 @@ module.exports = class Vault extends Item {
      * @returns {Object} Key = Secret key property, Value = decrypted value
      */
     decrypt() {
-        return this.secrets.reduce((prev, cur) => {
-            prev[cur.key] = cur.decrypt();
-            return prev;
+        return this.secrets.reduce((obj, secret) => {
+
+            try {
+
+                // try to decrypt secret
+                // this can fail when no vaule is set
+                // e.g. default value = null,
+                // see https://github.com/OpenHausIO/backend/issues/568
+                obj[secret.key] = secret.decrypt();
+
+            } catch (err) {
+
+                let { logger } = Vault.scope;
+                logger.warn(err, `Could not decrypt secret "${secret.name}"`);
+
+                obj[secret.key] = null;
+
+            }
+
+            return obj;
+
         }, {});
     }
 

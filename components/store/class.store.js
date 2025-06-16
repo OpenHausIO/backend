@@ -74,6 +74,21 @@ module.exports = class Store extends Item {
             //item: Joi.string().allow(null).default(null),
             uuid: Joi.string().default(() => {
                 return uuid.v4();
+            }).custom((value) => {
+
+                if (process.env.NODE_ENV === "development") {
+
+                    let { logger } = Store.scope;
+
+                    let msg = `Property .uuid is deprecated and will be removed in furhter version.\r\n`;
+                    msg += `Use the .labels array instead as custom fields for identifing items.`;
+
+                    logger.warn(msg);
+
+                }
+
+                return value;
+
             })
         });
     }

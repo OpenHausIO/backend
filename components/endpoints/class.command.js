@@ -329,10 +329,15 @@ module.exports = class Command {
 
             if (abort) {
                 timer(abort, false);
+                return;
             }
 
             try {
                 params = params.map((obj) => {
+
+                    if (this.params.length === 0) {
+                        return;
+                    }
 
                     let param = this.params.find((param) => {
                         return param.key === obj.key;
@@ -347,7 +352,7 @@ module.exports = class Command {
                 });
             } catch (err) {
 
-                logger.warn(err, `Passed params to command "${this.name}" are invalid`, params);
+                logger.warn(err, `Passed params on endpoint to command "${this.name}" (${this._id}) are invalid`, params);
 
                 timer(err, false);
                 return;
