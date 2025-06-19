@@ -147,11 +147,8 @@ module.exports = (app, router) => {
                                     // TODO: check code and decide if error or success closing
                                     //stream.emit("close"); // desotroy() emit close event(!|?)
                                     if (code === 1005 || code === 1000) {
-                                        console.log("end normaly");
                                         stream.end();
-                                        //stream.emit("end");
                                     } else {
-                                        //console.log("End destory");
                                         stream.destroy();
                                     }
 
