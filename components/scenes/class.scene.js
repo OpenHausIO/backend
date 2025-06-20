@@ -162,7 +162,7 @@ module.exports = class Scene extends Item {
 
     }
 
-    trigger(inputs) {
+    trigger(inputs = []) {
 
         let { logger } = Scene.scope;
         logger.info(`Trigger scene "${this.name}" (${this._id}), inputs:`, inputs);
@@ -182,6 +182,10 @@ module.exports = class Scene extends Item {
             let input = this.inputs.find((input) => {
                 return input.key === key;
             });
+
+            if (!input) {
+                return;
+            }
 
             input.value = value;
 
