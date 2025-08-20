@@ -3,7 +3,7 @@ const { Agent } = require("http");
 const https = require("https");
 const tls = require("tls");
 const mongodb = require("mongodb");
-const { Duplex, PassThrough } = require("stream");
+const { PassThrough, pipeline, duplexPair } = require("stream");
 const { randomUUID } = require("crypto");
 //const path = require("path");
 
@@ -176,7 +176,7 @@ module.exports = class Interface {
 
     }
 
-
+    /*
     bridge() {
 
         let { logger } = Interface.scope;
@@ -222,10 +222,20 @@ module.exports = class Interface {
 
                 }
 
+                /*
                 ["close", "end", "error"].forEach((event) => {
                     stream.on(event, (...args) => {
+                        console.log("Event", event, "on websocket stream received");
                         socket.emit(event, ...args);
                     });
+                });
+                *
+
+                stream.once("end", () => {
+                    console.log("End on websocket stream received, call end on socket stream")
+                    writable.end();
+                    readable.end();
+                    socket.end();
                 });
 
                 stream.once("destroy", () => {
@@ -276,6 +286,70 @@ module.exports = class Interface {
         });
 
         return socket;
+
+    }
+    */
+
+    // new approach
+    bridge() {
+
+        let { logger } = Interface.scope;
+        let { host, port, socket: proto } = this.settings;
+
+        // from this.adapter array
+        // placeholder for adapter pipeline
+        const encode = new PassThrough(); // outbound
+        const decode = new PassThrough(); // inbound
+        const [clientSock, proxySock] = duplexPair();
+
+
+        ["ref", "unref", "setKeepAlive", "setTimeout", "setNoDelay"].forEach((fnc) => {
+            clientSock[fnc] = (...args) => {
+                logger.trace(`Interface ${this._id} method "${fnc}" called on socket stream, args:`, args);
+            };
+        });
+
+        Interface.socket(this._id, (err, ws, request) => {
+
+            if (err) {
+
+                if (process.env.NODE_ENV === "development") {
+                    logger.warn(err, "Could not create socket");
+                }
+
+                return clientSock.destroy(err);
+
+            }
+
+            if (process.env.NODE_ENV === "development") {
+
+                clientSock.once("open", () => {
+                    logger.debug(`Bridge open: iface ${this._id} <-> ${proto}://${host}:${port} (${request.uuid})`);
+                });
+
+                clientSock.once("close", () => {
+                    logger.debug(`Bridge closed: iface ${this._id} <-> ${proto}://${host}:${port} (${request.uuid})`);
+                });
+
+            }
+
+            // outbound: client -> encode -> websocket
+            pipeline(proxySock, encode, ws, (err) => {
+                clientSock.destroy(err);
+            });
+
+            // inbound: websocket -> decode -> client
+            pipeline(ws, decode, proxySock, (err) => {
+                clientSock.destroy(err);
+            });
+
+            process.nextTick(() => {
+                clientSock.emit("open");
+            });
+
+        });
+
+        return clientSock;
 
     }
 
