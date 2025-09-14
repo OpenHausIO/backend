@@ -58,7 +58,7 @@ module.exports = class Endpoint extends Item {
 
             } catch (err) {
 
-                logger.warn(err, "Could not update item states after debouncing");
+                logger.warn(err, `Could not update item states after debouncing (${this.name})`, this.states);
 
             }
         }, 100); // TODO: remove time, or set to 1/0

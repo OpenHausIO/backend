@@ -29,6 +29,7 @@ const messageHandler = require("./message-handler.js");
  * @example
  * ```sh
  * nc -ulvv 239.255.255.250 1900
+ * socat UDP4-RECVFROM:1900,ip-add-membership=239.255.255.250:0.0.0.0,fork -
  * ```
  * 
  * @example

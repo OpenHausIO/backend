@@ -1,7 +1,7 @@
 module.exports = (app, router) => {
 
     router.post("/:_id/trigger", (req, res) => {
-        req.item.trigger();
+        req.item.trigger(req.body?.inputs || []);
         res.status(202).json(req.item);
     });
 
