@@ -1,5 +1,6 @@
 const mongodb = require("mongodb");
 //const Joi = require("joi");
+const { setMaxListeners } = require("events");
 
 const _extend = require("../../helper/extend");
 const _merge = require("../../helper/merge");
@@ -142,6 +143,7 @@ module.exports = class COMPONENT extends COMMON {
             try {
 
                 let changeStream = this.collection.watch();
+                setMaxListeners(13, mongodb.connection); // fix #561
 
                 this.logger.verbose("Watch for database changes");
 
@@ -173,33 +175,35 @@ module.exports = class COMPONENT extends COMMON {
                     // feedback
                     this.logger.trace("Change event triggerd", event);
 
+                    let { fullDocument = null, documentKey = null } = event;
+
+                    let target = this.items.find((item) => {
+                        //return String(item._id) === String(event.documentKey._id);
+                        return String(item._id) === String(fullDocument?._id || documentKey?._id);
+                    });
+
+                    // when a change was initialized local, ignore changes from mongodb
+                    if (PENDING_CHANGE_EVENTS.has(target._id)) {
+
+                        // feedback
+                        this.logger.trace("Local change detected, ignore event from change stream");
+
+                        // cleanup
+                        PENDING_CHANGE_EVENTS.delete(target._id);
+
+                        return;
+
+                    }
+
+                    // skip if nothing found
+                    if (!target) {
+                        this.logger.debug("Could not find target, skip update change stream");
+                        return;
+                    }
+
                     // replace is used when updated via mongodb compass
                     // updated is used when called via api/`.update` method
                     if (event.operationType === "replace") {
-
-                        let { fullDocument } = event;
-
-                        let target = this.items.find((item) => {
-                            return String(item._id) === String(fullDocument._id);
-                        });
-
-                        // skip if nothing found
-                        if (!target) {
-                            return;
-                        }
-
-                        // when a change was initialized local, ignore changes from mongodb
-                        if (PENDING_CHANGE_EVENTS.has(target._id)) {
-
-                            // feedback
-                            this.logger.trace("Local change detected, ignore event from change stream");
-
-                            // cleanup
-                            PENDING_CHANGE_EVENTS.delete(target._id);
-
-                            return;
-
-                        }
 
                         // get original property descriptor
                         //let descriptor = Object.getOwnPropertyDescriptors(target);
@@ -215,44 +219,14 @@ module.exports = class COMPONENT extends COMMON {
 
                         // feedback
                         this.logger.debug(`Updated item object (${target._id}) due to changes in the collection (replace)`);
+                        this.logger.verbose("Updated item:", target);
 
                         // trigger update event
                         // TODO trigger update event, so changes can be detect via websockets /events API?
-                        this.events.emit("update", target);
+                        // TODO; IS this needed, when the .update() method triggers update event?
+                        //this.events.emit("update", target);
 
                     } else if (event.operationType === "update") {
-
-                        //let { updateDescription: { updatedFields } } = event;
-                        let { documentKey } = event;
-
-                        let target = this.items.find((item) => {
-                            //return String(item._id) === String(event.documentKey._id);
-                            return String(item._id) === String(documentKey._id);
-                        });
-
-                        // skip if nothing found
-                        if (!target) {
-
-                            // feedback
-                            this.logger.warn("Could not find object id in items array", documentKey._id);
-
-                            // abort here
-                            return;
-
-                        }
-
-                        // when a change was initialized local, ignore changes from mongodb
-                        if (PENDING_CHANGE_EVENTS.has(target._id)) {
-
-                            // feedback
-                            this.logger.trace("Local change detected, ignore event from change stream");
-
-                            // cleanup
-                            PENDING_CHANGE_EVENTS.delete(target._id);
-
-                            return;
-
-                        }
 
                         // event now contain dot notation partial update
                         // to make things simpler, just fetch the doc and merge it
@@ -263,10 +237,11 @@ module.exports = class COMPONENT extends COMMON {
 
                             // feedback
                             this.logger.debug(`Updated item object (${target._id}) due to changes in the collection (update)`);
+                            this.logger.verbose("Updated item:", target);
 
                             // trigger update event
                             // TODO trigger update event, so changes can be detect via websockets /events API?
-                            this.events.emit("update", target);
+                            //this.events.emit("update", target);
 
                         }).catch((err) => {
 
@@ -889,6 +864,69 @@ module.exports = class COMPONENT extends COMMON {
         return this.items.filter(({ labels }) => {
             return this._labels(labels || [], filter);
         });
+    }
+
+
+    filter(filter) {
+
+        let loop = (filter, target) => {
+
+            let found = false;
+
+            for (let key in filter) {
+
+                // fix for #351
+                // NOTE: use later labels method to match more "effecive". e.g. for wildcards
+                if (key === "labels" && Array.isArray(filter[key]) && Array.isArray(target[key])) {
+
+                    found = filter[key].every((label) => {
+
+                        // split filter key/label
+                        let [k = null, v = null] = label.toString().split(/=(.+)/);
+
+                        // check wildcard key/value
+                        if (k === "*" || v === "*") {
+                            return true;
+                        }
+
+                        // fix #381
+                        // target[key] is a instance if class.labels.js and not of plain string.
+                        // convert it to a array wiht plain strings, so that .includes works.
+                        return target[key]?.toString().includes(label);
+
+                    });
+
+                    return;
+
+                }
+
+                if (typeof filter[key] === "object") {
+                    loop(filter[key], target[key]);
+                    return;
+                }
+
+                // ignore non existing property on target & set result to false
+                if (!target || !Object.hasOwnProperty.call(target, key)) {
+                    found = false;
+                    return;
+                }
+
+                if (filter[key] === target[key]) {
+                    found = true;
+                } else {
+                    found = false;
+                    return;
+                }
+            }
+
+            return found;
+
+        };
+
+        return this.items.filter((item) => {
+            return loop(filter, item);
+        });
+
     }
 
     // 
