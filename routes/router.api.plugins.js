@@ -6,9 +6,22 @@ const fs = require("fs/promises");
 const { statSync } = require("fs");
 const { createConnection } = require("net");
 const os = require("os");
+const http = require("http");
 
+const { MANIFESTS } = require("../components/plugins/class.httpServer.js");
 const C_PLUGINS = require("../components/plugins");
 const { logger } = C_PLUGINS;
+
+MANIFESTS.add({
+    name: "example.com",
+    src: "https://example.com",
+    icon: "fa-solid fa-globe"
+});
+
+MANIFESTS.add({
+    name: "What ever goes here",
+    src: "https://onepagelove.com"
+});
 
 module.exports = (app, router) => {
 
@@ -75,6 +88,13 @@ module.exports = (app, router) => {
         next();
 
     };
+
+    // see components/plugins/class.httpServer.js:
+    // `.definePlugin()`/`.addManifest()`
+    router.get("/manifests", (req, res) => {
+        res.json(Array.from(MANIFESTS));
+        //res.json([])
+    });
 
     router.put("/:_id/files", variables, (req, res) => {
 
@@ -233,6 +253,7 @@ module.exports = (app, router) => {
         }
     });
 
+    /*
     router.all("/:_id/proxy(/*)?", (req, res) => {
 
         let { method, httpVersion, headers } = req;
@@ -257,7 +278,7 @@ module.exports = (app, router) => {
             at trim_prefix (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:328:13)
             
             Add req.socket.unpipe();?
-        */
+        *
 
         logger.verbose(`[proxy] Incoming request: ${req.method} ${req.url}`, req.headers);
 
@@ -332,6 +353,107 @@ module.exports = (app, router) => {
         });
 
     });
+    */
 
+
+    /*
+    router.all("/:_id/proxy(/*)?", (req, res) => {
+
+        let url = req.url.replace(`/${req.params._id}/proxy`, "/");
+        url = path.normalize(url);
+
+        let sock = path.join(os.tmpdir(), `OpenHaus/plugins/${req.item.uuid}.sock`);
+
+        const options = {
+            socketPath: sock,
+            path: url,
+            method: req.method,
+            headers: req.headers
+        };
+
+        const proxyReq = http.request(options, (proxyRes) => {
+            res.writeHead(proxyRes.statusCode, proxyRes.headers);
+            proxyRes.pipe(res);
+        });
+
+        req.pipe(proxyReq);
+
+        proxyReq.on("error", err => {
+            logger.error(err);
+            res.status(502).end("Bad Gateway");
+        });
+
+    });
+    */
+
+    router.all("/:_id/proxy(/*)?", (req, res) => {
+
+        let url = req.url.replace(`/${req.params._id}/proxy`, "/");
+        url = path.normalize(url);
+
+        let sock = path.join(os.tmpdir(), `OpenHaus/plugins/${req.item.uuid}.sock`);
+
+        if (req.headers.upgrade?.toLowerCase() === "websocket" && req.headers.connection?.toLowerCase().includes("upgrade")) {
+
+            // raw socket tunnel
+            const client = createConnection(sock, () => {
+
+                client.write(`GET ${url} HTTP/1.1\r\n`);
+
+                for (let key in req.headers) {
+                    client.write(`${key}: ${req.headers[key]}\r\n`);
+                }
+
+                client.write("\r\n");
+
+                client.pipe(res.socket);
+                req.socket.pipe(client);
+
+            });
+
+            client.on("error", (err) => {
+                logger.warn(err, "Proxy request error");
+                res.status(502).end("Bad Gateway");
+            });
+
+        } else {
+
+            // normale HTTP
+            // with path rewrite
+
+            const proxyReq = http.request({
+                socketPath: sock,
+                path: url,
+                method: req.method,
+                headers: req.headers,
+            }, proxyRes => {
+
+                if (proxyRes?.headers?.location) {
+
+                    const originalLocation = proxyRes.headers.location;
+
+                    // reqire only absolute path/redirects
+                    if (originalLocation.startsWith("/")) {
+                        const basePath = `/api/plugins/${req.params._id}/proxy`;
+                        proxyRes.headers.location = path.posix.join(basePath, originalLocation);
+                    }
+
+                }
+
+                res.writeHead(proxyRes.statusCode, proxyRes.headers);
+                proxyRes.pipe(res);
+
+            });
+
+            req.pipe(proxyReq);
+
+            proxyReq.on("error", (err) => {
+                logger.warn(err, "Proxy request error");
+                res.status(502).end("Bad Gateway");
+            });
+
+        }
+
+    });
 
 };

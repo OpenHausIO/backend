@@ -7,12 +7,11 @@ const semver = require("semver");
 //const pkg = require("../../package.json");
 const uuid = require("uuid");
 const { Worker, isMainThread } = require("worker_threads");
-const stdio = require("./stdout-wrapper.js");
 
 const Item = require("../../system/component/class.item.js");
 const { connections, commands } = require("../../system/worker/shared.js");
-const { createServer, ServerResponse } = require("http");
-const os = require("os");
+const stdio = require("../../system/worker/stdout-wrapper.js");
+const httpServer = require("./class.httpServer.js");
 
 
 //const Bootstrap = require("./class.bootstrap.js");
@@ -63,16 +62,18 @@ module.exports = class Plugin extends Item {
             writable: true
         });
 
+        /*
         Object.defineProperty(this, Plugin.symbolkServer, {
             value: null,
             configurable: false,
             enumerable: false,
             writable: true
         });
+        */
 
     }
 
-    static symbolkServer = Symbol("kServer");
+    //static symbolkServer = Symbol("kServer");
 
     static schema() {
         return Joi.object({
@@ -452,7 +453,7 @@ module.exports = class Plugin extends Item {
         }
     }
 
-
+    /*
     httpServer(autostart = true, handler) {
 
         if (autostart instanceof Function) {
@@ -544,6 +545,11 @@ module.exports = class Plugin extends Item {
 
         return server;
 
+    }
+    */
+
+    httpServer(options, handler) {
+        return new httpServer(this, options, handler);
     }
 
 };
