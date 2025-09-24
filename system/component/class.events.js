@@ -17,7 +17,6 @@ module.exports = class Events extends EventEmitter {
         super();
 
         this.name = name;
-        this._registeredEvents = new Set();
 
         if (process.env.WORKER_THREADS_ENABLED === "true") {
             channel.addEventListener("message", ({ data }) => {
@@ -49,21 +48,6 @@ module.exports = class Events extends EventEmitter {
     }
 
     emit(event, ...args) {
-
-        // the idea behin this was that it is used for /api/events ws route
-        // but the static "side chain" emitter, can also be used
-        // the purpuse of it was to transfer events between workers
-        // see #6 when implmented
-        // also, the "scenes" component can use it to detect state changes, e.g. for triggers
-        if (!this._registeredEvents.has(event)) {
-
-            this._registeredEvents.add(event);
-
-            process.nextTick(() => {
-                super.emit(Events.registered, ...args);
-            });
-
-        }
 
         Events.emitter.emit(Events.emitted, {
             component: this.name,
