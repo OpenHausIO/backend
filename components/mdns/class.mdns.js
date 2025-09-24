@@ -45,8 +45,22 @@ module.exports = class MDNS extends Item {
         return MDNS.schema().validate(data);
     }
 
+    static query(item) {
+
+        let { events, logger } = MDNS.scope;
+
+        // TODO: change query from string to `Symbol("kQuery")`?
+        logger.debug(`Query "${item.name}", type=${item.type}`);
+        events.emit("query", item);
+
+    }
+
     match(cb) {
         this._matches.push(cb);
+    }
+
+    query() {
+        return MDNS.query(this);
     }
 
 };
