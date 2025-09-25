@@ -12,17 +12,6 @@ const { MANIFESTS } = require("../components/plugins/class.httpServer.js");
 const C_PLUGINS = require("../components/plugins");
 const { logger } = C_PLUGINS;
 
-MANIFESTS.add({
-    name: "example.com",
-    src: "https://example.com",
-    icon: "fa-solid fa-globe"
-});
-
-MANIFESTS.add({
-    name: "What ever goes here",
-    src: "https://onepagelove.com"
-});
-
 module.exports = (app, router) => {
 
     // this router gets executed before the rest-handler.js params handler
