@@ -10,6 +10,7 @@ const COMPONENT = require("../../system/component/class.component.js");
 
 
 const Plugin = require("./class.plugin.js");
+const httpServer = require("./class.httpServer.js");
 
 /**
  * @description
@@ -32,7 +33,8 @@ class C_PLUGINS extends COMPONENT {
         // inject logger, collection and schema object
         // super(logger, mongodb.client.collection("plugins"), {
         super("plugins", Plugin.schema(), [
-            Plugin
+            Plugin,
+            httpServer
         ]);
 
         this.hooks.post("add", (data, next) => {

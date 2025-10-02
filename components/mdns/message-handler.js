@@ -99,7 +99,7 @@ module.exports = (scope) => {
                             });
 
                             _matches.forEach((cb) => {
-                                cb(record);
+                                cb(record, packet);
                             });
 
                         } else {

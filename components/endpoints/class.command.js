@@ -11,6 +11,16 @@ const { parentPort, isMainThread } = require("worker_threads");
 const { commands } = require("../../system/worker/shared.js");
 const { randomUUID } = require("crypto");
 
+const COMMAND_HANDLER = new Set();
+
+// fix/workaround #561
+if (process.env.WORKER_THREADS_ENABLED === "true" && !isMainThread) {
+    parentPort.on("message", (msg) => {
+        COMMAND_HANDLER.forEach((handler) => {
+            handler(msg);
+        });
+    });
+}
 
 // check if a passed callback uses old
 // command arugments, or the new signature
@@ -145,7 +155,8 @@ module.exports = class Command {
 
 
         if (process.env.WORKER_THREADS_ENABLED === "true" && !isMainThread) {
-            parentPort.on("message", (msg) => {
+            //parentPort.on("message", (msg) => {
+            COMMAND_HANDLER.add((msg) => {
                 if (msg.component === "endpoints" && msg.type === "request" && msg.method === "trigger" && msg.command === this._id) {
 
                     //console.log("Received command trigger request", msg);
@@ -335,7 +346,7 @@ module.exports = class Command {
             try {
                 params = params.map((obj) => {
 
-                    if (this.params.length === 0) {
+                    if (this.params?.length <= 0) {
                         return;
                     }
 

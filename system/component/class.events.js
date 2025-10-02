@@ -1,8 +1,9 @@
-const { EventEmitter } = require("events");
-const { isMainThread, BroadcastChannel, threadId } = require("worker_threads");
+const { EventEmitter, setMaxListeners } = require("events");
+const { /*isMainThread,*/ BroadcastChannel, threadId } = require("worker_threads");
 const logger = require("../logger/index.js");
 
 const channel = new BroadcastChannel("events");
+setMaxListeners(13, channel); // fix #561
 
 module.exports = class Events extends EventEmitter {
 
@@ -16,21 +17,25 @@ module.exports = class Events extends EventEmitter {
         super();
 
         this.name = name;
-        this._registeredEvents = new Set();
 
         if (process.env.WORKER_THREADS_ENABLED === "true") {
             channel.addEventListener("message", ({ data }) => {
+                //MESSAGE_HANDLER.push((data) => { // workaround for #561
                 if (data.origin !== threadId && name === data.message.component) {
 
                     // without this, <host>/api/system/events does not work correctly
                     // this results that if a plugin adds a device, its not shown in the UI
-                    if (isMainThread) {
-                        Events.emitter.emit(Events.emitted, {
-                            component: this.name,
-                            event: data.message.event,
-                            args: data.message.args
-                        });
-                    }
+
+                    // TODO: the if condition should be removed
+                    // otherwise, the sidechain emitter does not trigger things
+                    // overall this should be the same es in .emit(), see _registerEvents, above.
+                    //if (isMainThread) {
+                    Events.emitter.emit(Events.emitted, {
+                        component: this.name,
+                        event: data.message.event,
+                        args: data.message.args
+                    });
+                    //}
 
                     // call `.emit` creates a loop, because `emitter(emitted)` pics up the event
                     //events.emit(event.event, ...event.args)
@@ -43,21 +48,6 @@ module.exports = class Events extends EventEmitter {
     }
 
     emit(event, ...args) {
-
-        // the idea behin this was that it is used for /api/events ws route
-        // but the static "side chain" emitter, can also be used
-        // the purpuse of it was to transfer events between workers
-        // see #6 when implmented
-        // also, the "scenes" component can use it to detect state changes, e.g. for triggers
-        if (!this._registeredEvents.has(event)) {
-
-            this._registeredEvents.add(event);
-
-            process.nextTick(() => {
-                super.emit(Events.registered, ...args);
-            });
-
-        }
 
         Events.emitter.emit(Events.emitted, {
             component: this.name,
@@ -75,6 +65,7 @@ module.exports = class Events extends EventEmitter {
                 try {
 
                     // fix/workaround for dataclone error because of proxies, see #556
+                    // see: https://github.com/mStirner/oh-plg-node-red/issues/2
                     if (this.name === "scenes") {
 
                         // item.timestamps = proxy
