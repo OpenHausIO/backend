@@ -3,8 +3,15 @@ const path = require("path");
 const os = require("os");
 const fs = require("fs");
 const express = require("express");
+const Joi = require("joi");
 
 const MANIFESTS = new Set();
+
+const manifestSchema = Joi.object({
+    name: Joi.string().required(),
+    icon: Joi.string().required(),
+    src: Joi.string().required()
+});
 
 module.exports = class httpServer extends Server {
 
@@ -138,7 +145,17 @@ module.exports = class httpServer extends Server {
     }
 
     addManifest(obj) {
-        MANIFESTS.add(obj);
+
+        let { error, value } = manifestSchema.validate(obj);
+
+        if (error) {
+            let { logger } = httpServer.scope;
+            logger.error(error, `Manifest validation failded.`);
+            throw new Error(error);
+        }
+
+        MANIFESTS.add(value);
+
     }
 
     /*
