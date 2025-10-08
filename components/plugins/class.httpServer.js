@@ -1,4 +1,4 @@
-const { createServer, ServerResponse } = require("http");
+const { ServerResponse, Server } = require("http");
 const path = require("path");
 const os = require("os");
 const fs = require("fs");
@@ -6,7 +6,7 @@ const express = require("express");
 
 const MANIFESTS = new Set();
 
-module.exports = class httpServer extends createServer {
+module.exports = class httpServer extends Server {
 
     static kServer = Symbol("kServer");
     static kHandler = Symbol("kHandler");
@@ -137,8 +137,7 @@ module.exports = class httpServer extends createServer {
 
     }
 
-
-    addManifset(obj) {
+    addManifest(obj) {
         MANIFESTS.add(obj);
     }
 
