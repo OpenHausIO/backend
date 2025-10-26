@@ -150,6 +150,7 @@ module.exports = class httpServer extends Server {
 
         if (error) {
             let { logger } = httpServer.scope;
+            // NOTE: switch to logger.warn?
             logger.error(error, `Manifest validation failded.`);
             throw new Error(error);
         }
