@@ -1,6 +1,6 @@
 const path = require("path");
 const { pipeline } = require("stream");
-const { exec } = require("child_process");
+const { spawn } = require("child_process");
 const process = require("process");
 const fs = require("fs/promises");
 const { statSync } = require("fs");
@@ -94,7 +94,8 @@ module.exports = (app, router) => {
         }
 
         //let p = path.resolve(process.cwd(), "plugins", req.item.uuid);
-        let tar = exec(`tar vzxf - -C ${req.folder}`);
+        //let tar = exec(`tar vzxf - -C ${req.folder}`);
+        let tar = spawn(process.env.BIN_PATH_TAR, ["-vzxf", "-", "-C", req.folder]);
 
         tar.once("exit", (code) => {
 
@@ -136,7 +137,8 @@ module.exports = (app, router) => {
 
                 }
 
-                let npm = exec(`npm install --omit=dev`, {
+                //let npm = exec(`npm install--omit = dev`, {
+                let npm = spawn(process.env.BIN_PATH_NPM, ["install", "--omit=dev"], {
                     env: {
                         ...process.env,
                         NODE_ENV: "production",
@@ -244,14 +246,14 @@ module.exports = (app, router) => {
 
     /*
     router.all("/:_id/proxy(/*)?", (req, res) => {
-
+    
         let { method, httpVersion, headers } = req;
-        let url = req.url.replace(`/${req.params._id}/proxy`, "/");
+        let url = req.url.replace(`/ ${ req.params._id } / proxy`, "/");
         url = path.normalize(url);
-
+    
         // TODO: configure path to sockets?
-        let sock = path.join(os.tmpdir(), `OpenHaus/plugins/${req.item.uuid}.sock`);
-
+        let sock = path.join(os.tmpdir(), `OpenHaus / plugins / ${ req.item.uuid }.sock`);
+    
         // TODO: implement leading/railing-slash error
         // FIXME: "connection=keep-alive" results in "Cannot read properties of null (reading 'server')" :
         /*
@@ -268,126 +270,126 @@ module.exports = (app, router) => {
             
             Add req.socket.unpipe();?
         *
-
-        logger.verbose(`[proxy] Incoming request: ${req.method} ${req.url}`, req.headers);
-
-
+    
+        logger.verbose(`[proxy] Incoming request: ${ req.method } ${ req.url }`, req.headers);
+    
+    
         const client = createConnection(sock, () => {
-
+    
             // write http header first line
-            client.write(`${method} ${url} HTTP/${httpVersion}\r\n`);
-
+            client.write(`${ method } ${ url } HTTP / ${ httpVersion }\r\n`);
+    
             // send http request headers to proxy target
             for (let key in headers) {
                 if (key.toLowerCase() === "connection" && headers[key] !== "Upgrade") {
-
+    
                     // override client connection header
                     // fix "Cannot read properties of null (reading 'server')" error above
                     // multiple/frequent requests result in the error above if "connection=keep-alive"
                     client.write("connection: close\r\n");
-
+    
                 } else {
-
+    
                     // forward original header/value
-                    client.write(`${key}: ${headers[key]}\r\n`);
-
+                    client.write(`${ key }: ${ headers[key]}\r\n`);
+    
                 }
             }
-
+    
             // sperate header&body
             client.write(`\r\n`);
-
+    
             // TODO: toLowerCase() header keys
             if (req.headers["upgrade"] && req.headers["connection"]) {
-
+    
                 // handle websocket
                 client.pipe(res.socket);
                 req.socket.pipe(client);
-
+    
             } else {
-
+    
                 // handle regular http
                 client.pipe(res.socket);
                 req.pipe(client);
-
+    
             }
-
+    
         });
-
+    
         res.socket.once("error", (err) => {
             logger.error(err, "[proxy] Error on res.socket");
             client.destroy();
         });
-
+    
         client.on("error", (err) => {
             logger.error(err, "[proxy] Error on client object");
             res.status(502);
             res.end("Bad Gateway");
         });
-
+    
         client.once("end", () => {
             logger.verbose("[proxy] client socket ended");
             res.end();
             client.end();
         });
-
+    
         req.on("error", (err) => {
             logger.error(err, "[proxy] Error on req object");
             client.end();
         });
-
+    
         req.once("end", () => {
             logger.verbose("[proxy] req ended");
             client.end();
         });
-
+    
     });
     */
 
 
     /*
     router.all("/:_id/proxy(/*)?", (req, res) => {
-
-        let url = req.url.replace(`/${req.params._id}/proxy`, "/");
+    
+        let url = req.url.replace(`/ ${ req.params._id } / proxy`, "/");
         url = path.normalize(url);
-
-        let sock = path.join(os.tmpdir(), `OpenHaus/plugins/${req.item.uuid}.sock`);
-
+    
+        let sock = path.join(os.tmpdir(), `OpenHaus / plugins / ${ req.item.uuid }.sock`);
+    
         const options = {
             socketPath: sock,
             path: url,
             method: req.method,
             headers: req.headers
         };
-
+    
         const proxyReq = http.request(options, (proxyRes) => {
             res.writeHead(proxyRes.statusCode, proxyRes.headers);
             proxyRes.pipe(res);
         });
-
+    
         req.pipe(proxyReq);
-
+    
         proxyReq.on("error", err => {
             logger.error(err);
             res.status(502).end("Bad Gateway");
         });
-
+    
     });
     */
 
     router.all("/:_id/proxy(/*)?", (req, res) => {
 
-        let url = req.url.replace(`/${req.params._id}/proxy`, "/");
+        let url = req.url.replace(`/ ${req.params._id} / proxy`, "/");
         url = path.normalize(url);
 
-        let sock = path.join(os.tmpdir(), `OpenHaus/plugins/${req.item.uuid}.sock`);
+        let sock = path.join(os.tmpdir(), `OpenHaus / plugins / ${req.item.uuid}.sock`);
 
         if (req.headers.upgrade?.toLowerCase() === "websocket" && req.headers.connection?.toLowerCase().includes("upgrade")) {
 
             // raw socket tunnel
             const client = createConnection(sock, () => {
 
-                client.write(`GET ${url} HTTP/1.1\r\n`);
+                client.write(`GET ${url} HTTP / 1.1\r\n`);
 
                 for (let key in req.headers) {
                     client.write(`${key}: ${req.headers[key]}\r\n`);
@@ -423,7 +425,7 @@ module.exports = (app, router) => {
 
                     // reqire only absolute path/redirects
                     if (originalLocation.startsWith("/")) {
-                        const basePath = `/api/plugins/${req.params._id}/proxy`;
+                        const basePath = `/ api / plugins / ${req.params._id} / proxy`;
                         proxyRes.headers.location = path.posix.join(basePath, originalLocation);
                     }
 
