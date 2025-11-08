@@ -1,6 +1,6 @@
 const path = require("path");
 const { pipeline } = require("stream");
-const { exec } = require("child_process");
+const { spawn } = require("child_process");
 const process = require("process");
 const fs = require("fs/promises");
 const { statSync } = require("fs");
@@ -94,7 +94,7 @@ module.exports = (app, router) => {
         }
 
         //let p = path.resolve(process.cwd(), "plugins", req.item.uuid);
-        let tar = exec(`tar vzxf - -C ${req.folder}`);
+        let tar = spawn(process.env.BIN_PATH_TAR, ["-vzxf", "-", "-C", req.folder]);
 
         tar.once("exit", (code) => {
 
@@ -136,7 +136,7 @@ module.exports = (app, router) => {
 
                 }
 
-                let npm = exec(`npm install --omit=dev`, {
+                let npm = spawn(process.env.BIN_PATH_NPM, ["install", "--omit=dev"], {
                     env: {
                         ...process.env,
                         NODE_ENV: "production",

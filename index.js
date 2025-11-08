@@ -63,7 +63,9 @@ process.env = Object.assign({
     CONNECT_TIMEOUT: "10000",
     HTTP_TRUSTED_PROXYS: "loopback",
     ITEM_LIMITS: "",
-    WORKER_THREADS_ENABLED: "false"
+    WORKER_THREADS_ENABLED: "false",
+    BIN_PATH_TAR: "/usr/bin/tar",
+    BIN_PATH_NPM: "/usr/bin/npm"
 }, env.parsed, process.env);
 
 
