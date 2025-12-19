@@ -48,6 +48,7 @@ module.exports = class Param {
                     min: Joi.number().default(0),
                     max: Joi.number().default(100),
                     //default: Joi.number().allow(null).default(null)
+                    colorGradient: Joi.array().items(Joi.string().min(1)).default([]),
                 })
             }, {
                 is: "string",
