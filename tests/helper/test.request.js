@@ -37,7 +37,8 @@ describe("helper/request", () => {
 
             assert(err === null);
             assert(status === 200);
-            assert(body.length === Number(headers["content-length"]));
+            // example.com does not return anymore content-length header
+            //assert(body.length === Number(headers["content-length"]));
 
             done();
 
