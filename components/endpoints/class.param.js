@@ -1,5 +1,14 @@
 const Joi = require("joi");
 
+const CSS_CLASSES_NAMES = [
+    "hue-fader",
+    "brightness-fader",
+    "saturation-fader",
+    "fader-color-r",
+    "fader-color-g",
+    "fader-color-b"
+];
+
 module.exports = class Param {
 
     constructor(obj) {
@@ -39,7 +48,8 @@ module.exports = class Param {
         return Joi.object({
             // TODO: name: Joi.string().required();
             type: Joi.string().valid("number", "string", "boolean").required(),
-            key: Joi.string().required()
+            key: Joi.string().required(),
+            classes: Joi.array().items(Joi.string().valid(...CSS_CLASSES_NAMES)).default([])
         }).when(".type", {
             switch: [{
                 is: "number",
