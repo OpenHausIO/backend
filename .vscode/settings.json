@@ -9,5 +9,5 @@
     "files.exclude": {
         "**/.git": false
     },
-    "files.eol": "\n",
+    "files.eol": "\n"
 }
