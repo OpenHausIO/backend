@@ -27,7 +27,7 @@ FROM node:22-alpine
 
 WORKDIR /opt/OpenHaus/backend
 COPY --from=builder node_modules node_modules
-RUN apk --no-cache add openssl tzdata
+RUN apk --no-cache add openssl tzdata tar
 
 ARG version=unknown
 LABEL version=$version
