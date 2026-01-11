@@ -132,7 +132,7 @@ class C_USERS extends COMPONENT {
             }
 
             if (!user.enabled) {
-                this.logger.warn(`Disable user "${email}" login attempt`);
+                this.logger.warn(`Disabled user "${email}" login attempt`, user);
                 done(null, null);
                 return;
             }
