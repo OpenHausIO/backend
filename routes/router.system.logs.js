@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const { exec } = require("child_process");
+const { spawn } = require("child_process");
 const { WebSocket } = require("ws");
 const { PassThrough } = require("stream");
 const { createInterface } = require("readline");
@@ -246,9 +246,25 @@ module.exports = (router) => {
 
             // TODO: use absolute path to tar
             // see: https://github.com/OpenHausIO/backend/issues/432
+            /*
             let tar = exec(`tar -czv *`, {
                 cwd: LOG_PATH,
                 encoding: "buffer"
+            });
+            */
+
+            let files = fs.readdirSync(LOG_PATH).filter((entry) => {
+                return ![".gitkeep"].includes(entry);
+            });
+
+            let tar = spawn(process.env.BIN_PATH_TAR, [
+                "-czv",
+                //"*",
+                ...files
+            ], {
+                //shell: true,
+                cwd: LOG_PATH,
+                //encoding: "buffer"
             });
 
             if (process.env.NODE_ENV === "development") {
