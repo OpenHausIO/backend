@@ -2,7 +2,7 @@
 
 > [C_USERS](./) extends [COMMON_COMPONENT](../system/component.md)
 
-Component to manage/update users, which should represent your phiscal building.
+Component to manage/update users, which should represent your natural persons.
 
 
 ---
