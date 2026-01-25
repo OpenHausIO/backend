@@ -22,6 +22,7 @@ module.exports = (router) => {
     let logsRouter = Router();
     let connectorRouter = Router();
     let backupRouter = Router();
+    let pruneRouter = Router();
 
     // http://127.0.0.1/api/system/info
     // FIXME: what does this work with "eventsRouter/notificationsRouter"?!
@@ -47,5 +48,9 @@ module.exports = (router) => {
     // http://127.0.0.1/api/system/backup
     router.use("/backup", backupRouter);
     require("./router.system.backup.js")(backupRouter);
+
+    // http://127.0.0.1/api/system/prune
+    router.use("/prune", pruneRouter);
+    require("./router.system.prune.js")(pruneRouter);
 
 };
