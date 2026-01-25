@@ -29,6 +29,10 @@ WORKDIR /opt/OpenHaus/backend
 COPY --from=builder node_modules node_modules
 RUN apk --no-cache add openssl tzdata tar
 
+# copy binaries to default bin_path location
+RUN cp /bin/tar /usr/bin/tar
+RUN cp /usr/local/bin/npm /usr/bin/npm
+
 ARG version=unknown
 LABEL version=$version
 
