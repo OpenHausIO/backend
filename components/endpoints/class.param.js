@@ -9,6 +9,13 @@ const CSS_CLASSES_NAMES = [
     "fader-color-b"
 ];
 
+const JOI_STRING_ENUM = Joi.object({
+    name: Joi.string().required(),
+    value: Joi.string().default((parent) => {
+        return parent.name.toLowerCase();
+    })
+});
+
 module.exports = class Param {
 
     constructor(obj) {
@@ -49,6 +56,10 @@ module.exports = class Param {
             // TODO: name: Joi.string().required();
             type: Joi.string().valid("number", "string", "boolean").required(),
             key: Joi.string().required(),
+            // bei command/param change "sync" event auslösen für browser übergreifende sync von parametern?
+            // > jetzt via "command" event
+            // warum nicht via "update" event?
+            // why not to number?
             classes: Joi.array().items(Joi.string().valid(...CSS_CLASSES_NAMES)).default([])
         }).when(".type", {
             switch: [{
@@ -62,8 +73,9 @@ module.exports = class Param {
             }, {
                 is: "string",
                 then: Joi.object({
-                    value: Joi.string().default(null).allow(null),
+                    value: Joi.string().default(null).allow(null, ""),
                     //default: Joi.string().allow(null).default(null)
+                    enum: Joi.array().items(JOI_STRING_ENUM).default([])
                 })
             }, {
                 is: "boolean",
