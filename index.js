@@ -66,7 +66,8 @@ process.env = Object.assign({
     WORKER_THREADS_ENABLED: "false",
     BIN_PATH_TAR: "/usr/bin/tar",
     BIN_PATH_NPM: "/usr/bin/npm",
-    PLUGIN_INSTALLER: "pnpm"
+    PLUGIN_INSTALLER: "pnpm",
+    PLUGINS_PATH: path.join(process.cwd(), "plugins")
 }, env.parsed, process.env);
 
 
