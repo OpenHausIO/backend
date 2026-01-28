@@ -50,8 +50,11 @@ module.exports = (C_USERS, router) => {
             }
 
             if (!req.headers["x-auth-token"] && !req.query["x-auth-token"]) {
-                res.status(401).end();
-                return;
+                return res.status(401).end();
+            }
+
+            if (!req.headers["x-auth-token"] || req.headers["x-auth-token"] === "") {
+                return res.status(401).end();
             }
 
             jwt.verify(req.headers["x-auth-token"], process.env.USERS_JWT_SECRET, {

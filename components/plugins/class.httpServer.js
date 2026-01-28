@@ -1,12 +1,19 @@
-const { createServer, ServerResponse } = require("http");
+const { ServerResponse, Server } = require("http");
 const path = require("path");
 const os = require("os");
 const fs = require("fs");
 const express = require("express");
+const Joi = require("joi");
 
 const MANIFESTS = new Set();
 
-module.exports = class httpServer extends createServer {
+const manifestSchema = Joi.object({
+    name: Joi.string().required(),
+    icon: Joi.string().required(),
+    src: Joi.string().required()
+});
+
+module.exports = class httpServer extends Server {
 
     static kServer = Symbol("kServer");
     static kHandler = Symbol("kHandler");
@@ -137,9 +144,19 @@ module.exports = class httpServer extends createServer {
 
     }
 
+    addManifest(obj) {
 
-    addManifset(obj) {
-        MANIFESTS.add(obj);
+        let { error, value } = manifestSchema.validate(obj);
+
+        if (error) {
+            let { logger } = httpServer.scope;
+            // NOTE: switch to logger.warn?
+            logger.error(error, `Manifest validation failded.`);
+            throw new Error(error);
+        }
+
+        MANIFESTS.add(value);
+
     }
 
     /*

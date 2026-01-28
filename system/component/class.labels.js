@@ -52,6 +52,15 @@ module.exports = class Labels extends Array {
         return Array.prototype.includes.call(this.toJSON(), str);
     }
 
+    parse() {
+
+        let arr = this.map(({ label }) => {
+            return label;
+        });
+
+        return Labels.deserialize(arr);
+
+    }
 
     static deserialize(labels) {
 

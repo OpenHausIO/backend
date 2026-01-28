@@ -62,11 +62,22 @@ module.exports = (app, router) => {
 
                     } else {
 
+                        let obj = Object.create(null);
+
+                        ["name", "admin", "enabled", "timestamps"].forEach((key) => {
+                            obj[key] = user[key];
+                        });
+
+                        // ensure those are not set/copied
+                        delete obj.password;
+                        delete obj.tokens;
+
                         // set header with token
-                        res.set("x-auth-token", token);
+                        res.setHeader("x-auth-token", token);
 
                         res.status(200).json({
                             token,
+                            user: obj,
                             success: true
                         });
 

@@ -1,6 +1,13 @@
 # Documentation
 
 
+> [!WARNING] **DEPRECATED**
+> __THIS IS OUTDATED__
+> 
+> See https://docs.open-haus.io<br />
+> This is no longer maintained/updated!!!
+
+
 ## HTTP API
 See [postman.json](../postman.json) for API routes.<br />
 The collection can be easy imported and is ready-to-use.
