@@ -1,45 +1,119 @@
 const path = require("path");
 const { pipeline } = require("stream");
-const { exec } = require("child_process");
+const { spawn } = require("child_process");
 const process = require("process");
 const fs = require("fs/promises");
-const { statSync } = require("fs");
+const { statSync, readFileSync } = require("fs");
 const { createConnection } = require("net");
 const os = require("os");
 const http = require("http");
+const readline = require("readline");
 
 const { MANIFESTS } = require("../components/plugins/class.httpServer.js");
 const C_PLUGINS = require("../components/plugins");
 const { logger } = C_PLUGINS;
 
-module.exports = (app, router) => {
+const { EventEmitter } = require("events");
+const throttle = require("../helper/throttle.js");
+const emitter = new EventEmitter();
 
-    // this router gets executed before the rest-handler.js params handler
-    // but why when this middleware is defined after the rest-handler stuff?!
-    // execution order:
-    // 1) the router middleware wehre `req.install` & `req.folder` are set below
-    // 2) rest-handler.js req.prams("_id") middleware
-    // 3) router handler below like "/start", "/<_id>/files"
-    // Outcommented, see issue #444: https://github.com/OpenHausIO/backend/issues/444#issuecomment-2094341348
-    // > looks like its not possible to archive the functionality above with a middleware function on all routes
-    /*
-    router.use((req, res, next) => {
+const progress = {
+    precent: 0,
+    completed: false
+};
 
-        console.log("2) plugin middleware", C_PLUGINS.items, req.item, req.params);
+let contentLength = 0;
+let receivedBytes = 0;
+let resolvedCount = 0;
+let totalPackages = 0;
 
-        req.install = req.params?.install === "true" || false;
-        req.folder = path.join(process.cwd(), "plugins", req.item?.uuid || "");
+let uploadProgress = 0;
+let installProgress = 0;
 
-        console.log("Install:", req.install);
-        console.log("Folder", req.folder);
+function flattenDependencies(tree, result = new Set(), isDev = false) {
+    if (!tree) return result;
 
-        next();
+    for (const [name, info] of Object.entries(tree)) {
+        if (info.dev) continue; // devDependency ignorieren
+        const key = `${name}@${info.version}`;
+        result.add(key);
+        if (info.dependencies) {
+            flattenDependencies(info.dependencies, result, isDev);
+        }
+    }
+    return result;
+}
 
+const updateProgress = throttle(() => {
+
+    if (process.env.NODE_ENV === "development") {
+        process.stdout.write(`\rProgress: ${progress.precent}%`);
+    }
+
+    if (!progress.completed) {
+        emitter.emit("progress");
+    }
+
+}, 100);
+
+function totalProgress(uploadPercent, installPercent) {
+
+    const phase1Weight = 0.2; // 20% des Gesamtfortschritts
+    const phase2Weight = 0.8;
+
+    const total = (uploadPercent / 100) * phase1Weight + (installPercent / 100) * phase2Weight;
+    progress.precent = Number((total * 100).toFixed(2)); // 0-100%
+
+    process.stdout.write(`\rProgress: ${progress.precent}%`);
+
+    if (progress.precent >= 100) {
+
+        progress.completed = true;
+
+        setImmediate(() => {
+            emitter.emit("complete");
+        });
+
+    }
+
+    updateProgress();
+
+}
+
+function initProgress(req) {
+
+    contentLength = parseInt(req.headers["content-length"]) || 0;
+
+    receivedBytes = 0;
+    resolvedCount = 0;
+    totalPackages = 0;
+
+    uploadProgress = 0;
+    installProgress = 0;
+
+    progress.precent = 0;
+    progress.completed = false;
+
+    const chunkHandler = (chunk) => {
+        receivedBytes += chunk.length;
+        uploadProgress = ((receivedBytes / contentLength) * 100).toFixed(2);
+        totalProgress(uploadProgress, installProgress);
+    };
+
+    req.once("close", () => {
+        //console.log("Incoming request closed, clenaup progress stuff");
+        req.off("data", chunkHandler);
     });
-    */
+
+    req.on("data", chunkHandler);
+
+}
+
+module.exports = (app, router) => {
 
     // catch delete request
     // stop plugin worker thread before deleting item
+    // NOTE: Why not pre delete/remove hook?
     if (process.env.WORKER_THREADS_ENABLED == "true") {
         router.delete("/:_id", async (req, res, next) => {
             try {
@@ -85,16 +159,64 @@ module.exports = (app, router) => {
         //res.json([])
     });
 
+    router.get("/progress", (req, res) => {
+        //console.log("/progress called");
+
+        /*
+        if (!progress.locked) {
+            return res.status(102).end();
+        }
+        */
+
+        res.setHeader("Content-Type", "text/event-stream");
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Connection", "keep-alive");
+
+        let onProgress = () => {
+            res.write(`data: ${JSON.stringify(progress)}\n\n`);
+        };
+
+        let onComplete = () => {
+
+            res.write(`data: ${JSON.stringify(progress)}\n\n`);
+
+            emitter.off("progress", onProgress);
+            emitter.off("complete", onComplete);
+
+            res.end();
+
+        };
+
+        emitter.on("progress", onProgress);
+        emitter.once("complete", onComplete);
+
+        req.on("close", () => {
+            emitter.off("progress", onProgress);
+            emitter.off("complete", onComplete);
+        });
+
+    });
+
     router.put("/:_id/files", variables, (req, res) => {
 
-        if (Number(req.headers["content-length"]) <= 0) {
+        if (parseInt(req.headers?.["content-length"] || 0) <= 0) {
             return res.status(400).json({
                 error: "Invalid upload size."
             });
         }
 
+        initProgress(req, res);
+
         //let p = path.resolve(process.cwd(), "plugins", req.item.uuid);
-        let tar = exec(`tar vzxf - -C ${req.folder}`);
+        // who not tar-stream here used?!
+        //let tar = exec(`tar vzxf - -C ${req.folder}`);
+        let tar = spawn(process.env.BIN_PATH_TAR, [
+            "vzxf",
+            "-",
+            "--no-same-owner",
+            "-C",
+            req.folder
+        ]);
 
         tar.once("exit", (code) => {
 
@@ -111,8 +233,7 @@ module.exports = (app, router) => {
 
                 // skip installation step below
                 if (!req.install) {
-                    res.json(req.item);
-                    return;
+                    return res.json(req.item);
                 }
 
                 try {
@@ -121,48 +242,144 @@ module.exports = (app, router) => {
                     // otherwise it walks the directorys up till a package.json is found
                     // in the "worst case" this is the one from backend
                     statSync(path.join(req.folder, "package.json"));
+                    statSync(path.join(req.folder, "package-lock.json"));
+
+                    // calculate roughtly the needed packages count
+                    // npm v7+ format
+                    //totalPackages = Object.keys(lockFile.packages || {}).filter(k => k !== "").length;
+                    //totalPackages = Object.keys(lockFile.packages || {}).filter(key => key !== "").length;
+                    const lockFile = JSON.parse(readFileSync(path.join(req.folder, "package-lock.json"), "utf8"));
+                    totalPackages = Array.from(flattenDependencies(lockFile.packages)).length;
 
                 } catch (err) {
 
+                    logger.warn(err, `Could not check package/-lock.json`);
+
                     if (err.code === "ENOENT") {
+
+                        logger.warn("package/-lock.json not found, nothing to install - its ok!");
+
                         res.json(req.item);
+
                     } else {
+
+                        logger.error(err, "Parsing error, could not read/parse package-lock.json");
+
                         res.status(500).json({
                             error: err.message
                         });
+
                     }
 
-                    return;
+                    // package/parsing error
+                    // skip dependencies installation
+                    req.install = false;
+                    totalProgress(100, 100);
 
                 }
 
-                let npm = exec(`npm install --omit=dev`, {
-                    env: {
-                        ...process.env,
-                        NODE_ENV: "production",
-                    },
-                    cwd: req.folder
-                });
+                if (req.install) {
+                    if (process.env.PLUGIN_INSTALLER === "pnpm") {
 
-                if (process.env.NODE_ENV === "development") {
-                    npm.stdout.pipe(process.stdout);
-                    npm.stderr.pipe(process.stderr);
-                }
+                        const pnpm = spawn(process.execPath, [
+                            `${process.cwd()}/node_modules/.bin/pnpm`,
+                            "install",
+                            "--reporter=ndjson",
+                            "--loglevel=debug"
+                        ], {
+                            cwd: req.folder,
+                            env: {
+                                ...process.env,
+                                "NODE_ENV": "production"
+                            }
+                        });
 
-                npm.once("exit", (code) => {
-                    if (code === 0 || code === 254) {
+                        pnpm.on("exit", code => {
+                            if (code === 0) {
 
-                        res.json(req.item);
+                                //console.log("Installation finished");
+
+                                totalProgress(100, 100);
+                                res.json(req.item);
+
+                            } else {
+
+                                //console.log("Installation error, exit code not 0", code);
+                                res.status(400).json({
+                                    error: "npm could not install dependencies",
+                                    details: `npm exit code ${code}`
+                                });
+
+                            }
+                        });
+
+                        readline.createInterface({
+                            input: pnpm.stdout
+                        }).on("line", (line) => {
+                            try {
+
+                                let { name } = JSON.parse(line);
+
+                                if (name === "pnpm:_dependency_resolved") {
+                                    resolvedCount++;
+                                    installProgress = Math.min((resolvedCount / totalPackages) * 100, 100);
+                                    totalProgress(uploadProgress, installProgress);
+                                }
+
+                            } catch {
+
+                                // ignore json parsing error
+
+                            }
+                        });
+
+                    } else if (process.env.PLUGIN_INSTALLER === "npm") {
+
+                        let npm = spawn(process.env.BIN_PATH_NPM, [
+                            "install",
+                            "--omit=dev"
+                        ], {
+                            env: {
+                                ...process.env,
+                                NODE_ENV: "production",
+                            },
+                            cwd: req.folder
+                        });
+
+                        if (process.env.NODE_ENV === "development") {
+                            npm.stdout.pipe(process.stdout);
+                            npm.stderr.pipe(process.stderr);
+                        }
+
+                        npm.once("exit", (code) => {
+                            if (code === 0 || code === 254) {
+
+                                // npm does not support to extrat installation progress in any way
+                                // just set 100 when completed
+                                totalProgress(uploadProgress, 100);
+
+                                res.json(req.item);
+
+                            } else {
+
+                                res.status(400).json({
+                                    error: "npm could not install dependencies",
+                                    details: `npm exit code ${code}`
+                                });
+
+                            }
+                        });
 
                     } else {
 
-                        res.status(400).json({
-                            error: "npm could not install dependencies",
-                            details: `npm exit code ${code}`
+                        logger.warn(`Plugin installer "${process.env.PLUGIN_INSTALLER}" unsuportted`);
+
+                        res.status(500).json({
+                            error: `Plugin installer "${process.env.PLUGIN_INSTALLER}" unsuportted`
                         });
 
                     }
-                });
+                }
 
             }
 
@@ -241,139 +458,6 @@ module.exports = (app, router) => {
 
         }
     });
-
-    /*
-    router.all("/:_id/proxy(/*)?", (req, res) => {
-
-        let { method, httpVersion, headers } = req;
-        let url = req.url.replace(`/${req.params._id}/proxy`, "/");
-        url = path.normalize(url);
-
-        // TODO: configure path to sockets?
-        let sock = path.join(os.tmpdir(), `OpenHaus/plugins/${req.item.uuid}.sock`);
-
-        // TODO: implement leading/railing-slash error
-        // FIXME: "connection=keep-alive" results in "Cannot read properties of null (reading 'server')" :
-        /*
-            at /home/marc/projects/OpenHaus/backend/routes/auth-handler.js:12:31
-            at Layer.handle [as handle_request] (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/layer.js:95:5)
-            at trim_prefix (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:328:13)
-            at /home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:286:9
-            at Function.process_params (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:346:12)
-            at next (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:280:10)
-            at Function.handle (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:175:3)
-            at router (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:47:12)
-            at Layer.handle [as handle_request] (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/layer.js:95:5)
-            at trim_prefix (/home/marc/projects/OpenHaus/backend/node_modules/express/lib/router/index.js:328:13)
-            
-            Add req.socket.unpipe();?
-        *
-
-        logger.verbose(`[proxy] Incoming request: ${req.method} ${req.url}`, req.headers);
-
-
-        const client = createConnection(sock, () => {
-
-            // write http header first line
-            client.write(`${method} ${url} HTTP/${httpVersion}\r\n`);
-
-            // send http request headers to proxy target
-            for (let key in headers) {
-                if (key.toLowerCase() === "connection" && headers[key] !== "Upgrade") {
-
-                    // override client connection header
-                    // fix "Cannot read properties of null (reading 'server')" error above
-                    // multiple/frequent requests result in the error above if "connection=keep-alive"
-                    client.write("connection: close\r\n");
-
-                } else {
-
-                    // forward original header/value
-                    client.write(`${key}: ${headers[key]}\r\n`);
-
-                }
-            }
-
-            // sperate header&body
-            client.write(`\r\n`);
-
-            // TODO: toLowerCase() header keys
-            if (req.headers["upgrade"] && req.headers["connection"]) {
-
-                // handle websocket
-                client.pipe(res.socket);
-                req.socket.pipe(client);
-
-            } else {
-
-                // handle regular http
-                client.pipe(res.socket);
-                req.pipe(client);
-
-            }
-
-        });
-
-        res.socket.once("error", (err) => {
-            logger.error(err, "[proxy] Error on res.socket");
-            client.destroy();
-        });
-
-        client.on("error", (err) => {
-            logger.error(err, "[proxy] Error on client object");
-            res.status(502);
-            res.end("Bad Gateway");
-        });
-
-        client.once("end", () => {
-            logger.verbose("[proxy] client socket ended");
-            res.end();
-            client.end();
-        });
-
-        req.on("error", (err) => {
-            logger.error(err, "[proxy] Error on req object");
-            client.end();
-        });
-
-        req.once("end", () => {
-            logger.verbose("[proxy] req ended");
-            client.end();
-        });
-
-    });
-    */
-
-
-    /*
-    router.all("/:_id/proxy(/*)?", (req, res) => {
-
-        let url = req.url.replace(`/${req.params._id}/proxy`, "/");
-        url = path.normalize(url);
-
-        let sock = path.join(os.tmpdir(), `OpenHaus/plugins/${req.item.uuid}.sock`);
-
-        const options = {
-            socketPath: sock,
-            path: url,
-            method: req.method,
-            headers: req.headers
-        };
-
-        const proxyReq = http.request(options, (proxyRes) => {
-            res.writeHead(proxyRes.statusCode, proxyRes.headers);
-            proxyRes.pipe(res);
-        });
-
-        req.pipe(proxyReq);
-
-        proxyReq.on("error", err => {
-            logger.error(err);
-            res.status(502).end("Bad Gateway");
-        });
-
-    });
-    */
 
     router.all("/:_id/proxy(/*)?", (req, res) => {
 
