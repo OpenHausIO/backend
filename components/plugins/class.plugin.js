@@ -201,7 +201,7 @@ module.exports = class Plugin extends Item {
                                 //execArgv: ['--max-old-space-size=64'] 
                                 name: this.name,
                                 resourceLimits: {
-                                    maxOldGenerationSizeMb: 25
+                                    //maxOldGenerationSizeMb: 25
                                     //maxYoungGenerationSizeMb: 16,
                                     //codeRangeSizeMb: 64
                                 }
