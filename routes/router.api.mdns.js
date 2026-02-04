@@ -1,4 +1,4 @@
-const { decode } = require("dns-packet");
+const { decode, encode, RECURSION_DESIRED } = require("dns-packet");
 
 const C_MDNS = require("../components/mdns");
 
@@ -13,15 +13,26 @@ module.exports = (app, router) => {
     });
 
 
-    /*
-    C_MDNS.events.on("query", (query) => {        
+    // TODO: change query from string to `Symbol("kQuery")`?
+    C_MDNS.events.on("query", (item) => {
+
+        let query = encode({
+            type: "query",
+            id: 1,
+            flags: RECURSION_DESIRED,
+            questions: [{
+                type: item.type,
+                name: item.name
+            }]
+        });
+
         wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(query);
             }
-        });        
+        });
+
     });
-    */
 
     // detect broken connections
     let interval = setInterval(() => {

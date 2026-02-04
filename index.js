@@ -63,7 +63,11 @@ process.env = Object.assign({
     CONNECT_TIMEOUT: "10000",
     HTTP_TRUSTED_PROXYS: "loopback",
     ITEM_LIMITS: "",
-    WORKER_THREADS_ENABLED: "false"
+    WORKER_THREADS_ENABLED: "false",
+    BIN_PATH_TAR: "/usr/bin/tar",
+    BIN_PATH_NPM: "/usr/bin/npm",
+    PLUGIN_INSTALLER: "pnpm",
+    PLUGINS_PATH: path.join(process.cwd(), "plugins")
 }, env.parsed, process.env);
 
 
@@ -126,6 +130,9 @@ if (process.env.NODE_ENV !== "production") {
     logger.warn("> OpenHaus runs not in production mode! (%s)", process.env.NODE_ENV);
 }
 
+if (process.env.WORKER_THREADS_ENABLED === "true") {
+    logger.warn("Worker threads are a experimental feature!");
+}
 
 // see #471
 if (!semver.satisfies(process.versions.node, pkg.engines.node)) {
@@ -153,6 +160,7 @@ if (process.env.GC_INTERVAL !== null && global.gc) {
 const init_db = require("./system/init/init.database.js")(logger);
 const init_components = require("./system/init/init.components.js")(logger);
 const init_http = require("./system/init/init.http-server.js")(logger);
+const { channel } = require("./system/component/class.events.js");
 
 
 // NOTE: Could/should be removed
@@ -309,6 +317,8 @@ const starter = new Promise((resolve) => {
 
             logger.debug(`signal=${signal} received`);
             logger.warn("Shuting down...");
+
+            channel.close();
 
             setTimeout(() => {
                 process.exit(0);

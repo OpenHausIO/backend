@@ -110,6 +110,11 @@ module.exports = class Scene extends Item {
 
                 let { logger, events } = Scene.scope;
 
+                // NOTE: this triggers for every set
+                // When scene is started, it emits state for "resetting" the state values, e.g:
+                // - state.running = true
+                // - state.finished = false
+
                 if (value !== target[prop]) {
 
                     // feedback
@@ -162,7 +167,7 @@ module.exports = class Scene extends Item {
 
     }
 
-    trigger(inputs) {
+    trigger(inputs = []) {
 
         let { logger } = Scene.scope;
         logger.info(`Trigger scene "${this.name}" (${this._id}), inputs:`, inputs);
@@ -183,6 +188,10 @@ module.exports = class Scene extends Item {
                 return input.key === key;
             });
 
+            if (!input) {
+                return;
+            }
+
             input.value = value;
 
         });
@@ -198,6 +207,23 @@ module.exports = class Scene extends Item {
         this.states.aborted = false;
         this.states.finished = false;
         this.states.index = 0;
+
+        if (this.makros.length === 0) {
+
+            logger.debug(`Scene "${this.name}" finished`);
+
+            process.nextTick(() => {
+
+                this.states.running = false;
+                this.states.finished = true;
+
+                logger.info(`Scene "${this.name}" runned`, this.states);
+
+            });
+
+            return;
+
+        }
 
         let init = this.makros.filter(({
 

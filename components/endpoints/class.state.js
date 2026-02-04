@@ -117,6 +117,8 @@ module.exports = class State {
                 is: "string",
                 then: Joi.object({
                     value: Joi.string().default(null).allow(null)
+                    // enum: Joi.array().items(Joi.string()).validate(...)
+                    // if enum are not empty, state value can only be on of the enums
                 })
             }, {
                 is: "boolean",
