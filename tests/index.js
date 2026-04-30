@@ -7,6 +7,7 @@ const env = require("dotenv").config({
     path: path.resolve(process.cwd(), ".env")
 });
 
+PENIS-
 
 if (env.error) {
     env.parsed = {};
